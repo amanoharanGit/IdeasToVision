@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deviation Risk Radar · v5</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+:root{
+  --bg:#e6f2fb;--bg2:#d0e8f5;
+  --surface:#fff;--s2:#f0f7fd;--s3:#e4f0fa;
+  --border:rgba(0,110,190,.14);--border2:rgba(0,110,190,.28);
+  --accent:#0068b8;--teal:#0099a8;--green:#00966b;
+  --warn:#c87000;--danger:#c8253e;--purple:#6b3fa0;
+  --muted:#527088;--text:#0b1f32;--text2:#254060;
+  --sh:0 2px 14px rgba(0,70,150,.09);--sh2:0 4px 24px rgba(0,70,150,.13);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Syne',Georgia,sans-serif;background:linear-gradient(150deg,#d8ecf8 0%,#e6f2fb 50%,#eef6fc 100%);color:var(--text);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(0,110,190,.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1600px;margin:0 auto;padding:14px 20px 28px;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--border2);}
+.logo{display:flex;align-items:center;gap:12px;}
+.brand-name{font-size:21px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(90deg,#004fa0,#0088c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.brand-sub{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+.hdr-r{display:flex;align-items:center;gap:14px;}
+.live-pill{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--green);letter-spacing:1px;text-transform:uppercase;background:rgba(0,150,107,.08);border:1px solid rgba(0,150,107,.25);padding:5px 11px;border-radius:99px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pdot 1.5s ease-in-out infinite;}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.clk{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:7px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 10px 10px;}
+.sc.c1::after{background:linear-gradient(90deg,var(--danger),#f07080);}
+.sc.c2::after{background:linear-gradient(90deg,var(--warn),#e8a040);}
+.sc.c3::after{background:linear-gradient(90deg,var(--accent),#40b0d8);}
+.sc.c4::after{background:linear-gradient(90deg,var(--green),#40c890);}
+.sc.c5::after{background:linear-gradient(90deg,var(--purple),#a07ad0);}
+.sv{font-size:30px;font-weight:800;line-height:1;margin-bottom:2px;}
+.sc.c1 .sv{color:var(--danger);}
+.sc.c2 .sv{color:var(--warn);}
+.sc.c3 .sv{color:var(--accent);}
+.sc.c4 .sv{color:var(--green);}
+.sc.c5 .sv{color:var(--purple);}
+.sl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.sd{font-family:'Space Mono',monospace;font-size:8px;margin-top:4px;}
+.sd.up{color:var(--danger);}.sd.dn{color:var(--green);}
+
+/* DASHBOARD 4-COL */
+.dash{display:grid;grid-template-columns:260px 1fr 1fr 280px;gap:11px;align-items:start;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px 17px;box-shadow:var(--sh);}
+.card::before{content:'';display:block;height:3px;margin:-15px -17px 12px;border-radius:12px 12px 0 0;background:linear-gradient(90deg,var(--accent),var(--teal));opacity:.4;}
+.clabel{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-weight:700;}
+
+/* RADAR */
+.radar-wrap{position:relative;width:200px;height:200px;margin:4px auto 10px;}
+canvas#rc{position:absolute;top:0;left:0;}
+.radar-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.rscore{font-size:30px;font-weight:800;color:var(--danger);line-height:1;}
+.rslbl{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.frow{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.fn{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;width:72px;flex-shrink:0;}
+.ft{flex:1;height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.ff{height:100%;border-radius:99px;transition:width 1.4s cubic-bezier(.16,1,.3,1);}
+.fv{font-family:'Space Mono',monospace;font-size:8px;color:var(--text2);width:20px;text-align:right;flex-shrink:0;font-weight:700;}
+
+/* VISIT TABLE */
+.vtbl-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.vtbl{width:100%;border-collapse:collapse;}
+.vtbl th{font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:left;padding:5px 8px;border-bottom:2px solid var(--border2);background:var(--s2);}
+.vtbl td{padding:7px 8px;font-size:11px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
+.vtbl tr{transition:background .15s;cursor:pointer;}
+.vtbl tr:hover td{background:rgba(0,104,184,.05);}
+.vtbl tr.sel td{background:rgba(0,104,184,.07);}
+.vtbl tr.sel td:first-child{border-left:3px solid var(--accent);padding-left:5px;}
+.chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;font-family:'Space Mono',monospace;font-size:7.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.chip.critical{background:rgba(200,37,62,.1);color:var(--danger);border:1px solid rgba(200,37,62,.3);}
+.chip.high{background:rgba(200,112,0,.1);color:var(--warn);border:1px solid rgba(200,112,0,.3);}
+.chip.moderate{background:rgba(0,104,184,.1);color:var(--accent);border:1px solid rgba(0,104,184,.25);}
+.chip.low{background:rgba(0,150,107,.1);color:var(--green);border:1px solid rgba(0,150,107,.25);}
+.dbadge{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);}
+.dbadge.urg{color:var(--danger);font-weight:700;}
+.vdet{background:var(--s2);border:1px solid rgba(200,37,62,.22);border-radius:8px;padding:10px 12px;margin-top:8px;display:none;}
+.vdet.open{display:block;animation:fup .25s ease;}
+@keyframes fup{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.eli{display:flex;align-items:flex-start;gap:7px;font-size:10.5px;color:var(--text2);line-height:1.5;margin-bottom:4px;}
+.ebd{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.ebd.d{background:var(--danger);}.ebd.w{background:var(--warn);}.ebd.o{background:var(--accent);}
+
+/* PI LEADERBOARD PANEL */
+.pi-board{display:flex;flex-direction:column;gap:0;}
+.pi-card{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--s2);margin-bottom:7px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.pi-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.pi-card.critical::before{background:var(--danger);}
+.pi-card.high::before{background:var(--warn);}
+.pi-card.moderate::before{background:var(--accent);}
+.pi-card.low::before{background:var(--green);}
+.pi-card:hover{border-color:var(--border2);background:var(--surface);box-shadow:var(--sh);}
+.pi-card.active{border-color:var(--accent);background:rgba(0,104,184,.05);box-shadow:var(--sh);}
+.pi-rank{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);width:18px;flex-shrink:0;text-align:center;}
+.pi-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;color:#fff;}
+.pi-info{flex:1;min-width:0;}
+.pi-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pi-meta{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-top:1px;}
+.pi-score-wrap{text-align:right;flex-shrink:0;}
+.pi-score{font-size:18px;font-weight:800;line-height:1;}
+.pi-score-lbl{font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.pi-detail-panel{background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:12px 14px;margin-bottom:8px;display:none;animation:fup .2s ease;}
+.pi-detail-panel.open{display:block;}
+
+/* INSIGHTS */
+.ibox{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:11px;margin-bottom:8px;position:relative;}
+.ibox.flag{border-color:rgba(200,37,62,.3);background:rgba(200,37,62,.025);}
+.ibox.flag::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:8px 8px 0 0;background:linear-gradient(90deg,var(--danger),transparent);}
+.iico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;margin-bottom:5px;}
+.iico.d{background:rgba(200,37,62,.1);}.iico.w{background:rgba(200,112,0,.1);}.iico.i{background:rgba(0,104,184,.1);}.iico.o{background:rgba(0,150,107,.1);}
+.ititle{font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3;}
+.ibody{font-size:9.5px;color:var(--muted);line-height:1.5;}
+.itag{display:inline-block;font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-top:5px;background:rgba(0,104,184,.07);color:var(--accent);border:1px solid rgba(0,104,184,.18);}
+
+/* TIMELINE */
+.tstrip{margin-top:11px;padding-top:11px;border-top:1px solid var(--border);}
+.tlbl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;font-weight:700;}
+.taxw{position:relative;padding-top:8px;}
+.taxis{position:absolute;top:14px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--border2),var(--border2),transparent);}
+.tevts{display:flex;justify-content:space-between;padding:0 4px;}
+.te{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.tn{width:12px;height:12px;border-radius:50%;border:2px solid var(--border);background:var(--bg);z-index:1;}
+.tn.critical{border-color:var(--danger);background:rgba(200,37,62,.12);animation:np 2s ease-in-out infinite;}
+.tn.high{border-color:var(--warn);background:rgba(200,112,0,.1);}
+.tn.moderate{border-color:var(--accent);background:rgba(0,104,184,.08);}
+.tn.low{border-color:var(--green);background:rgba(0,150,107,.07);}
+@keyframes np{0%,100%{box-shadow:0 0 0 0 rgba(200,37,62,.4);}50%{box-shadow:0 0 0 4px rgba(200,37,62,0);}}
+.tlbl2{font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);text-align:center;max-width:50px;line-height:1.3;}
+.tdate{font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);opacity:.65;}
+.pills{display:flex;gap:4px;}
+.pill{font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:99px;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;}
+.pill:hover,.pill.act{border-color:var(--accent);color:var(--accent);background:rgba(0,104,184,.06);}
+
+/* ANALYSIS PANEL */
+.ap{background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--sh2);margin-top:12px;overflow:hidden;}
+.ap-hdr{display:flex;align-items:flex-start;justify-content:space-between;padding:13px 18px 0;border-bottom:1px solid var(--border);}
+.ap-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:9px;}
+.proto-row{display:flex;gap:7px;margin-bottom:11px;}
+.pbtn{flex:1;padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--s2);cursor:pointer;text-align:left;transition:all .2s;}
+.pbtn:hover{border-color:var(--border2);}
+.pbtn.act{border-color:var(--accent);background:rgba(0,104,184,.06);box-shadow:0 0 0 2px rgba(0,104,184,.1);}
+.pbtn-name{font-size:11.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px;}
+.pbtn-meta{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);margin-top:1px;}
+.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.run-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:none;background:linear-gradient(135deg,var(--accent),#0098c0);color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;box-shadow:0 2px 10px rgba(0,104,184,.22);margin-bottom:11px;}
+.run-btn:hover{background:linear-gradient(135deg,#005aa0,#0082a8);}
+.run-btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* STAGE NAV */
+.snav{display:flex;gap:0;border-bottom:2px solid var(--border);overflow-x:auto;}
+.snav::-webkit-scrollbar{height:0;}
+.snb{display:flex;align-items:center;gap:6px;padding:10px 15px;font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;border-right:1px solid var(--border);background:var(--s2);white-space:nowrap;flex-shrink:0;}
+.snb:last-child{border-right:none;}
+.snb:hover{color:var(--accent);background:rgba(0,104,184,.04);}
+.snb.act{color:var(--accent);border-bottom-color:var(--accent);background:var(--surface);}
+.snb.done{color:var(--green);cursor:pointer;}
+.snb.done .snn{background:rgba(0,150,107,.12);border-color:var(--green);color:var(--green);}
+.snb.running{color:var(--warn);}
+.snb.running .snn{background:rgba(200,112,0,.1);border-color:var(--warn);color:var(--warn);}
+.snb.pi-stage.done{color:var(--purple);}
+.snb.pi-stage.done .snn{background:rgba(107,63,160,.12);border-color:var(--purple);color:var(--purple);}
+.snb.pi-stage.act{color:var(--purple);border-bottom-color:var(--purple);}
+.snb.pi-stage.act .snn{background:rgba(107,63,160,.1);border-color:var(--purple);color:var(--purple);}
+.snn{width:19px;height:19px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;border:1px solid var(--border);color:var(--muted);background:rgba(0,0,0,.03);flex-shrink:0;transition:all .25s;}
+.snb.act .snn{background:rgba(0,104,184,.1);border-color:var(--accent);color:var(--accent);}
+.spulse{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--warn);animation:pdot 1s ease-in-out infinite;margin-left:2px;}
+
+/* STAGE CONTENT */
+.sc-area{padding:18px 20px;min-height:320px;}
+.sempty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:260px;gap:10px;opacity:.4;}
+.sempty-icon{font-size:34px;}.sempty-txt{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start;}
+
+/* OCR */
+.ocr-box{font-family:'Space Mono',monospace;font-size:10px;line-height:1.9;color:var(--text2);background:var(--s2);border-radius:8px;padding:13px 15px;border:1px solid var(--border);max-height:280px;overflow-y:auto;}
+.hl-r{background:rgba(200,37,62,.11);color:#990020;border-radius:3px;padding:1px 3px;font-weight:700;}
+.hl-y{background:rgba(200,112,0,.11);color:#7a4500;border-radius:3px;padding:1px 3px;font-weight:700;}
+.hl-b{background:rgba(0,104,184,.11);color:#003d80;border-radius:3px;padding:1px 3px;font-weight:700;}
+.hl-g{background:rgba(0,150,107,.11);color:#004d38;border-radius:3px;padding:1px 3px;font-weight:700;}
+.hl-p{background:rgba(107,63,160,.1);color:#4a1d8a;border-radius:3px;padding:1px 3px;font-weight:700;}
+.cur{display:inline-block;width:7px;height:12px;background:var(--accent);animation:bl .75s step-end infinite;margin-left:2px;vertical-align:text-bottom;border-radius:1px;}
+@keyframes bl{0%,100%{opacity:1;}50%{opacity:0;}}
+.leg{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+.legit{display:flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);}
+.legdot{width:7px;height:7px;border-radius:2px;}
+
+/* CHARTS */
+.dev-chart{display:flex;align-items:flex-end;gap:7px;height:120px;padding:0 2px;}
+.dc{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.dbars{display:flex;gap:3px;align-items:flex-end;height:100px;width:100%;justify-content:center;}
+.dbs{border-radius:4px 4px 0 0;transition:height 1s cubic-bezier(.16,1,.3,1);background:rgba(200,37,62,.65);}
+.dbn{border-radius:4px 4px 0 0;background:rgba(0,104,184,.3);}
+.dcl{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);text-align:center;line-height:1.3;max-width:65px;}
+
+/* CONSTRAINT */
+.cgrid{display:grid;gap:8px;margin-bottom:12px;}
+.ci{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;}
+.cilbl{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px;}
+.cival{font-size:20px;font-weight:800;}
+
+/* SCORE */
+.score-layout{display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center;margin-bottom:14px;}
+.gauge-wrap{position:relative;width:170px;height:105px;}
+canvas#gc{position:absolute;top:0;left:0;}
+.gauge-ctr{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);text-align:center;}
+.gnum{font-size:30px;font-weight:800;line-height:1;}
+.glbl{font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.sbrow{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+.sblab{font-family:'Space Mono',monospace;font-size:8.5px;color:var(--muted);width:120px;flex-shrink:0;}
+.sbtrk{flex:1;height:6px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.sbfil{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+.sbval{font-family:'Space Mono',monospace;font-size:8.5px;font-weight:700;width:24px;text-align:right;flex-shrink:0;}
+
+/* NARR */
+.narr-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+.narr-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:7px;font-weight:700;}
+.narr-label.purple{color:var(--purple);}
+.stream{font-size:12px;color:var(--text2);line-height:1.8;}
+.rbox{border-radius:8px;padding:12px 14px;border:1px solid;}
+.rbox.critical{background:rgba(200,37,62,.04);border-color:rgba(200,37,62,.22);}
+.rbox.high{background:rgba(200,112,0,.04);border-color:rgba(200,112,0,.22);}
+.rbox.moderate{background:rgba(0,104,184,.04);border-color:rgba(0,104,184,.22);}
+.rtitle{font-size:11.5px;font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+.rit{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:4px;}
+.rarrow{color:var(--accent);font-family:'Space Mono',monospace;font-size:9.5px;flex-shrink:0;font-weight:700;}
+
+/* PI STAGE SPECIFIC */
+.pi-stage-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:var(--sh);transition:all .2s;}
+.pi-stage-head{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--s2);border-bottom:1px solid var(--border);cursor:pointer;}
+.pi-stage-head:hover{background:var(--s3);}
+.pi-stage-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.pi-stage-name{font-size:13px;font-weight:700;color:var(--text);}
+.pi-stage-site{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-top:1px;}
+.pi-stage-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.pi-stage-score-big{font-size:24px;font-weight:800;line-height:1;}
+.pi-stage-score-lbl{font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;text-align:right;}
+.pi-stage-body{padding:14px 16px;display:none;}
+.pi-stage-body.open{display:block;animation:fup .2s ease;}
+.pi-signal-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.pi-signal-lbl{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);width:130px;flex-shrink:0;}
+.pi-signal-bar{flex:1;height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+.pi-signal-fill{height:100%;border-radius:99px;}
+.pi-signal-val{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;width:22px;text-align:right;flex-shrink:0;}
+.avail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;}
+.avail-item{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;text-align:center;}
+.avail-val{font-size:18px;font-weight:800;margin-bottom:2px;}
+.avail-lbl{font-family:'Space Mono',monospace;font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.capacity-bar{height:10px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-bottom:6px;}
+.capacity-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.16,1,.3,1);}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(0,104,184,.18);border-radius:99px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="21" stroke="rgba(0,104,184,.22)" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="14" stroke="rgba(0,104,184,.16)" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="7" stroke="rgba(0,104,184,.1)" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="2.5" fill="#0068b8"/>
+      <line x1="24" y1="24" x2="43" y2="24" stroke="#0068b8" stroke-width="1.8" stroke-linecap="round" opacity=".65">
+        <animateTransform attributeName="transform" type="rotate" from="0 24 24" to="360 24 24" dur="3s" repeatCount="indefinite"/>
+      </line>
+      <circle cx="37" cy="18" r="3" fill="#c8253e">
+        <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+    <div>
+      <div class="brand-name">Deviation Risk Radar</div>
+      <div class="brand-sub">AI Early Warning System · Clinical Trials · MAGI 2025</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="live-pill"><div class="live-dot"></div>Live Monitoring Active</div>
+    <div class="clk" id="clock">--:-- --</div>
+  </div>
+</header>
+
+<!-- STATS (5 cards now includes PI overload) -->
+<div class="stats">
+  <div class="sc c1"><div class="sv" id="s1">0</div><div class="sl">Critical Risk Visits</div><div class="sd up">↑ 2 identified this week</div></div>
+  <div class="sc c2"><div class="sv" id="s2">0</div><div class="sl">High Risk Flagged</div><div class="sd up">↑ 1 since last review</div></div>
+  <div class="sc c3"><div class="sv" id="s3">0</div><div class="sl">Upcoming Visits (30d)</div><div class="sd" style="color:var(--muted)">→ Stable pipeline</div></div>
+  <div class="sc c4"><div class="sv" id="s4">0%</div><div class="sl">Deviations Prevented</div><div class="sd dn">↓ 12 pts vs reactive</div></div>
+  <div class="sc c5"><div class="sv" id="s5">0</div><div class="sl">PIs at Capacity Risk</div><div class="sd up">↑ 1 new this month</div></div>
+</div>
+
+<!-- DASHBOARD: 4 columns — Radar | Visits | PI Leaderboard | Insights -->
+<div class="dash">
+
+  <!-- COL 1: Radar + factors -->
+  <div class="card" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="clabel">Risk Signal Radar</div>
+    <div class="radar-wrap">
+      <canvas id="rc" width="200" height="200"></canvas>
+      <div class="radar-ctr"><div class="rscore">87</div><div class="rslbl">Composite Score</div></div>
+    </div>
+    <div style="width:100%" id="fbars"></div>
+  </div>
+
+  <!-- COL 2: Visit table + timeline -->
+  <div class="card">
+    <div class="vtbl-head">
+      <div class="clabel" style="margin-bottom:0">Upcoming Visits · 30 Days</div>
+      <div class="pills"><div class="pill act">All</div><div class="pill">Critical</div><div class="pill">High</div></div>
+    </div>
+    <table class="vtbl"><thead><tr><th>Site/Subject</th><th>Protocol</th><th>Visit Type</th><th>Date</th><th>Risk</th><th>Days</th></tr></thead><tbody id="vtbody"></tbody></table>
+    <div class="vdet" id="vdet">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:11.5px;font-weight:700" id="vdet-title">—</div>
+        <span class="chip critical" id="vdet-chip">Critical</span>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:7.5px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-weight:700;">Why is risk elevated?</div>
+      <div id="vdet-list"></div>
+    </div>
+    <div class="tstrip">
+      <div class="tlbl">Risk Timeline · Apr–May 2025</div>
+      <div class="taxw"><div class="taxis"></div><div class="tevts" id="tevts"></div></div>
+    </div>
+  </div>
+
+  <!-- COL 3: PI Leaderboard -->
+  <div class="card" style="overflow-y:auto;max-height:580px;">
+    <div class="clabel" style="color:var(--purple)">PI Workload · Top 5 by Risk</div>
+    <div class="pi-board" id="piboard"></div>
+  </div>
+
+  <!-- COL 4: Insights -->
+  <div class="card" style="overflow-y:auto;max-height:580px;">
+    <div class="clabel">AI Insight Feed</div>
+    <div id="ifeed"></div>
+  </div>
+
+</div><!-- /dash -->
+
+<!-- ANALYSIS PANEL -->
+<div class="ap">
+  <div class="ap-hdr">
+    <div>
+      <div class="ap-title">AI Analysis Engine</div>
+      <div class="proto-row" id="pbrow"></div>
+    </div>
+    <button class="run-btn" id="runBtn" onclick="runAnalysis()">
+      <span id="rbi">▶</span><span id="rbt">Run AI Analysis Pipeline</span>
+    </button>
+  </div>
+  <div class="snav" id="snav"></div>
+  <div class="sc-area" id="scontent">
+    <div class="sempty"><div class="sempty-icon">⚙</div><div class="sempty-txt">Select a protocol and run analysis</div></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+<script>
+/* ═══════════════════════════
+   DATA — FULLY SELF-CONTAINED
+═══════════════════════════ */
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* PI DATA — per protocol, 5 PIs ranked by risk */
+const PI_DATA = {
+  'ONCO-2241': [
+    {name:'Dr. R. Harmon',site:'SITE-04',specialty:'Oncology',trials:6,subjects:22,hoursAvail:4,visitLoad:18,openActions:9,experience:3,risk:'critical',score:88,
+     signals:{capacity:91,trialLoad:85,subjectBurden:78,openActions:82,experience:72},
+     narrative:`Dr. Harmon is managing 6 concurrent oncology trials with 22 active subjects — a subject-to-PI ratio that exceeds the recommended threshold for complex Phase II protocols by approximately 40%. With only 4 available hours per week allocated to ONCO-2241 and 9 open protocol actions pending resolution, the probability of visit-day procedural drift is significantly elevated. Recommend immediate workload redistribution or co-investigator assignment before the next Cycle 3 Infusion visit.`},
+    {name:'Dr. S. Patel',site:'SITE-12',specialty:'Oncology',trials:4,subjects:16,hoursAvail:8,visitLoad:12,openActions:5,experience:6,risk:'high',score:72,
+     signals:{capacity:74,trialLoad:68,subjectBurden:62,openActions:55,experience:55},
+     narrative:`Dr. Patel carries a moderately elevated trial load with 4 concurrent studies and 16 active subjects. The 8 available hours weekly is workable but leaves minimal buffer for unexpected visit complexity or protocol deviations that require same-day PI review. The 5 open protocol actions represent a manageable backlog but should be cleared before the upcoming Baseline Assessment given that site's 40% historical deviation rate.`},
+    {name:'Dr. M. Chen',site:'SITE-07',specialty:'Oncology',trials:3,subjects:11,hoursAvail:12,visitLoad:9,openActions:3,experience:8,risk:'moderate',score:58,
+     signals:{capacity:55,trialLoad:52,subjectBurden:48,openActions:38,experience:35},
+     narrative:`Dr. Chen presents a moderate risk profile with a manageable 3-trial load and 12 hours of weekly availability. The 8 years of oncology trial experience is a meaningful mitigating factor, and the 3 open actions are within the acceptable range. Primary risk driver is the site's degraded lab SLA which is operational rather than PI-specific.`},
+    {name:'Dr. A. Torres',site:'SITE-02',specialty:'Oncology',trials:2,subjects:8,hoursAvail:16,visitLoad:6,openActions:1,experience:11,risk:'low',score:34,
+     signals:{capacity:30,trialLoad:28,subjectBurden:25,openActions:18,experience:20},
+     narrative:`Dr. Torres presents a low PI workload risk profile. With 2 trials, 8 subjects, and 16 hours of available weekly time for this protocol, capacity is well within safe operating parameters. 11 years of oncology experience further reduces execution risk. No PI-level intervention is indicated at this time.`},
+    {name:'Dr. L. Nguyen',site:'SITE-09',specialty:'Oncology',trials:2,subjects:7,hoursAvail:18,visitLoad:5,openActions:2,experience:9,risk:'low',score:28,
+     signals:{capacity:25,trialLoad:22,subjectBurden:20,openActions:22,experience:25},
+     narrative:`Dr. Nguyen has the lowest PI risk score in this portfolio. Minimal concurrent trial load, strong availability, and nearly a decade of experience create a favorable execution environment. The 2 open protocol actions should be resolved as routine maintenance but do not represent an elevated risk signal.`},
+  ],
+  'CARD-1887': [
+    {name:'Dr. J. Williams',site:'SITE-12',specialty:'Cardiology',trials:5,subjects:19,hoursAvail:5,visitLoad:14,openActions:7,experience:4,risk:'critical',score:82,
+     signals:{capacity:85,trialLoad:78,subjectBurden:72,openActions:75,experience:68},
+     narrative:`Dr. Williams is managing 5 concurrent cardiology trials and 19 active subjects against only 5 available hours weekly for CARD-1887 — a combination that creates significant capacity risk at the Baseline Assessment visit, which requires PI-level oversight for 4 of the 12 concurrent procedures. The 7 open protocol actions represent the largest backlog of the PI cohort and compound the risk of visit-day procedural lapses. Recommend immediate review of PI availability before scheduling the next Baseline.`},
+    {name:'Dr. P. Okafor',site:'SITE-09',specialty:'Cardiology',trials:4,subjects:15,hoursAvail:7,visitLoad:11,openActions:4,experience:5,risk:'high',score:69,
+     signals:{capacity:70,trialLoad:65,subjectBurden:60,openActions:52,experience:58},
+     narrative:`Dr. Okafor manages 4 trials with a moderately elevated subject count and 7 weekly hours allocated to CARD-1887. The 4 open actions are manageable but should be resolved before the Safety Follow-Up visit, particularly given that this site has 3 unresolved queries from the prior visit that will require PI sign-off on visit day.`},
+    {name:'Dr. K. Singh',site:'SITE-03',specialty:'Cardiology',trials:3,subjects:12,hoursAvail:11,visitLoad:8,openActions:3,experience:7,risk:'moderate',score:54,
+     signals:{capacity:52,trialLoad:48,subjectBurden:45,openActions:40,experience:42},
+     narrative:`Dr. Singh presents a moderate risk profile with a balanced 3-trial load and 11 hours of weekly availability. The 7 years of cardiology trial experience provides a meaningful buffer against protocol complexity risk. No immediate PI-level intervention is indicated, but the site should be monitored given the protocol's 74/100 complexity score.`},
+    {name:'Dr. F. Martinez',site:'SITE-06',specialty:'Cardiology',trials:2,subjects:9,hoursAvail:14,visitLoad:6,openActions:2,experience:10,risk:'low',score:38,
+     signals:{capacity:35,trialLoad:32,subjectBurden:30,openActions:28,experience:22},
+     narrative:`Dr. Martinez presents a well-managed workload with 2 trials, strong availability, and 10 years of cardiology experience. The low open action count and available PI hours create favorable conditions for clean visit execution. No intervention indicated.`},
+    {name:'Dr. B. Zhao',site:'SITE-08',specialty:'Cardiology',trials:2,subjects:8,hoursAvail:15,visitLoad:5,openActions:1,experience:12,risk:'low',score:29,
+     signals:{capacity:26,trialLoad:24,subjectBurden:22,openActions:18,experience:15},
+     narrative:`Dr. Zhao carries the lowest PI risk score in the CARD-1887 portfolio. Minimal trial load, strong availability, and 12 years of cardiology experience represent the most favorable execution conditions across all sites. Benchmark this PI profile as a model for site-level readiness assessment.`},
+  ],
+  'NEURO-3310': [
+    {name:'Dr. E. Osei',site:'SITE-07',specialty:'Neurology',trials:5,subjects:17,hoursAvail:5,visitLoad:13,openActions:6,experience:4,risk:'high',score:74,
+     signals:{capacity:78,trialLoad:72,subjectBurden:68,openActions:65,experience:62},
+     narrative:`Dr. Osei manages 5 concurrent neurology trials with 17 active subjects and only 5 available hours weekly for NEURO-3310 — a particularly concerning profile for a protocol with a 92/100 complexity score. The cognitive assessment battery at Month 3 requires focused PI availability for result interpretation, and the current capacity profile leaves minimal margin for same-day complications. Recommend evaluating co-investigator support before the next cognitive assessment visit.`},
+    {name:'Dr. T. Romero',site:'SITE-02',specialty:'Neurology',trials:3,subjects:12,hoursAvail:9,visitLoad:9,openActions:4,experience:6,risk:'moderate',score:61,
+     signals:{capacity:62,trialLoad:55,subjectBurden:52,openActions:48,experience:45},
+     narrative:`Dr. Romero presents a moderate risk profile with a manageable 3-trial load and 9 hours of available weekly time. The 4 open protocol actions should be prioritized for resolution before the Month 6 Neurology assessment, where the protocol's revised cognitive testing sequence from Amendment v3.0 will require precise administration.`},
+    {name:'Dr. N. Adeyemi',site:'SITE-04',specialty:'Neurology',trials:3,subjects:10,hoursAvail:11,visitLoad:7,openActions:2,experience:8,risk:'moderate',score:52,
+     signals:{capacity:50,trialLoad:46,subjectBurden:42,openActions:32,experience:38},
+     narrative:`Dr. Adeyemi presents a balanced workload profile with 3 trials and 11 weekly hours available. The 8 years of neurology experience is a meaningful asset for this high-complexity protocol. Risk is primarily driven by the protocol's inherent CNS endpoint complexity rather than PI capacity constraints.`},
+    {name:'Dr. C. Johansson',site:'SITE-01',specialty:'Neurology',trials:2,subjects:8,hoursAvail:14,visitLoad:5,openActions:1,experience:11,risk:'low',score:36,
+     signals:{capacity:33,trialLoad:30,subjectBurden:28,openActions:22,experience:20},
+     narrative:`Dr. Johansson presents a low PI risk profile with 2 trials, strong weekly availability, and 11 years of neurology experience. The single open protocol action is routine. No PI-level risk intervention indicated.`},
+    {name:'Dr. I. Bakare',site:'SITE-03',specialty:'Neurology',trials:1,subjects:5,hoursAvail:18,visitLoad:4,openActions:0,experience:14,risk:'low',score:22,
+     signals:{capacity:20,trialLoad:18,subjectBurden:16,openActions:12,experience:10},
+     narrative:`Dr. Bakare carries the lowest PI risk profile in the NEURO-3310 cohort. A single active trial, 18 available hours weekly, zero open actions, and 14 years of neurology experience represent optimal conditions for clean protocol execution. This PI profile sets the standard for site selection benchmarking.`},
+  ],
+};
+
+const NARR = {
+  'ONCO-2241': {
+    dev:`The most critical deviation pattern is at <strong>Cycle 3 Infusion</strong> — a site rate of 42% versus a 12% network norm indicates a persistent procedural or documentation gap that has not been corrected across multiple visits. A focused pre-visit coordinator walkthrough specifically targeting documentation timing, infusion checklist sequencing, and the Amendment v5.0 eligibility re-confirmation step is the highest-leverage intervention available before the next occurrence.`,
+    win:`The tightest scheduling constraint is the <strong>C1D8 and C1D15 ±2-day windows</strong>, which leave no buffer for same-day disruptions such as lab delays, subject cancellations, or coordinator conflicts. With five protocol amendments on record, there is meaningful risk that coordinators are executing these constrained windows against superseded scheduling guidance — confirm all site staff are aligned to the current version before any window-limited visit.`,
+    wl:`The combination of <strong>4 concurrent visits</strong> and 7 unresolved open queries creates a high cognitive load environment on visit day — a well-documented precursor to procedural deviation. Clearing the query backlog prior to the next Cycle 3 visit is the single highest-leverage operational action available, as unresolved queries compound decision-making burden during time-sensitive infusion procedures.`,
+    pi:`Dr. Harmon at SITE-04 represents the highest PI capacity risk in this portfolio, managing 6 concurrent oncology trials against only 4 available hours for ONCO-2241. The compounding effect of his open action backlog (9 items) and the site's junior coordinator creates a dual-gap scenario where neither PI oversight nor coordinator execution is at adequate readiness for the upcoming Cycle 3 Infusion. PI workload contributes 14 points to the composite risk score — the third-largest driver — and should be addressed in parallel with the coordinator briefing recommendation.`,
+    score:`The primary driver of this 83-point critical risk score is the <strong>historical deviation pattern at Cycle 3 Infusion</strong>, where the 42% site rate exceeds the network norm by 30 percentage points — a margin that models classify as a systemic site-level execution gap. The ONCO-2241 Amendment v5.0 compounds this risk by introducing new requirements not yet in coordinator SOPs, and Dr. Harmon's PI capacity constraint at SITE-04 adds a critical oversight gap to an already elevated execution risk profile. A structured pre-visit briefing covering the Amendment v5.0 changes, visit window confirmation, and PI availability confirmation is the highest-priority non-punitive intervention.`
+  },
+  'CARD-1887': {
+    dev:`The most significant deviation pattern is at <strong>Baseline Assessment</strong> — a 38% site rate against a 12% network norm suggests that the high procedural volume at this visit type consistently outpaces both coordinator and PI capacity at this site. Pre-visit preparation specifically reviewing the concurrent assessment sequencing — including ECG timing, lab draw order, and informed consent re-confirmation — should be conducted before the next scheduled occurrence.`,
+    win:`The <strong>Week 4 ±3-day window</strong> represents the highest scheduling risk in this protocol, falling within the period where sites are managing the highest concurrent subject load. With two amendments on record, the Week 4 visit procedures have been modified, and there is risk that scheduling assumptions made at study activation no longer reflect current visit requirements.`,
+    wl:`With <strong>3 concurrent visits</strong> and 4 open queries, this site is operating at a moderate-to-elevated workload level. The Senior coordinator designation is a meaningful mitigating factor, but it does not eliminate risk from the PI capacity gap identified at SITE-12, where Dr. Williams carries a 5-trial concurrent load against only 5 available hours for this protocol.`,
+    pi:`Dr. Williams at SITE-12 is the highest PI risk in the CARD-1887 portfolio — 5 concurrent trials, 19 active subjects, and only 5 available hours weekly creates a capacity gap that is particularly acute at Baseline Assessment, which requires PI-level sign-off on 4 of 12 concurrent procedures. The 7 open protocol actions represent the largest backlog across all PI profiles in this analysis. PI workload contributes 12 points to the composite risk score and is the second-largest modifiable risk factor after the deviation history signal. Immediate workload review with the site and sponsor team is recommended before the next Baseline visit.`,
+    score:`The 67-point high risk score for CARD-1887 is driven by the <strong>Baseline Assessment deviation rate of 38%</strong>, which reflects a consistent pattern of procedural complexity outpacing both coordinator preparation and PI availability at this visit type. Dr. Williams' capacity gap at SITE-12 compounds the execution risk — PI oversight availability on visit day is a critical safety mechanism for high-procedure-count visits, and the current profile leaves that mechanism understaffed. A visit-day simulation walkthrough with both the coordinator team and a PI availability confirmation are the two most targeted pre-visit interventions for this risk profile.`
+  },
+  'NEURO-3310': {
+    dev:`The <strong>Month 3 Cognitive Assessment</strong> shows a 19% deviation rate against a 12% network norm — pointing to coordinator unfamiliarity with the specific cognitive testing protocol requirements that are more complex and time-sensitive than standard neurological follow-ups. Reviewing the cognitive testing sequencing and timing requirements before Month 3 visits, particularly regarding the standardized administration procedures modified in Amendment v3.0, is the recommended preventive action.`,
+    win:`The <strong>Screening window of Day -21 to -7</strong> presents a risk that is often underestimated — operational data shows sites frequently cluster Screening visits in the final 3 days, effectively converting a wide window into a narrow one through scheduling drift. With 3 amendments on record, Screening eligibility criteria have been updated and coordinators should receive explicit confirmation of current inclusion/exclusion requirements before scheduling the next subject.`,
+    wl:`With only <strong>2 concurrent visits and 2 open queries</strong>, this site has the lowest workload profile in the portfolio — and the Experienced coordinator designation further mitigates operational risk. The primary risk driver for this protocol is complexity rather than workload, with a 92/100 complexity score reflecting CNS endpoint assessment requirements that demand precision even under favorable site conditions.`,
+    pi:`Dr. Osei at SITE-07 presents the highest PI risk in the NEURO-3310 cohort — managing 5 concurrent neurology trials against only 5 available weekly hours for this protocol, which carries the highest complexity score (92/100) of all three protocols in this analysis. The cognitive assessment battery at Month 3 is the specific visit type where PI availability for result interpretation is most critical. PI workload contributes 11 points to the composite risk score, and co-investigator assignment is the most effective structural intervention available. This is particularly important because coordinator experience at this site is adequate — the execution gap is at the PI oversight level, not the coordination level.`,
+    score:`The 65-point high risk score for NEURO-3310 is unusual in that it is driven primarily by <strong>protocol complexity (92/100)</strong> combined with a PI capacity gap at SITE-07, rather than by historical deviation patterns. Dr. Osei's 5-trial concurrent load against a protocol with the highest complexity score in the portfolio creates a scenario where PI oversight availability — critical for CNS endpoint interpretation — is most constrained precisely where it is most needed. A protocol complexity briefing for coordinators combined with a PI availability confirmation for the Month 3 and Month 6 assessment visits is the highest-priority dual intervention for this risk profile.`
+  }
+};
+
+const protos=[
+  {id:'ONCO-2241',name:'ONCO-2241',desc:'Phase II Oncology',color:'#c8253e',amendments:5,complexity:88,sites:6,
+   vw:['Screening: Day -28 to -1','Cycle 1 Day 1 (fixed)','C1D8 ±2 days','C1D15 ±2 days','Cycle 2 Day 1 ±3 days','End of Treatment: within 7d'],
+   dh:[{v:'Cycle 3 Infusion',r:42,n:12},{v:'C1D15 Assessment',r:31,n:12},{v:'PK Sampling',r:28,n:10},{v:'Screening',r:14,n:10},{v:'EOS Visit',r:8,n:10}],
+   wl:{cv:4,oq:7,ce:'Junior'},
+   rf:{cx:88,vw:76,dh:85,af:91,wl:72,co:42,pi:86}},
+  {id:'CARD-1887',name:'CARD-1887',desc:'Phase III Cardiology',color:'#c87000',amendments:2,complexity:74,sites:9,
+   vw:['Baseline: Day 1 (fixed)','Week 4 ±3 days','Week 12 ±5 days','Month 6 ±7 days','Month 12 ±7 days','Safety F/U: 30d post'],
+   dh:[{v:'Baseline Assessment',r:38,n:12},{v:'Week 4 Labs',r:22,n:10},{v:'Month 6 Echo',r:17,n:10},{v:'Safety F/U',r:9,n:10}],
+   wl:{cv:3,oq:4,ce:'Senior'},
+   rf:{cx:74,vw:62,dh:70,af:45,wl:58,co:72,pi:78}},
+  {id:'NEURO-3310',name:'NEURO-3310',desc:'Phase II Neurology',color:'#0068b8',amendments:3,complexity:92,sites:4,
+   vw:['Screening: Day -21 to -7','Baseline: Day 1 (fixed)','Month 3 ±7 days','Month 6 ±7 days','Month 9 ±10 days','Month 12 ±10 days'],
+   dh:[{v:'Month 3 Cognitive',r:19,n:12},{v:'Baseline MRI',r:15,n:10},{v:'Month 6 Neuro',r:12,n:10},{v:'Month 9 F/U',r:10,n:10}],
+   wl:{cv:2,oq:2,ce:'Experienced'},
+   rf:{cx:92,vw:58,dh:55,af:62,wl:44,co:80,pi:72}},
+];
+
+const visits=[
+  {s:'SITE-04 · S-0042',p:'ONCO-2241',t:'Cycle 3 Infusion',d:'Apr 07',dy:4,r:'critical',ex:[{c:'d',t:'Protocol amended 3× in 90 days — coordinators may be on outdated procedures'},{c:'d',t:'Dr. Harmon at 91% capacity — PI oversight availability critical on visit day'},{c:'w',t:'Visit window closes in 4 days with no flex scheduling available'}]},
+  {s:'SITE-12 · S-0119',p:'CARD-1887',t:'Baseline Assessment',d:'Apr 09',dy:6,r:'critical',ex:[{c:'d',t:'Dr. Williams: 5 concurrent trials, only 5h/week available for this protocol'},{c:'d',t:'12-procedure visit requires PI sign-off on 4 concurrent assessments'},{c:'w',t:'Coordinator newly assigned — experience score below threshold'}]},
+  {s:'SITE-07 · S-0088',p:'NEURO-3310',t:'Month 6 Follow-Up',d:'Apr 12',dy:9,r:'high',ex:[{c:'w',t:'Dr. Osei managing 5 concurrent trials against 92/100 complexity protocol'},{c:'w',t:'Lab processing SLA degraded — timing deviation risk elevated'}]},
+  {s:'SITE-09 · S-0201',p:'CARD-1887',t:'Safety Follow-Up',d:'Apr 15',dy:12,r:'high',ex:[{c:'w',t:'Dr. Okafor: 4 open protocol actions pending PI resolution'},{c:'o',t:'3 open queries from prior visit require PI sign-off before next visit'}]},
+  {s:'SITE-02 · S-0033',p:'ONCO-2241',t:'Screening Visit',d:'Apr 18',dy:15,r:'moderate',ex:[{c:'o',t:'Amendment v4.1 eligibility criteria apply — PI confirmation of screen criteria required'}]},
+  {s:'SITE-03 · S-0015',p:'NEURO-3310',t:'End of Study',d:'Apr 28',dy:25,r:'low',ex:[{c:'o',t:'Dr. Bakare: lowest PI risk profile in portfolio — 18h available, 0 open actions'}]},
+];
+
+const stageDefs=[
+  {id:'ocr',   icon:'🔍',label:'OCR Extraction'},
+  {id:'dev',   icon:'📊',label:'Deviation Patterns'},
+  {id:'win',   icon:'📅',label:'Visit Windows'},
+  {id:'wl',    icon:'⚡',label:'Workload Signals'},
+  {id:'pi',    icon:'👨‍⚕️',label:'PI Workload',isPi:true},
+  {id:'score', icon:'🧠',label:'Risk Score'},
+];
+
+let selP=protos[0],stageData={},stageStatus={},activeStage=null,running=false;
+const piColors=['#c8253e','#c87000','#0068b8','#00966b','#6b3fa0'];
+
+/* CLOCK */
+function tick(){$('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+setInterval(tick,1000);tick();
+
+/* STAT COUNTERS */
+function animCount(el,t,sx=''){let c=0;const s=Math.ceil(t/35);const iv=setInterval(()=>{c=Math.min(c+s,t);el.textContent=c+sx;if(c>=t)clearInterval(iv);},35);}
+setTimeout(()=>{animCount($('s1'),3);animCount($('s2'),7);animCount($('s3'),14);animCount($('s4'),68,'%');animCount($('s5'),2);},400);
+
+/* RADAR */
+const rcan=$('rc'),rctx=rcan.getContext('2d');
+let sw=0;const CX=100,CY=100,MR=90;
+const blips=[{a:35,r:.88,c:'#c8253e',sz:4},{a:110,r:.65,c:'#c87000',sz:3},{a:200,r:.78,c:'#c8253e',sz:3.5},{a:290,r:.45,c:'#0068b8',sz:2.5},{a:160,r:.55,c:'#c87000',sz:3}];
+blips.forEach(b=>{const rad=b.a*Math.PI/180;b.x=CX+b.r*MR*Math.cos(rad);b.y=CY+b.r*MR*Math.sin(rad);b.op=0;});
+function drawR(){
+  rctx.clearRect(0,0,200,200);
+  [MR,MR*.75,MR*.5,MR*.25].forEach(r=>{rctx.beginPath();rctx.arc(CX,CY,r,0,Math.PI*2);rctx.strokeStyle='rgba(0,104,184,.1)';rctx.lineWidth=1;rctx.stroke();});
+  rctx.strokeStyle='rgba(0,104,184,.07)';rctx.lineWidth=1;
+  [[CX,CY-MR,CX,CY+MR],[CX-MR,CY,CX+MR,CY]].forEach(([x1,y1,x2,y2])=>{rctx.beginPath();rctx.moveTo(x1,y1);rctx.lineTo(x2,y2);rctx.stroke();});
+  const sR=sw*Math.PI/180;
+  rctx.save();rctx.translate(CX,CY);rctx.rotate(sR);
+  const g=rctx.createLinearGradient(0,0,MR,0);g.addColorStop(0,'rgba(0,104,184,.18)');g.addColorStop(1,'rgba(0,104,184,0)');
+  rctx.beginPath();rctx.moveTo(0,0);rctx.arc(0,0,MR,-.35,.05,false);rctx.closePath();rctx.fillStyle=g;rctx.fill();
+  rctx.beginPath();rctx.moveTo(0,0);rctx.lineTo(MR,0);rctx.strokeStyle='rgba(0,104,184,.55)';rctx.lineWidth=1.5;rctx.stroke();
+  rctx.restore();
+  blips.forEach(b=>{
+    const nb=((b.a%360)+360)%360,ns=((sw%360)+360)%360,d=(ns-nb+360)%360;
+    if(d<8)b.op=1;else b.op=Math.max(0,b.op-.008);
+    if(b.op>0){rctx.save();rctx.globalAlpha=b.op;rctx.beginPath();rctx.arc(b.x,b.y,b.sz,0,Math.PI*2);rctx.fillStyle=b.c;rctx.shadowColor=b.c;rctx.shadowBlur=8;rctx.fill();rctx.restore();}
+  });
+  sw=(sw+.7)%360;requestAnimationFrame(drawR);
+}
+drawR();
+
+/* FACTOR BARS — now includes PI Workload */
+const factors=[
+  {n:'Protocol Cmplx',v:82,c:'linear-gradient(90deg,#c8253e,#f07080)'},
+  {n:'Visit Window',  v:71,c:'linear-gradient(90deg,#c87000,#e8a040)'},
+  {n:'Hist. Patterns',v:88,c:'linear-gradient(90deg,#c8253e,#f07080)'},
+  {n:'Amend. Freq',   v:65,c:'linear-gradient(90deg,#c87000,#e8a040)'},
+  {n:'Coord. Exper.', v:38,c:'linear-gradient(90deg,#00966b,#40c890)'},
+  {n:'PI Workload',   v:76,c:'linear-gradient(90deg,#6b3fa0,#a07ad0)'},
+];
+const fb=$('fbars');
+factors.forEach(f=>{fb.innerHTML+=`<div class="frow"><div class="fn">${f.n}</div><div class="ft"><div class="ff" style="width:0%;background:${f.c}" data-t="${f.v}"></div></div><div class="fv">${f.v}</div></div>`;});
+setTimeout(()=>document.querySelectorAll('.ff').forEach(b=>b.style.width=b.dataset.t+'%'),600);
+
+/* VISIT TABLE */
+const vbody=$('vtbody');
+visits.forEach((v,i)=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td style="font-weight:700;font-size:11px">${v.s}</td><td style="font-family:'Space Mono',monospace;font-size:8.5px;color:var(--muted)">${v.p}</td><td style="font-size:10.5px">${v.t}</td><td style="font-family:'Space Mono',monospace;font-size:9px">${v.d}</td><td><span class="chip ${v.r}">${v.r.toUpperCase()}</span></td><td><span class="dbadge ${v.dy<=7?'urg':''}">${v.dy}d</span></td>`;
+  tr.addEventListener('click',()=>{document.querySelectorAll('#vtbody tr').forEach(r=>r.classList.remove('sel'));tr.classList.add('sel');showVDet(v);});
+  vbody.appendChild(tr);
+  if(i===0){tr.classList.add('sel');setTimeout(()=>showVDet(v),900);}
+});
+function showVDet(v){
+  $('vdet-title').textContent=`${v.s} — ${v.t}`;
+  $('vdet-chip').className=`chip ${v.r}`;$('vdet-chip').textContent=v.r.toUpperCase();
+  $('vdet-list').innerHTML=v.ex.map(e=>`<div class="eli"><div class="ebd ${e.c}"></div><span>${e.t}</span></div>`).join('');
+  $('vdet').className='vdet open';
+}
+
+/* TIMELINE */
+const tld=[{l:'SITE-04 C3',d:'Apr 7',r:'critical'},{l:'SITE-12 Base',d:'Apr 9',r:'critical'},{l:'SITE-07 M6',d:'Apr 12',r:'high'},{l:'SITE-09 SF',d:'Apr 15',r:'high'},{l:'SITE-02 Scr',d:'Apr 18',r:'moderate'},{l:'SITE-11 PK',d:'Apr 22',r:'moderate'},{l:'SITE-03 EOS',d:'Apr 28',r:'low'},{l:'SITE-07 M9',d:'May 4',r:'high'},{l:'SITE-12 M3',d:'May 10',r:'moderate'}];
+$('tevts').innerHTML=tld.map(e=>`<div class="te"><div class="tdate">${e.d}</div><div class="tn ${e.r}"></div><div class="tlbl2">${e.l}</div></div>`).join('');
+
+/* INSIGHTS */
+const ins=[
+  {ic:'⚠️',t:'d',title:'PI capacity gap flagged at 2 critical sites',body:'Dr. Harmon (SITE-04) and Dr. Williams (SITE-12) are both at >80% capacity — PI oversight at risk on upcoming visit days.',tag:'PI Risk Alert'},
+  {ic:'🔄',t:'w',title:'ONCO-2241 v5.0 raises complexity +18 pts',body:'New eligibility re-confirmation step affects 6 subjects. PI confirmation required at all 4 impacted sites.',tag:'Protocol Change'},
+  {ic:'📊',t:'i',title:'Site-04 deviation rate trending upward 90d',body:'Model attributes 72% of risk to documentation timing gaps — compounded by PI availability constraints.',tag:'Pattern Detected'},
+  {ic:'✅',t:'o',title:'Site-02 improved after targeted PI + coordinator review',body:'Pre-visit briefing including PI availability confirmation correlated with zero deviations across 3 subsequent visits.',tag:'Positive Signal'},
+];
+$('ifeed').innerHTML=ins.map(i=>`<div class="ibox ${i.t==='d'?'flag':''}"><div class="iico ${i.t}">${i.ic}</div><div class="ititle">${i.title}</div><div class="ibody">${i.body}</div><span class="itag">${i.tag}</span></div>`).join('');
+
+/* PI LEADERBOARD — rendered from current protocol's PI data */
+function renderPIBoard(protoId){
+  const pis=PI_DATA[protoId];
+  const board=$('piboard');board.innerHTML='';
+  let openDetail=null;
+  pis.forEach((pi,i)=>{
+    const scoreColor=pi.risk==='critical'?'var(--danger)':pi.risk==='high'?'var(--warn)':pi.risk==='moderate'?'var(--accent)':'var(--green)';
+    const initials=pi.name.split(' ').filter((_,i)=>i>0).map(n=>n[0]).join('').slice(0,2);
+    const card=document.createElement('div');
+    card.className=`pi-card ${pi.risk}`;
+    card.innerHTML=`
+      <div class="pi-rank">#${i+1}</div>
+      <div class="pi-avatar" style="background:${piColors[i]}">${initials}</div>
+      <div class="pi-info">
+        <div class="pi-name">${pi.name}</div>
+        <div class="pi-meta">${pi.site} · ${pi.trials} trials · ${pi.subjects} subjects</div>
+      </div>
+      <div class="pi-score-wrap">
+        <div class="pi-score" style="color:${scoreColor}">${pi.score}</div>
+        <div class="pi-score-lbl"><span class="chip ${pi.risk}" style="font-size:7px;padding:1px 6px">${pi.risk.toUpperCase()}</span></div>
+      </div>`;
+    const detail=document.createElement('div');
+    detail.className='pi-detail-panel';
+    const capPct=Math.min(100,Math.round((pi.visitLoad/20)*100));
+    detail.innerHTML=`
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:700;">PI Workload Signals</div>
+      <div class="avail-grid">
+        <div class="avail-item"><div class="avail-val" style="color:${pi.hoursAvail<7?'var(--danger)':'var(--accent)'}">${pi.hoursAvail}h</div><div class="avail-lbl">Avail/Week</div></div>
+        <div class="avail-item"><div class="avail-val" style="color:${pi.trials>=5?'var(--danger)':pi.trials>=3?'var(--warn)':'var(--green)'}">${pi.trials}</div><div class="avail-lbl">Active Trials</div></div>
+        <div class="avail-item"><div class="avail-val" style="color:${pi.openActions>=7?'var(--danger)':pi.openActions>=4?'var(--warn)':'var(--green)'}">${pi.openActions}</div><div class="avail-lbl">Open Actions</div></div>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px;">Protocol Capacity Utilization</div>
+      <div class="capacity-bar"><div class="capacity-fill" style="width:0%;background:${capPct>=80?'linear-gradient(90deg,#c8253e,#f07080)':capPct>=60?'linear-gradient(90deg,#c87000,#e8a040)':'linear-gradient(90deg,#00966b,#40c890)'}" data-cap="${capPct}%"></div></div>
+      <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;"><span>0%</span><span style="color:${capPct>=80?'var(--danger)':capPct>=60?'var(--warn)':'var(--green)'};font-weight:700">${capPct}% utilized</span><span>100%</span></div>
+      ${Object.entries(pi.signals).map(([k,v])=>{
+        const lbl={capacity:'Capacity Risk',trialLoad:'Trial Load',subjectBurden:'Subject Burden',openActions:'Open Actions',experience:'Experience Gap'}[k]||k;
+        return `<div class="pi-signal-row"><div class="pi-signal-lbl">${lbl}</div><div class="pi-signal-bar"><div class="pi-signal-fill" style="width:0%;background:${v>=70?'linear-gradient(90deg,#c8253e,#f07080)':v>=50?'linear-gradient(90deg,#c87000,#e8a040)':'linear-gradient(90deg,#0068b8,#40b0d8)'}" data-sig="${v}%"></div></div><div class="pi-signal-val" style="color:${v>=70?'var(--danger)':v>=50?'var(--warn)':'var(--accent)'}">${v}</div></div>`;
+      }).join('')}
+      <div style="font-size:11px;color:var(--text2);line-height:1.7;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">${pi.narrative}</div>`;
+
+    card.addEventListener('click',()=>{
+      if(openDetail&&openDetail!==detail){openDetail.classList.remove('open');openDetail=null;}
+      detail.classList.toggle('open');
+      if(detail.classList.contains('open')){
+        openDetail=detail;
+        setTimeout(()=>{
+          detail.querySelectorAll('[data-cap]').forEach(b=>b.style.width=b.dataset.cap);
+          detail.querySelectorAll('[data-sig]').forEach(b=>b.style.width=b.dataset.sig);
+        },50);
+      } else openDetail=null;
+      document.querySelectorAll('.pi-card').forEach(c=>c.classList.remove('active'));
+      if(detail.classList.contains('open'))card.classList.add('active');
+    });
+    board.appendChild(card);
+    board.appendChild(detail);
+  });
+}
+renderPIBoard(selP.id);
+
+/* PROTOCOL BUTTONS */
+const pbrow=$('pbrow');
+protos.forEach(p=>{
+  const b=document.createElement('button');
+  b.className='pbtn'+(p.id===selP.id?' act':'');
+  b.innerHTML=`<div class="pbtn-name"><div class="pdot" style="background:${p.color}"></div>${p.name}</div><div class="pbtn-meta">${p.desc} · ${p.amendments} amdts · ${p.sites} sites</div>`;
+  b.onclick=()=>{selP=p;document.querySelectorAll('.pbtn').forEach(x=>x.classList.remove('act'));b.classList.add('act');renderPIBoard(p.id);resetAnalysis();};
+  pbrow.appendChild(b);
+});
+
+/* STAGE NAV */
+function buildNav(){
+  const nav=$('snav');nav.innerHTML='';
+  stageDefs.forEach((s,idx)=>{
+    const st=stageStatus[s.id]||'pending';
+    const isDone=st==='done',isRun=st==='running';
+    const btn=document.createElement('div');
+    btn.className=`snb${activeStage===s.id?' act':''}${isDone?' done':''}${isRun?' running':''}${s.isPi?' pi-stage':''}`;
+    const numTxt=isDone?'<span style="font-size:10px">✓</span>':(idx+1);
+    btn.innerHTML=`<div class="snn">${numTxt}</div>${s.icon} ${s.label}${isRun?'<span class="spulse"></span>':''}`;
+    btn.onclick=()=>{if(isDone||activeStage===s.id)showStage(s.id);};
+    nav.appendChild(btn);
+  });
+}
+
+function showStage(id){
+  activeStage=id;buildNav();
+  if(stageData[id]){
+    $('scontent').innerHTML=stageData[id];
+    $('scontent').querySelectorAll('[data-ab]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.ab+'%')));
+    $('scontent').querySelectorAll('[data-ah]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.height=b.dataset.ah)));
+    $('scontent').querySelectorAll('[data-cap]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.cap)));
+    $('scontent').querySelectorAll('[data-sig]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.sig)));
+    const gc=$('scontent').querySelector('canvas#gc');
+    if(gc&&stageData._gs)drawGaugeOn(gc,stageData._gs,stageData._gc);
+    const gnum=$('scontent').querySelector('#gnum');
+    if(gnum&&stageData._gs)gnum.textContent=stageData._gs;
+  } else {
+    const def=stageDefs.find(x=>x.id===id);
+    $('scontent').innerHTML=`<div class="sempty"><div class="sempty-icon">${def.icon}</div><div class="sempty-txt">Run analysis to unlock this stage</div></div>`;
+  }
+}
+
+function resetAnalysis(){
+  stageData={};stageStatus={};activeStage=null;buildNav();
+  $('scontent').innerHTML=`<div class="sempty"><div class="sempty-icon">⚙</div><div class="sempty-txt">Select a protocol and run analysis</div></div>`;
+  $('runBtn').disabled=false;$('rbt').textContent='Run AI Analysis Pipeline';$('rbi').textContent='▶';
+}
+
+/* TYPEWRITER */
+async function typeInto(el,lines,delay=60){
+  el.innerHTML='<span class="cur"></span>';
+  for(const line of lines){await sleep(delay);const cur=el.querySelector('.cur');if(cur)cur.remove();el.innerHTML+=line+'<br><span class="cur"></span>';el.scrollTop=el.scrollHeight;}
+  el.querySelector('.cur')?.remove();
+}
+async function typeText(el,text,cd=15){
+  el.innerHTML='';
+  for(let i=0;i<text.length;i++){el.innerHTML=text.slice(0,i+1)+(i<text.length-1?'<span class="cur"></span>':'');if(i%3===0)await sleep(cd);}
+}
+
+/* RUN */
+async function runAnalysis(){
+  if(running)return;running=true;
+  $('runBtn').disabled=true;$('rbt').textContent='Analyzing…';$('rbi').textContent='⟳';
+  for(const s of stageDefs)stageStatus[s.id]='pending';
+  await doStage('ocr',  ()=>stageOCR(selP));
+  await doStage('dev',  ()=>stageDev(selP));
+  await doStage('win',  ()=>stageWin(selP));
+  await doStage('wl',   ()=>stageWL(selP));
+  await doStage('pi',   ()=>stagePIWorkload(selP));
+  await doStage('score',()=>stageScore(selP));
+  $('runBtn').disabled=false;$('rbt').textContent='Re-Run Analysis';$('rbi').textContent='↺';
+  running=false;
+}
+
+async function doStage(id,fn){
+  stageStatus[id]='running';if(!activeStage)activeStage=id;buildNav();
+  if(activeStage===id)$('scontent').innerHTML=`<div class="sempty"><div class="sempty-icon">⟳</div><div class="sempty-txt">Processing…</div></div>`;
+  await fn();stageStatus[id]='done';buildNav();
+}
+
+/* ══ OCR ══ */
+async function stageOCR(p){
+  activeStage='ocr';buildNav();
+  const lines=[
+    `PROTOCOL: <span class="hl-b">${p.name} — Version ${p.amendments+3}.0</span>`,
+    `Sponsor: Clinical Research Org  |  Phase: II/III  |  IND: 12${p.amendments}847`,
+    `Amendment History: <span class="hl-r">${p.amendments} amendments filed (last: 47 days ago)</span>`,
+    ``,`SECTION 4.2 — VISIT SCHEDULE`,
+    ...p.vw.map((w,i)=>w.includes('±2')||w.includes('±1')?`&nbsp;&nbsp;Visit ${i+1}: <span class="hl-y">${w}</span>`:w.includes('fixed')||i===0?`&nbsp;&nbsp;Visit ${i+1}: <span class="hl-b">${w}</span>`:`&nbsp;&nbsp;Visit ${i+1}: <span class="hl-g">${w}</span>`),
+    ``,`SECTION 5.1 — PROCEDURES`,
+    `<span class="hl-r">⚠ Complexity: ${p.complexity>80?'14':'8'} concurrent procedure steps identified</span>`,
+    `<span class="hl-y">PK sampling: strict ±30 min — coordinator + PI confirmation required</span>`,
+    `<span class="hl-b">[AMDT v${p.amendments}.0] New: Eligibility re-confirmation at Cycle 2</span>`,
+    `<span class="hl-p">SECTION 8.1 — PI RESPONSIBILITIES: Minimum ${p.complexity>80?'8':'6'}h/week availability required</span>`,
+    `Complexity Index Score: <span class="hl-r">${p.complexity}/100</span>`,
+  ];
+  const sumHTML=`<div><div class="clabel" style="margin-bottom:9px">Extraction Summary</div><div class="cgrid" style="grid-template-columns:1fr 1fr;"><div class="ci"><div class="cilbl">Visit Windows</div><div class="cival" style="color:var(--accent)">${p.vw.length}</div></div><div class="ci"><div class="cilbl">Complexity</div><div class="cival" style="color:${p.complexity>=80?'var(--danger)':'var(--warn)'}">${p.complexity}</div></div><div class="ci"><div class="cilbl">Amendments</div><div class="cival" style="color:${p.amendments>=4?'var(--danger)':'var(--warn)'}">${p.amendments}</div></div><div class="ci"><div class="cilbl">Active Sites</div><div class="cival" style="color:var(--teal)">${p.sites}</div></div></div><div class="narr-box" style="margin-bottom:0"><div class="narr-label">OCR Signal Flags</div><div style="font-size:11.5px;color:var(--text2);line-height:1.8;">${p.vw.filter(w=>w.includes('±2')||w.includes('±1')).length} tight scheduling windows ≤±2d flex.<br>Amendment v${p.amendments}.0 — new procedural requirements not yet in SOPs.<br><strong style="color:${p.complexity>80?'var(--danger)':'var(--warn)'}">${p.complexity>80?'HIGH':'MODERATE'}</strong> complexity — ${p.complexity>80?'14':'8'} concurrent steps at peak visits.<br><strong style="color:var(--purple)">PI Section 8.1 extracted:</strong> Minimum ${p.complexity>80?'8':'6'}h/week availability required for protocol compliance.</div></div></div>`;
+  $('scontent').innerHTML=`<div class="two-col"><div><div class="clabel" style="margin-bottom:9px">Document Parse · ${p.name}</div><div class="ocr-box" id="ocrbox"></div><div class="leg"><div class="legit"><div class="legdot" style="background:rgba(200,37,62,.6)"></div>High complexity</div><div class="legit"><div class="legdot" style="background:rgba(200,112,0,.6)"></div>Timing constraint</div><div class="legit"><div class="legdot" style="background:rgba(0,104,184,.5)"></div>Amendment</div><div class="legit"><div class="legdot" style="background:rgba(0,150,107,.5)"></div>Standard</div><div class="legit"><div class="legdot" style="background:rgba(107,63,160,.5)"></div>PI requirement</div></div></div>${sumHTML}</div>`;
+  const ob=$('ocrbox');await typeInto(ob,lines,60);
+  stageData['ocr']=`<div class="two-col"><div><div class="clabel" style="margin-bottom:9px">Document Parse · ${p.name}</div><div class="ocr-box">${ob.innerHTML}</div><div class="leg"><div class="legit"><div class="legdot" style="background:rgba(200,37,62,.6)"></div>High complexity</div><div class="legit"><div class="legdot" style="background:rgba(200,112,0,.6)"></div>Timing constraint</div><div class="legit"><div class="legdot" style="background:rgba(0,104,184,.5)"></div>Amendment</div><div class="legit"><div class="legdot" style="background:rgba(0,150,107,.5)"></div>Standard</div><div class="legit"><div class="legdot" style="background:rgba(107,63,160,.5)"></div>PI requirement</div></div></div>${sumHTML}</div>`;
+}
+
+/* ══ DEVIATION ══ */
+async function stageDev(p){
+  activeStage='dev';buildNav();
+  const maxV=Math.max(...p.dh.map(d=>d.r),20);
+  const statCols=p.dh.map(d=>`<div class="ci" style="padding:7px 9px;"><div class="cilbl" style="font-size:7px">${d.v.split(' ').slice(0,2).join(' ')}</div><div style="font-size:15px;font-weight:800;color:${d.r>20?'var(--danger)':'var(--warn)'}">${d.r}%</div><div style="font-family:monospace;font-size:7px;color:var(--muted)">norm: ${d.n}%</div></div>`).join('');
+  $('scontent').innerHTML=`<div class="two-col"><div><div class="clabel" style="margin-bottom:9px">Site Rate vs Network Norm · ${p.name}</div><div class="dev-chart" id="dvc"></div><div style="display:flex;gap:10px;margin-top:7px;margin-bottom:10px;"><div class="legit"><div style="width:10px;height:6px;border-radius:2px;background:rgba(200,37,62,.65)"></div>Site Rate</div><div class="legit"><div style="width:10px;height:6px;border-radius:2px;background:rgba(0,104,184,.3)"></div>Network Norm</div></div><div class="cgrid" style="grid-template-columns:repeat(${p.dh.length},1fr);margin-bottom:0;">${statCols}</div></div><div><div class="clabel" style="margin-bottom:9px">AI Pattern Analysis</div><div class="narr-box"><div class="narr-label">Deviation Insight</div><div class="stream" id="devstr"></div></div><div class="narr-box" style="margin-bottom:0"><div class="narr-label">Deviation Summary</div><div style="font-size:11.5px;color:var(--text2);line-height:1.8;">Highest deviation: <strong style="color:var(--danger)">${p.dh[0].v}</strong> at ${p.dh[0].r}%<br>Network benchmark: ${p.dh[0].n}% (delta: <strong style="color:var(--danger)">+${p.dh[0].r-p.dh[0].n}pts</strong>)<br>${p.dh.filter(d=>d.r>d.n*1.5).length} visit type(s) exceed 1.5× network norm</div></div></div></div>`;
+  const chart=$('dvc');
+  p.dh.forEach(d=>{const sh=Math.round((d.r/maxV)*95),nh=Math.round((d.n/maxV)*95);chart.innerHTML+=`<div class="dc"><div class="dbars"><div class="dbs" style="height:0;width:44%" data-ah="${sh}px"></div><div class="dbn" style="height:${nh}px;width:44%"></div></div><div class="dcl">${d.v.split(' ').slice(0,2).join(' ')}</div></div>`;});
+  await sleep(100);document.querySelectorAll('.dbs[data-ah]').forEach(b=>b.style.height=b.dataset.ah);
+  await sleep(400);const el=$('devstr');await typeText(el,NARR[p.id].dev.replace(/<[^>]+>/g,''),11);el.innerHTML=NARR[p.id].dev;
+  stageData['dev']=`<div class="two-col"><div><div class="clabel" style="margin-bottom:9px">Site Rate vs Network Norm · ${p.name}</div><div class="dev-chart">${chart.innerHTML.replace(/style="height:0/g,'style="height:0').replace(/data-ah="([^"]+)"/g,'data-ah="$1" style="height:0"')}</div><div style="display:flex;gap:10px;margin-top:7px;margin-bottom:10px;"><div class="legit"><div style="width:10px;height:6px;border-radius:2px;background:rgba(200,37,62,.65)"></div>Site Rate</div><div class="legit"><div style="width:10px;height:6px;border-radius:2px;background:rgba(0,104,184,.3)"></div>Network Norm</div></div><div class="cgrid" style="grid-template-columns:repeat(${p.dh.length},1fr);margin-bottom:0;">${statCols}</div></div><div><div class="clabel" style="margin-bottom:9px">AI Pattern Analysis</div><div class="narr-box"><div class="narr-label">Deviation Insight</div><div class="stream">${NARR[p.id].dev}</div></div><div class="narr-box" style="margin-bottom:0"><div class="narr-label">Deviation Summary</div><div style="font-size:11.5px;color:var(--text2);line-height:1.8;">Highest deviation: <strong style="color:var(--danger)">${p.dh[0].v}</strong> at ${p.dh[0].r}%<br>Network benchmark: ${p.dh[0].n}% (delta: <strong style="color:var(--danger)">+${p.dh[0].r-p.dh[0].n}pts</strong>)<br>${p.dh.filter(d=>d.r>d.n*1.5).length} visit type(s) exceed 1.5× network norm</div></div></div></div>`;
+}
+
+/* ══ WINDOWS ══ */
+async function stageWin(p){
+  activeStage='win';buildNav();
+  const tight=p.vw.filter(w=>w.includes('±2')||w.includes('±1')).length;
+  const wRows=p.vw.map((w,i)=>{const iT=w.includes('±2')||w.includes('±1'),isF=w.includes('fixed');return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:${iT?'rgba(200,37,62,.06)':isF?'rgba(0,104,184,.06)':'var(--s2)'};border:1px solid ${iT?'rgba(200,37,62,.2)':isF?'rgba(0,104,184,.15)':'var(--border)'};margin-bottom:5px;"><div style="font-family:monospace;font-size:8.5px;color:var(--muted);width:12px;text-align:right">${i+1}</div><div style="font-size:11.5px;color:var(--text2);flex:1">${w}</div>${iT?`<span class="chip critical" style="font-size:7px;padding:1px 5px">TIGHT</span>`:isF?`<span class="chip moderate" style="font-size:7px;padding:1px 5px">FIXED</span>`:''}</div>`;}).join('');
+  $('scontent').innerHTML=`<div class="two-col"><div><div class="clabel" style="margin-bottom:9px">Visit Window Schedule · ${p.name}</div>${wRows}</div><div><div class="clabel" style="margin-bottom:9px">Constraint Metrics</div><div class="cgrid" style="grid-template-columns:1fr 1fr;"><div class="ci"><div class="cilbl">Total Windows</div><div class="cival" style="color:var(--accent)">${p.vw.length}</div></div><div class="ci"><div class="cilbl">Tight (≤±2d)</div><div class="cival" style="color:${tight>=2?'var(--danger)':'var(--warn)'}">${tight}</div></div><div class="ci"><div class="cilbl">Amendments</div><div class="cival" style="color:${p.amendments>=4?'var(--danger)':'var(--warn)'}">${p.amendments}</div></div><div class="ci"><div class="cilbl">Flex Score</div><div class="cival" style="color:${p.rf.vw>70?'var(--danger)':'var(--green)'}">${100-p.rf.vw}</div></div></div><div class="narr-box" style="margin-bottom:0"><div class="narr-label">AI Window Assessment</div><div class="stream" id="winstr"></div></div></div></div>`;
+  await sleep(400);const el=$('winstr');await typeText(el,NARR[p.id].win.replace(/<[^>]+>/g,''),11);el.innerHTML=NARR[p.id].win;
+  stageData['win']=$('scontent').innerHTML;
+}
+
+/* ══ WORKLOAD ══ */
+async function stageWL(p){
+  activeStage='wl';buildNav();
+  $('scontent').innerHTML=`<div class="two-col"><div><div class="clabel" style="margin-bottom:9px">Site Operational Signals · ${p.name}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;"><div class="ci" style="text-align:center;padding:13px 10px;"><div style="font-size:24px;margin-bottom:5px;">📋</div><div class="cilbl">Concurrent Visits</div><div class="cival" style="font-size:24px;color:${p.wl.cv>=4?'var(--danger)':'var(--warn)'}">${p.wl.cv}</div><div style="font-family:monospace;font-size:7.5px;color:var(--muted);margin-top:2px">${p.wl.cv>=4?'HIGH LOAD':'MODERATE'}</div></div><div class="ci" style="text-align:center;padding:13px 10px;"><div style="font-size:24px;margin-bottom:5px;">❓</div><div class="cilbl">Open Queries</div><div class="cival" style="font-size:24px;color:${p.wl.oq>=6?'var(--danger)':'var(--warn)'}">${p.wl.oq}</div><div style="font-family:monospace;font-size:7.5px;color:var(--muted);margin-top:2px">${p.wl.oq>=6?'BACKLOGGED':'MANAGEABLE'}</div></div><div class="ci" style="text-align:center;padding:13px 10px;"><div style="font-size:24px;margin-bottom:5px;">👤</div><div class="cilbl">Coordinator Level</div><div style="font-size:14px;font-weight:800;margin-top:3px;color:${p.wl.ce==='Junior'?'var(--danger)':p.wl.ce==='Senior'?'var(--green)':'var(--accent)'}">${p.wl.ce}</div><div style="font-family:monospace;font-size:7.5px;color:var(--muted);margin-top:2px">${p.wl.ce==='Junior'?'RISK FACTOR':p.wl.ce==='Senior'?'MITIGATING':'ADEQUATE'}</div></div></div><div class="narr-box" style="margin-bottom:0"><div class="narr-label">Workload Risk Summary</div><div style="font-size:11.5px;color:var(--text2);line-height:1.8;">Workload pressure: <strong style="color:${p.rf.wl>=60?'var(--danger)':'var(--warn)'}">${p.rf.wl}/100</strong><br>Coordinator experience: <strong style="color:${p.rf.co>=60?'var(--green)':'var(--danger)'}">${p.rf.co}/100</strong><br>${p.wl.cv} active visits + ${p.wl.oq} unresolved queries on visit day</div></div></div><div><div class="clabel" style="margin-bottom:9px">AI Workload Interpretation</div><div class="narr-box"><div class="narr-label">Operational Risk Analysis</div><div class="stream" id="wlstr"></div></div><div class="narr-box" style="margin-bottom:0"><div class="narr-label">Note: PI Workload Analysis</div><div style="font-size:11.5px;color:var(--text2);line-height:1.8;">Coordinator workload is one input into site risk. <strong style="color:var(--purple)">PI capacity is analyzed separately</strong> in the next stage — including trial load, hours available, open actions, and protocol-specific availability thresholds extracted from the protocol document.</div></div></div></div>`;
+  await sleep(400);const el=$('wlstr');await typeText(el,NARR[p.id].wl.replace(/<[^>]+>/g,''),11);el.innerHTML=NARR[p.id].wl;
+  stageData['wl']=$('scontent').innerHTML;
+}
+
+/* ══ PI WORKLOAD ══ */
+async function stagePIWorkload(p){
+  activeStage='pi';buildNav();
+  const pis=PI_DATA[p.id];
+  const reqHours=p.complexity>80?8:6;
+
+  let cardsHTML='';
+  pis.forEach((pi,i)=>{
+    const sc=pi.risk==='critical'?'var(--danger)':pi.risk==='high'?'var(--warn)':pi.risk==='moderate'?'var(--accent)':'var(--green)';
+    const initials=pi.name.split(' ').filter((_,j)=>j>0).map(n=>n[0]).join('').slice(0,2);
+    const capPct=Math.min(100,Math.round((pi.visitLoad/20)*100));
+    const atRisk=pi.hoursAvail<reqHours;
+    cardsHTML+=`<div class="pi-stage-card">
+      <div class="pi-stage-head" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.pi-toggle').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+        <div class="pi-stage-avatar" style="background:${piColors[i]}">${initials}</div>
+        <div><div class="pi-stage-name">#${i+1} ${pi.name}</div><div class="pi-stage-site">${pi.site} · ${pi.specialty} · ${pi.trials} active trials · ${pi.subjects} subjects</div></div>
+        <div class="pi-stage-right">
+          ${atRisk?`<span class="chip critical" style="font-size:7.5px">⚠ CAPACITY RISK</span>`:`<span class="chip ${pi.risk}" style="font-size:7.5px">${pi.risk.toUpperCase()}</span>`}
+          <div style="text-align:right"><div class="pi-stage-score-big" style="color:${sc}">${pi.score}</div><div class="pi-stage-score-lbl">PI Risk Score</div></div>
+          <div class="pi-toggle" style="color:var(--muted);font-size:11px;margin-left:4px">▼</div>
+        </div>
+      </div>
+      <div class="pi-stage-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div>
+            <div class="narr-label purple" style="margin-bottom:8px">Availability Assessment</div>
+            <div class="avail-grid">
+              <div class="avail-item"><div class="avail-val" style="color:${pi.hoursAvail<reqHours?'var(--danger)':'var(--green)'}">${pi.hoursAvail}h</div><div class="avail-lbl">Avail/Week</div></div>
+              <div class="avail-item"><div class="avail-val" style="color:var(--muted)">${reqHours}h</div><div class="avail-lbl">Required</div></div>
+              <div class="avail-item"><div class="avail-val" style="color:${pi.hoursAvail<reqHours?'var(--danger)':'var(--green)'}">${pi.hoursAvail<reqHours?`-${reqHours-pi.hoursAvail}h`:'+'+( pi.hoursAvail-reqHours)+'h'}</div><div class="avail-lbl">${pi.hoursAvail<reqHours?'Shortfall':'Surplus'}</div></div>
+            </div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px">Protocol Capacity Utilization</div>
+            <div class="capacity-bar"><div class="capacity-fill" style="width:0%;background:${capPct>=80?'linear-gradient(90deg,#c8253e,#f07080)':capPct>=60?'linear-gradient(90deg,#c87000,#e8a040)':'linear-gradient(90deg,#00966b,#40c890)'}" data-cap="${capPct}%"></div></div>
+            <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:10px"><span>0%</span><span style="color:${capPct>=80?'var(--danger)':capPct>=60?'var(--warn)':'var(--green)'};font-weight:700">${capPct}% utilized</span><span>100%</span></div>
+            ${Object.entries(pi.signals).map(([k,v])=>{const lbl={capacity:'Capacity Risk',trialLoad:'Trial Load',subjectBurden:'Subject Burden',openActions:'Open Actions',experience:'Experience Gap'}[k]||k;return `<div class="pi-signal-row"><div class="pi-signal-lbl">${lbl}</div><div class="pi-signal-bar"><div class="pi-signal-fill" style="width:0%;background:${v>=70?'linear-gradient(90deg,#c8253e,#f07080)':v>=50?'linear-gradient(90deg,#c87000,#e8a040)':'linear-gradient(90deg,#0068b8,#40b0d8)'}" data-sig="${v}%"></div></div><div class="pi-signal-val" style="color:${v>=70?'var(--danger)':v>=50?'var(--warn)':'var(--accent)'}">${v}</div></div>`;}).join('')}
+          </div>
+          <div>
+            <div class="narr-label purple" style="margin-bottom:8px">AI Assessment</div>
+            <div style="font-size:11.5px;color:var(--text2);line-height:1.8;">${pi.narrative}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  const overallPIScore=Math.round(pis.reduce((s,pi)=>s+pi.score,0)/pis.length);
+  const critCount=pis.filter(pi=>pi.risk==='critical').length;
+  const highCount=pis.filter(pi=>pi.risk==='high').length;
+
+  $('scontent').innerHTML=`
+    <div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+        <div class="ci"><div class="cilbl">Avg PI Risk Score</div><div class="cival" style="color:${overallPIScore>=70?'var(--danger)':overallPIScore>=50?'var(--warn)':'var(--green)'}">${overallPIScore}</div></div>
+        <div class="ci"><div class="cilbl">Critical PI Risk</div><div class="cival" style="color:var(--danger)">${critCount}</div></div>
+        <div class="ci"><div class="cilbl">High PI Risk</div><div class="cival" style="color:var(--warn)">${highCount}</div></div>
+        <div class="ci"><div class="cilbl">Protocol Min Hours</div><div class="cival" style="color:var(--purple)">${reqHours}h/wk</div></div>
+      </div>
+      <div class="narr-box" style="margin-bottom:14px;border-color:rgba(107,63,160,.25);background:rgba(107,63,160,.03)">
+        <div class="narr-label purple">AI Portfolio Interpretation</div>
+        <div class="stream" id="pistr"></div>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:10px;font-weight:700;">PI Profiles · Ranked by Risk (Click to expand)</div>
+      ${cardsHTML}
+    </div>`;
+
+  // Animate all fills
+  await sleep(100);
+  $('scontent').querySelectorAll('[data-cap]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.cap)));
+  $('scontent').querySelectorAll('[data-sig]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.sig)));
+
+  // Type narrative
+  const el=$('pistr');
+  await typeText(el,NARR[p.id].pi.replace(/<[^>]+>/g,''),10);
+  el.innerHTML=NARR[p.id].pi;
+
+  stageData['pi']=$('scontent').innerHTML;
+}
+
+/* ══ RISK SCORE ══ */
+async function stageScore(p){
+  activeStage='score';buildNav();
+  const rf=p.rf;
+  // Updated formula: PI workload now 14%, coordinator drops to 5%
+  const score=Math.round(rf.dh*.22+rf.cx*.18+rf.vw*.16+rf.af*.13+rf.pi*.14+rf.wl*.11+(100-rf.co)*.06);
+  const level=score>=75?'critical':score>=55?'high':'moderate';
+  const color=level==='critical'?'var(--danger)':level==='high'?'var(--warn)':'var(--accent)';
+  const colorHex=level==='critical'?'#c8253e':level==='high'?'#c87000':'#0068b8';
+  stageData._gs=score;stageData._gc=colorHex;
+
+  const sbars=[
+    {l:'Deviation History',v:rf.dh,w:'22%'},{l:'Protocol Complexity',v:rf.cx,w:'18%'},
+    {l:'Visit Window Risk',v:rf.vw,w:'16%'},{l:'PI Workload',v:rf.pi,w:'14%',isPi:true},
+    {l:'Amendment Frequency',v:rf.af,w:'13%'},{l:'Site Workload',v:rf.wl,w:'11%'},
+    {l:'Coord. Experience',v:100-rf.co,w:'6%'},
+  ];
+
+  $('scontent').innerHTML=`<div class="two-col">
+    <div>
+      <div class="clabel" style="margin-bottom:9px">Composite Risk Score · ${p.name}</div>
+      <div class="score-layout">
+        <div class="gauge-wrap"><canvas id="gc" width="170" height="105"></canvas><div class="gauge-ctr"><div class="gnum" id="gnum" style="color:${color}">0</div><div class="glbl">${level.toUpperCase()} RISK</div></div></div>
+        <div>
+          ${sbars.map(s=>`<div class="sbrow"><div class="sblab" style="${s.isPi?'color:var(--purple);font-weight:700':''}">${s.isPi?'👨‍⚕️ ':''} ${s.l}</div><div class="sbtrk"><div class="sbfil" data-ab="${s.v}" style="width:0%;background:${s.isPi?'linear-gradient(90deg,#6b3fa0,#a07ad0)':s.v>=75?'linear-gradient(90deg,#c8253e,#f07080)':s.v>=50?'linear-gradient(90deg,#c87000,#e8a040)':'linear-gradient(90deg,#0068b8,#40b0d8)'}"></div></div><div class="sbval" style="color:${s.isPi?'var(--purple)':s.v>=75?'var(--danger)':s.v>=50?'var(--warn)':'var(--accent)'}">${s.v}</div></div>`).join('')}
+          <div style="font-family:'Space Mono',monospace;font-size:7.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">PI Workload now weighted at 14% of composite score</div>
+        </div>
+      </div>
+      <div class="rbox ${level}">
+        <div class="rtitle" style="color:${color}">● Pre-Visit Recommendations</div>
+        <div class="rit"><span class="rarrow">→</span>Coordinator briefing: ${p.dh[0].v} — ${p.dh[0].r}% vs ${p.dh[0].n}% norm</div>
+        <div class="rit"><span class="rarrow" style="color:var(--purple)">→</span>Confirm PI availability ≥${p.complexity>80?'8':'6'}h/week before next visit scheduling</div>
+        <div class="rit"><span class="rarrow" style="color:var(--purple)">→</span>Review highest-risk PI (${PI_DATA[p.id][0].name}) — ${PI_DATA[p.id][0].hoursAvail}h available vs ${p.complexity>80?'8':'6'}h required</div>
+        <div class="rit"><span class="rarrow">→</span>Review Amendment v${p.amendments}.0 changes with site team before next window</div>
+        <div class="rit"><span class="rarrow">→</span>Clear ${p.wl.oq} open queries prior to visit day</div>
+      </div>
+    </div>
+    <div>
+      <div class="clabel" style="margin-bottom:9px">AI Explainability Narrative</div>
+      <div class="narr-box" style="margin-bottom:10px">
+        <div class="narr-label">Why This Score</div>
+        <div class="stream" id="scstr"></div>
+      </div>
+      <div class="narr-box" style="margin-bottom:0;border-color:rgba(107,63,160,.2)">
+        <div class="narr-label purple">Model Design · PI Integration</div>
+        <div style="font-size:11.5px;color:var(--text2);line-height:1.8;">
+          PI Workload (14%) · Deviation History (22%) · Complexity (18%) · Visit Windows (16%) · Amendments (13%) · Site Workload (11%) · Coord. Experience (6%)<br><br>
+          <strong>Non-patient data only.</strong> PI availability derived from protocol Section 8.1 requirements cross-referenced against site-reported capacity. No individual performance scoring — framed as structural readiness assessment.
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  await sleep(200);
+  $('scontent').querySelectorAll('.sbfil[data-ab]').forEach(b=>requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.ab+'%')));
+  const gc=$('scontent').querySelector('canvas#gc');
+  drawGaugeOn(gc,score,colorHex);animGaugeNum(score);
+  await sleep(300);
+  const el=$('scstr');await typeText(el,NARR[p.id].score.replace(/<[^>]+>/g,''),10);el.innerHTML=NARR[p.id].score;
+  stageData['score']=$('scontent').innerHTML.replace(/style="width:0%"/g,'');
+}
+
+function drawGaugeOn(c,score,colorHex){
+  if(!c)return;
+  const ctx=c.getContext('2d'),cx=85,cy=90,r=68;
+  ctx.clearRect(0,0,170,105);
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,0);ctx.strokeStyle='rgba(0,0,0,.07)';ctx.lineWidth=11;ctx.lineCap='round';ctx.stroke();
+  const g=ctx.createLinearGradient(cx-r,0,cx+r,0);
+  g.addColorStop(0,'#00966b');g.addColorStop(.5,'#c87000');g.addColorStop(1,'#c8253e');
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+(Math.PI*score/100));ctx.strokeStyle=g;ctx.lineWidth=11;ctx.lineCap='round';ctx.stroke();
+  const na=Math.PI+(Math.PI*score/100);
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+55*Math.cos(na),cy+55*Math.sin(na));ctx.strokeStyle=colorHex;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle=colorHex;ctx.fill();
+}
+function animGaugeNum(t){const el=$('gnum');if(!el)return;let c=0;const s=Math.ceil(t/35);const iv=setInterval(()=>{c=Math.min(c+s,t);el.textContent=c;if(c>=t)clearInterval(iv);},30);}
+
+buildNav();
+</script>
+</body>
+</html>
