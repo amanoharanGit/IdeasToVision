@@ -223,20 +223,6 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 .prog-track{height:5px;background:var(--border);border-radius:3px;}
 .prog-fill{height:100%;border-radius:3px;}
 
-/* ── SMARTSHEET TAB ── */
-.ss-wrap{padding:24px 30px;}
-.ss-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
-.ss-top h2{font-size:18px;font-weight:600;color:var(--navy);}
-.ss-top p{font-size:12.5px;color:var(--t2);margin-top:3px;}
-.ss-link-btn{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:7px;text-decoration:none;transition:all .2s;}
-.ss-link-btn:hover{background:var(--navy);transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,94,184,.3);}
-.ss-iframe-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,40,85,.07);}
-.ss-iframe-wrap iframe{width:100%;height:calc(100vh - 230px);min-height:600px;border:none;display:block;}
-.ss-iframe-placeholder{width:100%;height:calc(100vh - 230px);min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--s2);}
-.ss-iframe-placeholder .big-icon{font-size:48px;}
-.ss-iframe-placeholder h3{font-size:16px;font-weight:600;color:var(--navy);}
-.ss-iframe-placeholder p{font-size:13px;color:var(--t2);text-align:center;max-width:380px;line-height:1.6;}
-
 /* ── DASHBOARD TAB ── */
 .dash-wrap{padding:24px 30px 60px;}
 .dash-wrap h2{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:4px;}
@@ -266,9 +252,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 
 <!-- TOP NAV -->
 <nav class="top-nav">
-  <button class="tn-btn active" onclick="showView('smartsheet')">📋 Intake Form</button>
-  <div class="tn-sep"></div>
-  <button class="tn-btn" onclick="showView('process')">⚙️ Automation Process</button>
+  <button class="tn-btn active" onclick="showView('process')">⚙️ Automation Process</button>
   <div class="tn-sep"></div>
   <button class="tn-btn" onclick="showView('dashboard')">📊 Dashboard</button>
 </nav>
@@ -276,7 +260,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 <!-- ════════════════════════════════════════════════
      VIEW 1: PROCESS
 ════════════════════════════════════════════════ -->
-<div class="view" id="view-process">
+<div class="view active" id="view-process">
 <div class="process-wrap">
 
   <!-- SIDEBAR -->
@@ -473,32 +457,6 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
   </div><!-- end main-content -->
 </div><!-- end process-wrap -->
 </div><!-- end view-process -->
-
-<!-- ════════════════════════════════════════════════
-     VIEW 2: SMARTSHEET / INTAKE FORM
-════════════════════════════════════════════════ -->
-<div class="view active" id="view-smartsheet">
-  <div class="ss-wrap">
-    <div class="ss-top">
-      <div>
-        <h2>📋 Dermatology — Intake Form</h2>
-        <p>This is the live digital referral form. Submit directly here or <a href="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf" target="_blank" style="color:var(--blue);font-weight:600;">open in a new tab ↗</a></p>
-      </div>
-      <a href="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf" target="_blank" class="ss-link-btn">🔗 Open Form in New Tab ↗</a>
-    </div>
-    <div class="ss-iframe-wrap">
-      <iframe
-        src="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf"
-        title="Dermatology Referral Form"
-        allow="fullscreen"
-        id="ss-iframe">
-      </iframe>
-    </div>
-    <div style="margin-top:10px;font-size:11.5px;color:var(--t3);text-align:center;">
-      If the form doesn't load above, <a href="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf" target="_blank" style="color:var(--blue);">click here to open it directly ↗</a>. Some browsers block embedded third-party forms due to security policies.
-    </div>
-  </div>
-</div>
 
 <!-- ════════════════════════════════════════════════
      VIEW 3: DASHBOARD
@@ -838,7 +796,7 @@ function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tn-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  const idx = {smartsheet:0,process:1,dashboard:2}[v];
+  const idx = {process:0,dashboard:1}[v];
   document.querySelectorAll('.tn-btn')[idx].classList.add('active');
 }
 
