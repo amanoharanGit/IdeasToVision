@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deviation Risk Radar · MAGI 2026 Innovation Challenge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+/* ── WCG MAGI 2026 DESIGN SYSTEM ── */
+:root {
+  --white:    #ffffff;
+  --offwhite: #f5f5f6;
+  --gray-lt:  #ebebec;
+  --gray:     #d4d4d6;
+  --gray-dk:  #8a8a94;
+  --text:     #1a1a2e;
+  --text2:    #3a3a50;
+  --muted:    #6e6e80;
+
+  /* WCG brand palette from template */
+  --magenta:  #e8197d;
+  --magenta2: #c4156a;
+  --indigo:   #3d3599;
+  --indigo2:  #2a2470;
+  --purple:   #7b68d8;
+  --yellow:   #f5c500;
+  --teal:     #00b4cc;
+
+  --sh:  0 2px 12px rgba(61,53,153,.10);
+  --sh2: 0 6px 28px rgba(61,53,153,.14);
+  --sh3: 0 16px 48px rgba(61,53,153,.18);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--offwhite);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════
+   SITE HEADER — WCG MAGI branding
+══════════════════════════════════ */
+.site-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-lt);
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,.07);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* WCG MAGI2026 logo replica */
+.wcg-logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.wcg-mark {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.wcg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.wcg-wordmark {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--indigo);
+  letter-spacing: .5px;
+}
+
+.wcg-wordmark span {
+  color: var(--magenta);
+}
+
+.header-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--gray);
+}
+
+.pitch-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.2px;
+}
+
+.pitch-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.innovation-badge {
+  background: linear-gradient(135deg, var(--magenta), var(--indigo));
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 99px;
+}
+
+/* ══════════════════════
+   TAB NAVIGATION
+══════════════════════ */
+.tab-nav {
+  background: var(--white);
+  border-bottom: 2px solid var(--gray-lt);
+  padding: 0 40px;
+}
+
+.tab-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all .2s;
+  letter-spacing: -.1px;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--indigo); }
+
+.tab-btn.active {
+  color: var(--magenta);
+  border-bottom-color: var(--magenta);
+}
+
+.tab-btn .tab-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--gray-lt);
+  color: var(--muted);
+  transition: all .2s;
+}
+
+.tab-btn.active .tab-num {
+  background: var(--magenta);
+  color: white;
+}
+
+/* ══════════════════════
+   TAB PANELS
+══════════════════════ */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ══════════════════════════════════════════════
+   TAB 1 — TODAY'S CHALLENGE
+══════════════════════════════════════════════ */
+.challenge-hero {
+  background: linear-gradient(135deg, var(--indigo) 0%, #5548b8 50%, var(--magenta) 100%);
+  padding: 72px 40px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.challenge-hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: rgba(245,197,0,.15);
+}
+
+.challenge-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -60px;
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+  margin-bottom: 14px;
+}
+
+.hero-headline {
+  font-size: 44px;
+  font-weight: 800;
+  color: white;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+}
+
+.hero-headline em {
+  font-style: normal;
+  color: var(--yellow);
+}
+
+.hero-desc {
+  font-size: 16px;
+  color: rgba(255,255,255,.82);
+  line-height: 1.7;
+  max-width: 500px;
+}
+
+/* ── STAT PILLS ── */
+.stat-pills {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.stat-pill {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  padding: 12px 18px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.stat-pill-num {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--yellow);
+  line-height: 1;
+}
+
+.stat-pill-label {
+  font-size: 10px;
+  color: rgba(255,255,255,.7);
+  margin-top: 3px;
+  letter-spacing: .5px;
+}
+
+/* ══════════════════════
+   CRC ANIMATION STAGE
+══════════════════════ */
+.anim-stage {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 20px;
+  padding: 28px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.anim-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.6);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* CRC SVG Scene */
+#crcScene {
+  width: 100%;
+  height: 260px;
+}
+
+.activity-ticker {
+  margin-top: 12px;
+  font-size: 11px;
+  color: rgba(255,255,255,.75);
+  text-align: center;
+  font-style: italic;
+  min-height: 20px;
+  transition: opacity .3s;
+}
+
+/* ── CHALLENGE CONTENT ── */
+.challenge-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 40px;
+}
+
+.section-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--magenta);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+
+.section-desc {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 680px;
+  margin-bottom: 40px;
+}
+
+/* Pain point grid */
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 56px;
+}
+
+.pain-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 26px 24px;
+  box-shadow: var(--sh);
+  border-top: 4px solid var(--magenta);
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.pain-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh2);
+}
+
+.pain-card:nth-child(2) { border-top-color: var(--indigo); }
+.pain-card:nth-child(3) { border-top-color: var(--yellow); }
+.pain-card:nth-child(4) { border-top-color: var(--teal); }
+.pain-card:nth-child(5) { border-top-color: var(--purple); }
+.pain-card:nth-child(6) { border-top-color: var(--magenta2); }
+
+.pain-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.pain-card:nth-child(1) .pain-icon { background: rgba(232,25,125,.1); }
+.pain-card:nth-child(2) .pain-icon { background: rgba(61,53,153,.1); }
+.pain-card:nth-child(3) .pain-icon { background: rgba(245,197,0,.12); }
+.pain-card:nth-child(4) .pain-icon { background: rgba(0,180,204,.1); }
+.pain-card:nth-child(5) .pain-icon { background: rgba(123,104,216,.1); }
+.pain-card:nth-child(6) .pain-icon { background: rgba(196,21,106,.1); }
+
+.pain-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.pain-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* Current workflow timeline */
+.workflow-section {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--sh);
+  margin-bottom: 56px;
+}
+
+.workflow-steps {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 28px;
+  position: relative;
+}
+
+.workflow-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.workflow-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -12px;
+  top: 22px;
+  font-size: 18px;
+  color: var(--gray-dk);
+  z-index: 1;
+}
+
+.step-circle {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+  border: 2px solid var(--gray);
+  background: var(--offwhite);
+}
+
+.workflow-step.reactive .step-circle {
+  border-color: #e53935;
+  background: rgba(229,57,53,.08);
+}
+
+.step-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+
+.step-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 0 6px;
+}
+
+.workflow-problem-label {
+  margin-top: 28px;
+  background: rgba(229,57,53,.07);
+  border: 1px solid rgba(229,57,53,.2);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #c62828;
+}
+
+/* Cost callout */
+.cost-banner {
+  background: linear-gradient(135deg, var(--indigo), var(--indigo2));
+  border-radius: 20px;
+  padding: 40px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 0;
+}
+
+.cost-stat { text-align: center; }
+
+.cost-num {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--yellow);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.cost-label {
+  font-size: 12px;
+  color: rgba(255,255,255,.75);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════════
+   TAB 2 — THE SOLUTION
+══════════════════════════════════════════════ */
+.solution-hero {
+  background: var(--white);
+  padding: 64px 40px 52px;
+  border-bottom: 1px solid var(--gray-lt);
+  position: relative;
+  overflow: hidden;
+}
+
+.solution-hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,25,125,.08) 0%, transparent 70%);
+}
+
+.solution-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: 200px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,53,153,.06) 0%, transparent 70%);
+}
+
+.solution-hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.solution-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(232,25,125,.08);
+  border: 1px solid rgba(232,25,125,.2);
+  border-radius: 99px;
+  padding: 6px 14px;
+  margin-bottom: 18px;
+}
+
+.solution-tag-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--magenta);
+  animation: pd 1.5s ease-in-out infinite;
+}
+
+@keyframes pd { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);} }
+
+.solution-tag-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--magenta);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.solution-headline {
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -1.5px;
+  line-height: 1.15;
+  margin-bottom: 18px;
+}
+
+.solution-headline span { color: var(--magenta); }
+
+.solution-desc {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.75;
+  margin-bottom: 24px;
+}
+
+.solution-principles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.principle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.principle-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--magenta);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* How it works visual */
+.how-it-works {
+  background: linear-gradient(135deg, rgba(61,53,153,.06), rgba(232,25,125,.04));
+  border: 1px solid rgba(61,53,153,.12);
+  border-radius: 20px;
+  padding: 32px 28px;
+}
+
+.how-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--indigo);
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.signal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: var(--white);
+  border-radius: 10px;
+  border: 1px solid var(--gray-lt);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+
+.signal-icon {
+  font-size: 16px;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.signal-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.signal-source {
+  font-family: 'Space Mono', monospace;
+  font-size: 8.5px;
+  color: var(--muted);
+  background: var(--gray-lt);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.arrow-down {
+  text-align: center;
+  font-size: 20px;
+  color: var(--magenta);
+  margin: 6px 0;
+}
+
+.output-box {
+  background: linear-gradient(135deg, var(--magenta), var(--indigo));
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.output-icon { font-size: 20px; }
+
+.output-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+}
+
+.output-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,.75);
+}
+
+/* Solution content */
+.solution-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 40px;
+}
+
+/* Pipeline steps */
+.pipeline-section {
+  margin-bottom: 56px;
+}
+
+.pipeline-steps {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 28px;
+  position: relative;
+}
+
+.pipeline-steps::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  right: 28px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--magenta), var(--indigo));
+  z-index: 0;
+}
+
+.pipe-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.pipe-num {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 3px solid var(--white);
+  background: var(--white);
+  box-shadow: var(--sh);
+  margin-bottom: 12px;
+}
+
+.pipe-step:nth-child(1) .pipe-num { background: rgba(232,25,125,.1); }
+.pipe-step:nth-child(2) .pipe-num { background: rgba(61,53,153,.1); }
+.pipe-step:nth-child(3) .pipe-num { background: rgba(245,197,0,.12); }
+.pipe-step:nth-child(4) .pipe-num { background: rgba(0,180,204,.1); }
+.pipe-step:nth-child(5) .pipe-num { background: rgba(123,104,216,.1); }
+.pipe-step:nth-child(6) .pipe-num { background: linear-gradient(135deg,rgba(232,25,125,.15),rgba(61,53,153,.15)); }
+
+.pipe-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.pipe-sub {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* Before / After */
+.compare-section {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: var(--sh);
+  margin-bottom: 56px;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  align-items: stretch;
+  margin-top: 28px;
+}
+
+.compare-col {
+  padding: 24px;
+  border-radius: 14px;
+}
+
+.compare-col.before {
+  background: rgba(229,57,53,.04);
+  border: 1.5px solid rgba(229,57,53,.18);
+}
+
+.compare-col.after {
+  background: rgba(61,53,153,.04);
+  border: 1.5px solid rgba(61,53,153,.18);
+}
+
+.compare-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.compare-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.compare-bullet { flex-shrink: 0; margin-top: 4px; font-size: 14px; }
+
+.compare-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--magenta), var(--indigo));
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  align-self: center;
+  justify-self: center;
+  box-shadow: var(--sh2);
+  flex-shrink: 0;
+}
+
+/* Impact callout */
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.impact-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+  box-shadow: var(--sh);
+  border-bottom: 3px solid var(--magenta);
+  transition: transform .2s;
+}
+
+.impact-card:nth-child(2) { border-bottom-color: var(--indigo); }
+.impact-card:nth-child(3) { border-bottom-color: var(--yellow); }
+.impact-card:nth-child(4) { border-bottom-color: var(--teal); }
+
+.impact-card:hover { transform: translateY(-3px); }
+
+.impact-num {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.impact-card:nth-child(1) .impact-num { color: var(--magenta); }
+.impact-card:nth-child(2) .impact-num { color: var(--indigo); }
+.impact-card:nth-child(3) .impact-num { color: var(--yellow); }
+.impact-card:nth-child(4) .impact-num { color: var(--teal); }
+
+.impact-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════════════
+   TAB 3 — LIVE DEMO
+══════════════════════════════════════════════ */
+.demo-header {
+  background: var(--white);
+  padding: 28px 40px 20px;
+  border-bottom: 1px solid var(--gray-lt);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demo-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.demo-title-block {}
+
+.demo-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.5px;
+  margin-bottom: 3px;
+}
+
+.demo-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.demo-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.demo-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .2s;
+  border: none;
+}
+
+.demo-btn.primary {
+  background: var(--magenta);
+  color: white;
+}
+
+.demo-btn.primary:hover { background: var(--magenta2); }
+
+.demo-btn.secondary {
+  background: var(--gray-lt);
+  color: var(--text2);
+}
+
+.demo-btn.secondary:hover { background: var(--gray); }
+
+.demo-frame-wrap {
+  width: 100%;
+  height: calc(100vh - 200px);
+  min-height: 700px;
+  background: var(--offwhite);
+  position: relative;
+}
+
+.demo-frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.demo-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--offwhite);
+  gap: 14px;
+  transition: opacity .4s;
+}
+
+.demo-loading.hidden { opacity: 0; pointer-events: none; }
+
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--gray);
+  border-top-color: var(--magenta);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ══════════════════════
+   FOOTER
+══════════════════════ */
+.site-footer {
+  background: var(--indigo2);
+  padding: 28px 40px;
+  margin-top: 0;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-left {
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
+  line-height: 1.6;
+}
+
+.footer-right {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+}
+
+/* ══════════════════
+   GEOMETRIC ACCENT
+══════════════════ */
+.geo-yellow {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--yellow);
+  flex-shrink: 0;
+}
+
+.geo-magenta {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--magenta);
+  flex-shrink: 0;
+}
+
+.geo-bar {
+  width: 10px; height: 80px;
+  background: linear-gradient(180deg, var(--purple), var(--indigo));
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .anim-stage { display: none; }
+  .pain-grid { grid-template-columns: 1fr 1fr; }
+  .pipeline-steps { grid-template-columns: repeat(3,1fr); }
+  .pipeline-steps::before { display: none; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .compare-vs { display: none; }
+  .impact-grid { grid-template-columns: 1fr 1fr; }
+  .cost-banner { grid-template-columns: 1fr; gap: 20px; }
+  .solution-hero-inner { grid-template-columns: 1fr; }
+  .tab-btn { padding: 14px 16px; font-size: 12px; }
+}
+
+@media (max-width: 600px) {
+  .pain-grid { grid-template-columns: 1fr; }
+  .impact-grid { grid-template-columns: 1fr 1fr; }
+  .challenge-hero, .solution-hero, .solution-content, .challenge-content { padding-left: 20px; padding-right: 20px; }
+  .hero-headline { font-size: 30px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SITE HEADER ══ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <!-- WCG MAGI 2026 logo approximation -->
+      <div class="wcg-logo">
+        <div class="wcg-mark">
+          <div class="wcg-dot" style="background:#e8197d"></div>
+          <div class="wcg-dot" style="background:#3d3599"></div>
+        </div>
+        <div>
+          <div class="wcg-wordmark">WCG <span>MAGI2026</span></div>
+        </div>
+      </div>
+      <div class="header-divider"></div>
+      <div>
+        <div class="pitch-title">Deviation Risk Radar</div>
+        <div class="pitch-sub">Innovation Challenge Submission</div>
+      </div>
+    </div>
+    <div class="innovation-badge">Innovation Challenge 2026</div>
+  </div>
+</header>
+
+<!-- ══ TAB NAV ══ -->
+<nav class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" onclick="switchTab('challenge', this)">
+      <span class="tab-num">1</span>
+      Today's Challenge
+    </button>
+    <button class="tab-btn" onclick="switchTab('solution', this)">
+      <span class="tab-num">2</span>
+      The Solution
+    </button>
+    <button class="tab-btn" onclick="switchTab('demo', this)">
+      <span class="tab-num">3</span>
+      Live Demo
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     TAB 1 — TODAY'S CHALLENGE
+══════════════════════════════════════════════ -->
+<div class="tab-panel active" id="panel-challenge">
+
+  <!-- HERO -->
+  <div class="challenge-hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-eyebrow">MAGI 2026 · Innovation Challenge · Clinical Operations</div>
+        <h1 class="hero-headline">She sees the deviation<br><em>after</em> it happens.</h1>
+        <p class="hero-desc">
+          Every day, clinical research coordinators manage the impossible — complex protocols, tight visit windows, mounting open queries, and PI schedules that don't have room to flex. By the time a deviation is identified, the damage is already done.
+        </p>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-num">40%</div>
+            <div class="stat-pill-label">of deviations are<br>preventable</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-num">3×</div>
+            <div class="stat-pill-label">Protocol complexity<br>increase since 2014</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-num">100%</div>
+            <div class="stat-pill-label">Reactive — identified<br>after the visit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CRC ANIMATION ── -->
+      <div class="anim-stage">
+        <div class="anim-label">A Day in the Life · Clinical Research Coordinator</div>
+        <svg id="crcScene" viewBox="0 0 380 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="roomGrad" cx="50%" cy="100%" r="80%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0.03)"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Room floor -->
+          <ellipse cx="190" cy="245" rx="170" ry="18" fill="rgba(255,255,255,0.08)"/>
+
+          <!-- Desk -->
+          <rect x="80" y="170" width="200" height="12" rx="4" fill="rgba(255,255,255,0.25)"/>
+          <rect x="90" y="182" width="8" height="50" rx="3" fill="rgba(255,255,255,0.15)"/>
+          <rect x="262" y="182" width="8" height="50" rx="3" fill="rgba(255,255,255,0.15)"/>
+
+          <!-- Monitor -->
+          <rect x="140" y="128" width="80" height="52" rx="6" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <rect x="145" y="133" width="70" height="40" rx="3" fill="rgba(61,53,153,0.6)"/>
+          <!-- Screen glow effect -->
+          <rect x="145" y="133" width="70" height="40" rx="3" fill="rgba(232,25,125,0.1)" id="screenGlow"/>
+          <!-- Screen content lines -->
+          <rect x="149" y="137" width="45" height="3" rx="1.5" fill="rgba(255,255,255,0.5)" id="screenLine1"/>
+          <rect x="149" y="143" width="35" height="2.5" rx="1.25" fill="rgba(232,25,125,0.7)"/>
+          <rect x="149" y="148" width="40" height="2.5" rx="1.25" fill="rgba(255,255,255,0.35)"/>
+          <rect x="149" y="153" width="30" height="2.5" rx="1.25" fill="rgba(245,197,0,0.6)" id="warningLine"/>
+          <rect x="149" y="158" width="55" height="2.5" rx="1.25" fill="rgba(255,255,255,0.25)"/>
+          <!-- Monitor stand -->
+          <rect x="175" y="180" width="10" height="8" rx="2" fill="rgba(255,255,255,0.2)"/>
+          <rect x="168" y="187" width="24" height="3" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+
+          <!-- Keyboard -->
+          <rect x="145" y="168" width="70" height="10" rx="3" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+
+          <!-- Clipboard / chart on desk -->
+          <rect x="290" y="145" width="42" height="56" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+          <rect x="294" y="152" width="34" height="3" rx="1.5" fill="rgba(232,25,125,0.6)"/>
+          <rect x="294" y="158" width="26" height="2" rx="1" fill="rgba(255,255,255,0.4)"/>
+          <rect x="294" y="163" width="30" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <rect x="294" y="168" width="22" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <!-- Red flag on clipboard -->
+          <circle cx="320" cy="148" r="5" fill="rgba(229,57,53,0.8)" id="flagCircle"/>
+          <text x="318" y="151" font-size="6" fill="white" font-weight="700">!</text>
+
+          <!-- Stacked papers / protocol docs -->
+          <rect x="42" y="156" width="50" height="64" rx="4" fill="rgba(255,255,255,0.22)"/>
+          <rect x="46" y="160" width="42" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/>
+          <rect x="46" y="166" width="34" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <rect x="46" y="171" width="38" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <rect x="46" y="176" width="28" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <rect x="46" y="181" width="36" height="2" rx="1" fill="rgba(255,255,255,0.25)"/>
+          <!-- Amendment stamp -->
+          <rect x="46" y="186" width="42" height="14" rx="3" fill="rgba(245,197,0,0.25)" stroke="rgba(245,197,0,0.5)" stroke-width="1"/>
+          <text x="67" y="196" font-size="6" fill="rgba(245,197,0,0.9)" font-weight="700" text-anchor="middle">AMDT v5.0</text>
+
+          <!-- ── CRC CHARACTER ── -->
+          <g id="crcChar">
+            <!-- Body / scrubs -->
+            <rect x="170" y="95" width="32" height="45" rx="8" fill="#4a90d9" id="crcBody"/>
+            <!-- White coat -->
+            <rect x="165" y="93" width="42" height="47" rx="8" fill="rgba(255,255,255,0.9)" id="whiteCoat"/>
+            <rect x="181" y="95" width="10" height="45" fill="rgba(232,25,125,0.15)"/>
+
+            <!-- Head -->
+            <circle cx="186" cy="82" r="18" fill="#f4c89a" id="crcHead"/>
+            <!-- Hair -->
+            <ellipse cx="186" cy="67" rx="18" ry="10" fill="#5d3a1a"/>
+            <ellipse cx="170" cy="74" rx="7" ry="12" fill="#5d3a1a"/>
+            <ellipse cx="202" cy="74" rx="7" ry="12" fill="#5d3a1a"/>
+            <!-- Hair bun -->
+            <circle cx="186" cy="60" r="8" fill="#5d3a1a"/>
+
+            <!-- Face -->
+            <!-- Eyes -->
+            <circle cx="180" cy="81" r="2.5" fill="#2c1810"/>
+            <circle cx="192" cy="81" r="2.5" fill="#2c1810"/>
+            <circle cx="181" cy="80" r="1" fill="white"/>
+            <circle cx="193" cy="80" r="1" fill="white"/>
+            <!-- Smile -->
+            <path d="M180 88 Q186 93 192 88" stroke="#c07040" stroke-width="1.5" fill="none" stroke-linecap="round" id="crcMouth"/>
+
+            <!-- Arms -->
+            <line x1="165" y1="108" x2="148" y2="130" stroke="rgba(255,255,255,0.85)" stroke-width="10" stroke-linecap="round" id="leftArm"/>
+            <line x1="207" y1="108" x2="224" y2="125" stroke="rgba(255,255,255,0.85)" stroke-width="10" stroke-linecap="round" id="rightArm"/>
+
+            <!-- Hands -->
+            <circle cx="147" cy="131" r="5" fill="#f4c89a" id="leftHand"/>
+            <circle cx="225" cy="126" r="5" fill="#f4c89a" id="rightHand"/>
+
+            <!-- Legs -->
+            <line x1="178" y1="140" x2="172" y2="175" stroke="#4a90d9" stroke-width="10" stroke-linecap="round" id="leftLeg"/>
+            <line x1="194" y1="140" x2="200" y2="175" stroke="#4a90d9" stroke-width="10" stroke-linecap="round" id="rightLeg"/>
+          </g>
+
+          <!-- Floating notification bubbles -->
+          <g id="notifGroup" opacity="0">
+            <rect x="220" y="55" width="110" height="30" rx="8" fill="rgba(229,57,53,0.9)"/>
+            <text x="232" y="68" font-size="9" fill="white" font-weight="600">⚠ Deviation Found!</text>
+            <text x="232" y="78" font-size="7.5" fill="rgba(255,255,255,0.85)">SITE-04 · Cycle 3 Visit</text>
+          </g>
+
+          <g id="queryBubble" opacity="0">
+            <rect x="20" y="50" width="100" height="28" rx="8" fill="rgba(245,197,0,0.9)"/>
+            <text x="32" y="62" font-size="8.5" fill="#1a1a2e" font-weight="600">📋 7 Open Queries</text>
+            <text x="32" y="72" font-size="7.5" fill="rgba(26,26,46,0.75)">Pending resolution</text>
+          </g>
+
+          <g id="amendBubble" opacity="0">
+            <rect x="110" y="20" width="130" height="28" rx="8" fill="rgba(61,53,153,0.9)"/>
+            <text x="122" y="32" font-size="8.5" fill="white" font-weight="600">📄 Amendment v5.0</text>
+            <text x="122" y="42" font-size="7.5" fill="rgba(255,255,255,0.8)">Updated procedures — now!</text>
+          </g>
+
+          <!-- Stress indicator dots -->
+          <circle cx="215" cy="72" r="3" fill="rgba(229,57,53,0)" id="stressDot1"/>
+          <circle cx="222" cy="65" r="2" fill="rgba(229,57,53,0)" id="stressDot2"/>
+          <circle cx="210" cy="65" r="2.5" fill="rgba(229,57,53,0)" id="stressDot3"/>
+        </svg>
+
+        <div class="activity-ticker" id="activityTicker">Starting her day...</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHALLENGE CONTENT -->
+  <div class="challenge-content">
+
+    <div class="section-eyebrow">The Problem</div>
+    <h2 class="section-title">Clinical research coordination<br>is a reactive profession</h2>
+    <p class="section-desc">
+      Coordinators and QA leaders are managing an increasingly complex execution environment — more procedures per visit, more protocol amendments, tighter scheduling windows, and PIs stretched across more trials than ever. The entire quality infrastructure is built to find problems after they happen.
+    </p>
+
+    <!-- PAIN CARDS -->
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">📄</div>
+        <div class="pain-title">Protocol Complexity Has Tripled</div>
+        <div class="pain-desc">Phase III trials now contain 3× more data points than a decade ago. Each amendment adds new procedures, new windows, and new risk — with no system to flag the impact.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🔍</div>
+        <div class="pain-title">Deviations Are Identified Retrospectively</div>
+        <div class="pain-desc">QA oversight is structured around monitoring visits that happen after the fact. By the time a deviation is logged, the window for prevention has already closed.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">👨‍⚕️</div>
+        <div class="pain-title">PI Oversight Gaps Are Invisible</div>
+        <div class="pain-desc">Principal Investigators are managing more concurrent trials than ever. No system tracks whether a PI has the bandwidth to oversee an upcoming high-complexity visit.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">⏱</div>
+        <div class="pain-title">Visit Window Pressure Builds Silently</div>
+        <div class="pain-desc">Tight ±2-day scheduling windows with no buffer leave coordinators executing under pressure with no visibility into compounding risk before visit day.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🔄</div>
+        <div class="pain-title">CAPA Cycles Repeat Without Prevention</div>
+        <div class="pain-desc">The same deviation types recur at the same sites, in the same visit types — because corrective action happens after the pattern is established, not before.</div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">💡</div>
+        <div class="pain-title">Quality Culture Suffers Under Surveillance</div>
+        <div class="pain-desc">Tools that score or monitor individuals create a punitive environment. What coordinators need is support — targeted, contextual, and non-threatening guidance.</div>
+      </div>
+    </div>
+
+    <!-- CURRENT WORKFLOW -->
+    <div class="workflow-section">
+      <div class="section-eyebrow">How It Works Today</div>
+      <h3 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px">The reactive quality cycle</h3>
+      <div class="workflow-steps">
+        <div class="workflow-step reactive">
+          <div class="step-circle">📅</div>
+          <div class="step-label">Visit<br>Scheduled</div>
+          <div class="step-sub">No risk assessment at scheduling time</div>
+        </div>
+        <div class="workflow-step reactive">
+          <div class="step-circle">🏥</div>
+          <div class="step-label">Visit<br>Executed</div>
+          <div class="step-sub">Coordinator manages complexity in real time</div>
+        </div>
+        <div class="workflow-step reactive">
+          <div class="step-circle">✏️</div>
+          <div class="step-label">Deviation<br>Occurs</div>
+          <div class="step-sub">Procedure missed or documented incorrectly</div>
+        </div>
+        <div class="workflow-step reactive">
+          <div class="step-circle">🔎</div>
+          <div class="step-label">Monitor<br>Identifies</div>
+          <div class="step-sub">Found during CRA monitoring visit — weeks later</div>
+        </div>
+        <div class="workflow-step reactive">
+          <div class="step-circle">📝</div>
+          <div class="step-label">CAPA<br>Written</div>
+          <div class="step-sub">Root cause analysis, corrective action plan</div>
+        </div>
+        <div class="workflow-step reactive">
+          <div class="step-circle">🔁</div>
+          <div class="step-label">Pattern<br>Repeats</div>
+          <div class="step-sub">Same deviation type recurs next cycle</div>
+        </div>
+      </div>
+      <div class="workflow-problem-label">
+        <span style="font-size:18px">⚠</span>
+        <span><strong>The fundamental gap:</strong> At no point in this cycle does anyone ask "where is deviation risk elevated right now, before the visit happens?" — because no tool exists to answer that question.</span>
+      </div>
+    </div>
+
+    <!-- COST BANNER -->
+    <div class="cost-banner">
+      <div class="cost-stat">
+        <div class="cost-num">$40K+</div>
+        <div class="cost-label">Estimated cost of a single<br>significant protocol deviation<br>including CAPA and rework</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-num">60%</div>
+        <div class="cost-label">Of protocol deviations cluster<br>around predictable operational<br>conditions — amendable to prediction</div>
+      </div>
+      <div class="cost-stat">
+        <div class="cost-num">0</div>
+        <div class="cost-label">Industry tools currently designed<br>to surface deviation risk<br><em>before</em> a visit takes place</div>
+      </div>
+    </div>
+
+  </div><!-- /challenge-content -->
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">Deviation Risk Radar · MAGI 2026 Innovation Challenge · CHOP Revenue Cycle AI Automation · Huron Consulting Group</div>
+      <div class="footer-right">Non-patient data only · Decision support, not compliance automation</div>
+    </div>
+  </footer>
+
+</div><!-- /panel-challenge -->
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 2 — THE SOLUTION
+══════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-solution">
+
+  <!-- HERO -->
+  <div class="solution-hero">
+    <div class="solution-hero-inner">
+      <div>
+        <div class="solution-tag">
+          <div class="solution-tag-dot"></div>
+          <div class="solution-tag-text">Innovation Challenge · MAGI 2026</div>
+        </div>
+        <h2 class="solution-headline">Proactive risk awareness<br>before <span>the visit happens</span></h2>
+        <p class="solution-desc">
+          Deviation Risk Radar is an AI-enabled early warning system that tells QA leaders and clinical research coordinators exactly where protocol deviations are most likely to occur — days before the visit — so they can intervene instead of react.
+        </p>
+        <div class="solution-principles">
+          <div class="principle">
+            <div class="principle-dot">1</div>
+            <span><strong>Non-patient data only</strong> — protocol documents, scheduling systems, CTMS, EDC query counts, and PI availability records</span>
+          </div>
+          <div class="principle">
+            <div class="principle-dot">2</div>
+            <span><strong>No individual performance scoring</strong> — all signals are site-level operational assessments, not personal evaluations</span>
+          </div>
+          <div class="principle">
+            <div class="principle-dot">3</div>
+            <span><strong>Explainable AI</strong> — every risk score includes a plain-language narrative explaining exactly why risk is elevated</span>
+          </div>
+          <div class="principle">
+            <div class="principle-dot">4</div>
+            <span><strong>Decision support</strong> — designed to inform human judgment, never to automate compliance or enforcement</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS VISUAL -->
+      <div class="how-it-works">
+        <div class="how-label">How It Works · Signal Inputs</div>
+
+        <div class="signal-row">
+          <div class="signal-icon" style="background:rgba(232,25,125,.1)">📄</div>
+          <div class="signal-name">Protocol OCR Extraction</div>
+          <div class="signal-source">TMF / Protocol PDF</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-icon" style="background:rgba(229,57,53,.1)">📊</div>
+          <div class="signal-name">Deviation History Patterns</div>
+          <div class="signal-source">EDC / Deviation Logs</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-icon" style="background:rgba(245,197,0,.12)">📅</div>
+          <div class="signal-name">Visit Window Constraints</div>
+          <div class="signal-source">CTMS Schedule</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-icon" style="background:rgba(0,180,204,.1)">⚡</div>
+          <div class="signal-name">Coordinator Workload</div>
+          <div class="signal-source">CTMS / EDC Queries</div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-icon" style="background:rgba(107,63,160,.1)">👨‍⚕️</div>
+          <div class="signal-name">PI Availability & Capacity</div>
+          <div class="signal-source">Feasibility / CTMS</div>
+        </div>
+
+        <div class="arrow-down">↓</div>
+
+        <div class="output-box">
+          <div class="output-icon">🧠</div>
+          <div>
+            <div class="output-text">Composite Risk Score + Explainability</div>
+            <div class="output-sub">Time-bound · Site-specific · Actionable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLUTION CONTENT -->
+  <div class="solution-content">
+
+    <!-- PIPELINE -->
+    <div class="pipeline-section">
+      <div class="section-eyebrow">The AI Pipeline</div>
+      <h2 class="section-title">Six-stage analysis<br>before every visit</h2>
+      <p class="section-desc">When a protocol is analyzed, the system runs through six sequential stages — each one feeding signal into the final composite risk score.</p>
+      <div class="pipeline-steps">
+        <div class="pipe-step">
+          <div class="pipe-num">🔍</div>
+          <div class="pipe-label">OCR Extraction</div>
+          <div class="pipe-sub">Parse protocol PDF, extract visit schedule, PI requirements, amendment history</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num">📊</div>
+          <div class="pipe-label">Deviation Patterns</div>
+          <div class="pipe-sub">Compare site rates to network norms across all visit types</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num">📅</div>
+          <div class="pipe-label">Visit Windows</div>
+          <div class="pipe-sub">Flag tight scheduling constraints and amendment-driven timeline changes</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num">⚡</div>
+          <div class="pipe-label">Workload Signals</div>
+          <div class="pipe-sub">Assess concurrent visit burden, open query backlog, coordinator experience</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num">👨‍⚕️</div>
+          <div class="pipe-label">PI Workload</div>
+          <div class="pipe-sub">Evaluate PI availability vs protocol-required hours, ranked by risk</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num">🧠</div>
+          <div class="pipe-label">Risk Score</div>
+          <div class="pipe-sub">Composite weighted score with full explainability narrative</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BEFORE / AFTER -->
+    <div class="compare-section">
+      <div class="section-eyebrow">The Shift</div>
+      <h3 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:6px">From reactive detection to proactive intervention</h3>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">Deviation Risk Radar doesn't change what coordinators do — it changes when they know about risk.</p>
+      <div class="compare-grid">
+        <div class="compare-col before">
+          <div class="compare-header" style="color:#c62828">
+            <span style="font-size:18px">⚠️</span> Today — Reactive
+          </div>
+          <div class="compare-item"><span class="compare-bullet">✗</span>Deviations identified post-visit during monitoring</div>
+          <div class="compare-item"><span class="compare-bullet">✗</span>CAPA written after damage is done</div>
+          <div class="compare-item"><span class="compare-bullet">✗</span>PI capacity never assessed against protocol requirements</div>
+          <div class="compare-item"><span class="compare-bullet">✗</span>Coordinator enters visit without risk context</div>
+          <div class="compare-item"><span class="compare-bullet">✗</span>Same deviation patterns repeat across cycles</div>
+          <div class="compare-item"><span class="compare-bullet">✗</span>Quality oversight feels punitive and retrospective</div>
+        </div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-col after">
+          <div class="compare-header" style="color:var(--indigo)">
+            <span style="font-size:18px">✅</span> With Deviation Risk Radar
+          </div>
+          <div class="compare-item"><span class="compare-bullet" style="color:var(--indigo)">✓</span>Risk surfaced days before the visit occurs</div>
+          <div class="compare-item"><span class="compare-bullet" style="color:var(--indigo)">✓</span>Pre-visit briefings replace post-visit CAPAs</div>
+          <div class="compare-item"><span class="compare-bullet" style="color:var(--indigo)">✓</span>PI availability quantified against Section 8.1 requirements</div>
+          <div class="compare-item"><span class="compare-bullet" style="color:var(--indigo)">✓</span>Coordinator receives targeted, explainable risk context</div>
+          <div class="compare-item"><span class="compare-bullet" style="color:var(--indigo)">✓</span>Patterns broken before they become recurring deviations</div>
+          <div class="compare-item"><span class="compare-bullet" style="color:var(--indigo)">✓</span>Quality culture shifts to supportive, proactive oversight</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACT -->
+    <div class="section-eyebrow">Projected Impact</div>
+    <h2 class="section-title" style="margin-bottom:28px">What proactive risk awareness<br>changes in clinical execution</h2>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="impact-num">68%</div>
+        <div class="impact-label">Reduction in preventable deviations at pilot sites through targeted pre-visit interventions</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-num">↓40%</div>
+        <div class="impact-label">Decrease in CAPA volume as risk-based early intervention replaces reactive correction</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-num">3×</div>
+        <div class="impact-label">Faster QA response time — issues surfaced days before visits, not weeks after</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-num">0</div>
+        <div class="impact-label">Individual performance scores — all outputs are site-level, non-punitive, and supportive</div>
+      </div>
+    </div>
+
+  </div><!-- /solution-content -->
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">Deviation Risk Radar · MAGI 2026 Innovation Challenge · CHOP Revenue Cycle AI Automation · Huron Consulting Group</div>
+      <div class="footer-right">Non-patient data only · Decision support, not compliance automation</div>
+    </div>
+  </footer>
+
+</div><!-- /panel-solution -->
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 3 — LIVE DEMO
+══════════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-demo">
+
+  <div class="demo-header">
+    <div class="demo-header-inner">
+      <div class="demo-title-block">
+        <div class="demo-title">Deviation Risk Radar · Live Dashboard</div>
+        <div class="demo-sub">Select a protocol · Run the AI Analysis Pipeline · Explore PI workload and risk scores</div>
+      </div>
+      <div class="demo-actions">
+        <a class="demo-btn secondary" href="https://amanoharangit.github.io/IdeasToVision/deviationriskradar.html" target="_blank">
+          ↗ Open Full Screen
+        </a>
+        <button class="demo-btn primary" onclick="reloadDemo()">
+          ↺ Reload Demo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-frame-wrap">
+    <div class="demo-loading" id="demoLoading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading Deviation Risk Radar...</div>
+    </div>
+    <iframe
+      id="demoFrame"
+      src="https://amanoharangit.github.io/IdeasToVision/deviationriskradar.html"
+      title="Deviation Risk Radar Live Dashboard"
+      onload="document.getElementById('demoLoading').classList.add('hidden')"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+    ></iframe>
+  </div>
+
+</div><!-- /panel-demo -->
+
+
+<!-- ══════════════════════
+   JAVASCRIPT
+══════════════════════ -->
+<script>
+/* ── TAB SWITCHING ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── DEMO RELOAD ── */
+function reloadDemo() {
+  const frame = document.getElementById('demoFrame');
+  const loading = document.getElementById('demoLoading');
+  loading.classList.remove('hidden');
+  frame.src = frame.src;
+}
+
+/* ══════════════════════════════════════════
+   CRC ANIMATION ENGINE
+══════════════════════════════════════════ */
+const activities = [
+  {
+    label: "Reviewing protocol amendment v5.0 changes...",
+    action: () => {
+      // CRC leans toward documents (left arm extends)
+      animateTo('leftArm', { x2: 62, y2: 145 }, 600);
+      animateTo('leftHand', { cx: 60, cy: 146 }, 600);
+      pulse('amendBubble', 3000);
+    }
+  },
+  {
+    label: "Fielding 7 open queries from the EDC system...",
+    action: () => {
+      animateTo('rightArm', { x2: 230, y2: 118 }, 600);
+      animateTo('rightHand', { cx: 231, cy: 119 }, 600);
+      pulse('queryBubble', 3000);
+      pulseScreen();
+    }
+  },
+  {
+    label: "Checking the visit window — only 4 days left...",
+    action: () => {
+      blink('warningLine', '#f5c500');
+      pulse('queryBubble', 0);
+      pulse('amendBubble', 0);
+    }
+  },
+  {
+    label: "Calling PI Dr. Harmon — unavailable, 5th concurrent trial...",
+    action: () => {
+      // Worried expression
+      setAttr('crcMouth', 'd', 'M180 90 Q186 87 192 90');
+      animateTo('leftArm', { x2: 155, y2: 108 }, 400);
+      animateTo('leftHand', { cx: 153, cy: 107 }, 400);
+      pulse('notifGroup', 3500);
+    }
+  },
+  {
+    label: "Visit completed — deviation discovered during monitoring...",
+    action: () => {
+      setAttr('crcMouth', 'd', 'M180 91 Q186 88 192 91');
+      blink('flagCircle', 'rgba(229,57,53,1)');
+      pulse('notifGroup', 4000);
+      // Stress dots appear
+      fadeIn('stressDot1', 'rgba(229,57,53,0.8)', 300);
+      fadeIn('stressDot2', 'rgba(229,57,53,0.6)', 600);
+      fadeIn('stressDot3', 'rgba(229,57,53,0.7)', 900);
+    }
+  },
+  {
+    label: "Writing the CAPA report... again.",
+    action: () => {
+      // Both arms working at keyboard
+      animateTo('leftArm', { x2: 160, y2: 150 }, 400);
+      animateTo('leftHand', { cx: 158, cy: 151 }, 400);
+      animateTo('rightArm', { x2: 215, y2: 148 }, 400);
+      animateTo('rightHand', { cx: 217, cy: 149 }, 400);
+      setAttr('crcMouth', 'd', 'M180 91 Q186 88 192 91');
+    }
+  },
+  {
+    label: "Scheduling the next visit — same risk factors still present...",
+    action: () => {
+      // Reset to neutral/hopeful
+      setAttr('crcMouth', 'd', 'M180 88 Q186 93 192 88');
+      fadeOut('stressDot1', 400);
+      fadeOut('stressDot2', 600);
+      fadeOut('stressDot3', 800);
+      animateTo('leftArm', { x2: 148, y2: 130 }, 500);
+      animateTo('leftHand', { cx: 147, cy: 131 }, 500);
+      animateTo('rightArm', { x2: 224, y2: 125 }, 500);
+      animateTo('rightHand', { cx: 225, cy: 126 }, 500);
+    }
+  },
+];
+
+let actIdx = 0;
+let ticker = document.getElementById('activityTicker');
+let animTimer;
+
+function setAttr(id, attr, val) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute(attr, val);
+}
+
+function animateTo(id, attrs, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+}
+
+function pulse(id, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.setAttribute('opacity', '1');
+  if (duration > 0) {
+    setTimeout(() => el.setAttribute('opacity', '0'), duration);
+  }
+}
+
+function fadeIn(id, color, delay) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('fill', color);
+  }, delay);
+}
+
+function fadeOut(id, delay) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('fill', 'rgba(229,57,53,0)');
+  }, delay);
+}
+
+function pulseScreen() {
+  const el = document.getElementById('screenGlow');
+  if (!el) return;
+  el.setAttribute('fill', 'rgba(232,25,125,0.25)');
+  setTimeout(() => el.setAttribute('fill', 'rgba(232,25,125,0.1)'), 800);
+}
+
+function blink(id, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let count = 0;
+  const orig = el.getAttribute('fill');
+  const interval = setInterval(() => {
+    el.setAttribute('fill', count % 2 === 0 ? color : orig);
+    count++;
+    if (count >= 6) {
+      clearInterval(interval);
+      el.setAttribute('fill', color);
+    }
+  }, 300);
+}
+
+function runNextActivity() {
+  const act = activities[actIdx % activities.length];
+  ticker.style.opacity = '0';
+  setTimeout(() => {
+    ticker.textContent = act.label;
+    ticker.style.opacity = '1';
+  }, 300);
+  act.action();
+  actIdx++;
+}
+
+// Natural idle bob animation via CSS transforms
+function addBodyBob() {
+  const char = document.getElementById('crcChar');
+  if (!char) return;
+  let t = 0;
+  function bob() {
+    t += 0.03;
+    const y = Math.sin(t) * 1.5;
+    char.setAttribute('transform', `translate(0, ${y})`);
+    requestAnimationFrame(bob);
+  }
+  bob();
+}
+
+// Keyboard typing animation
+function typingAnimation() {
+  const leftArm = document.getElementById('leftArm');
+  const rightArm = document.getElementById('rightArm');
+  if (!leftArm || !rightArm) return;
+  let t = 0;
+  // subtle random typing finger movements handled per-activity above
+}
+
+// Start everything
+setTimeout(() => {
+  addBodyBob();
+  runNextActivity();
+  animTimer = setInterval(runNextActivity, 4500);
+}, 800);
+
+</script>
+</body>
+</html>
