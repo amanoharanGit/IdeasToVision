@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dermatology Referral Automation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --navy:#002855;--blue:#005EB8;--teal:#00A499;--green:#27AE60;
+  --amber:#E67E22;--red:#C0392B;--purple:#7D3C98;
+  --bg:#F4F6F9;--border:#DCE4EF;--text:#0D1B2A;
+  --t2:#4A6080;--t3:#8A9BB0;--sf:#fff;--s2:#F0F4FA;
+  --bot-bg:#EBF4FF;--bot-bd:#B3D4F5;
+  --ok-bg:#E8FAF4;--ok-bd:#7FD8B8;
+  --warn-bg:#FFFBEE;--warn-bd:#F5D78B;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 12px rgba(0,40,85,.3);}
+.hl{display:flex;align-items:center;gap:11px;}
+.hi{width:32px;height:32px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.ht{color:#fff;font-size:14px;font-weight:600;}
+.hs{color:rgba(255,255,255,.4);font-size:10px;letter-spacing:.7px;text-transform:uppercase;margin-top:1px;}
+.hbadge{background:rgba(0,164,153,.15);border:1px solid rgba(0,164,153,.35);color:#4DDDD4;font-size:10px;font-weight:600;letter-spacing:.5px;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+.vendor-badge{display:inline-flex;align-items:center;gap:4px;background:#FF6200;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;}
+
+/* ── TOP NAV ── */
+.top-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 30px;display:flex;align-items:center;gap:0;position:sticky;top:57px;z-index:200;box-shadow:0 1px 4px rgba(0,40,85,.06);}
+.tn-btn{padding:13px 18px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--t2);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.tn-btn:hover{color:var(--blue);}
+.tn-btn.active{color:var(--navy);border-bottom-color:var(--blue);font-weight:600;}
+.tn-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+
+/* ── MAIN VIEWS ── */
+.view{display:none;} .view.active{display:block;}
+
+/* ── PROCESS VIEW LAYOUT ── */
+.process-wrap{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 110px);}
+
+/* ── LEFT SIDEBAR (scenario + step nav) ── */
+.sidebar{background:#fff;border-right:1px solid var(--border);padding:20px 0;position:sticky;top:110px;height:calc(100vh - 110px);overflow-y:auto;}
+.sb-section{padding:0 16px;margin-bottom:6px;}
+.sb-label{font-size:9.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:8px 16px 4px;display:block;}
+
+.sc-card{border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;cursor:pointer;transition:all .2s;margin-bottom:6px;background:#fff;}
+.sc-card:hover{border-color:var(--blue);}
+.sc-card.active{border-color:var(--navy);background:var(--navy);}
+.sc-card .sc-num{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:2px;}
+.sc-card.active .sc-num{color:rgba(255,255,255,.45);}
+.sc-card .sc-name{font-size:12.5px;font-weight:600;color:var(--text);}
+.sc-card.active .sc-name{color:#fff;}
+.sc-card .sc-pill{display:inline-block;margin-top:4px;padding:1px 7px;border-radius:4px;font-size:9.5px;font-weight:600;}
+.sc-pill-ok{background:rgba(0,164,153,.12);color:var(--teal);}
+.sc-pill-new{background:rgba(125,60,152,.12);color:var(--purple);}
+.sc-pill-err{background:rgba(192,57,43,.12);color:var(--red);}
+.sc-card.active .sc-pill-ok{background:rgba(0,164,153,.25);color:#5EDED8;}
+.sc-card.active .sc-pill-new{background:rgba(200,150,230,.2);color:#D8A0F0;}
+.sc-card.active .sc-pill-err{background:rgba(255,150,130,.2);color:#FF9080;}
+
+.sb-divider{height:1px;background:var(--border);margin:10px 16px;}
+
+.step-nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;transition:all .15s;border-left:3px solid transparent;}
+.step-nav-item:hover{background:var(--s2);}
+.step-nav-item.active{background:#EBF4FF;border-left-color:var(--blue);}
+.step-nav-item .sni-num{width:20px;height:20px;border-radius:50%;background:var(--s2);border:1.5px solid var(--border);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--t2);flex-shrink:0;}
+.step-nav-item.active .sni-num{background:var(--blue);border-color:var(--blue);color:#fff;}
+.step-nav-item .sni-label{font-size:11.5px;font-weight:500;color:var(--t2);}
+.step-nav-item.active .sni-label{color:var(--navy);font-weight:600;}
+
+/* ── MAIN CONTENT ── */
+.main-content{padding:28px 30px 60px;min-width:0;}
+
+/* ── SECTION HEADING ── */
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.sh-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.sh h2{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:1px;}
+.sh p{font-size:12px;color:var(--t2);}
+
+/* ── CARD ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,40,85,.05);}
+.ch{padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.ct{font-size:12px;font-weight:600;color:var(--navy);}
+.cb{padding:16px;}
+
+/* ── FORM ── */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fgf{grid-column:1/-1;}
+.fl{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:block;}
+.fi{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text);background:#fff;transition:border-color .15s;}
+.fi:focus{outline:none;border-color:var(--blue);}
+.fi.ok{border-color:var(--teal);background:#F5FFFE;}
+.fi.warn{border-color:var(--amber);background:#FFFBF0;}
+.fi.sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%234A6080' d='M8 10L3 5h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:10px;padding-right:24px;}
+.radio-row{display:flex;gap:14px;align-items:center;padding:6px 0;}
+.radio-row label{display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer;}
+.radio-row input[type=radio]{accent-color:var(--blue);width:13px;height:13px;}
+
+.divider{height:1px;background:var(--border);margin:13px 0;}
+.slabel{font-size:9.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+
+/* ── INSURANCE ALERT ── */
+.ins-alert{display:none;margin-top:7px;padding:9px 12px;background:#FFF0EF;border:1.5px solid #F5B7B1;border-radius:7px;font-size:11.5px;color:var(--red);line-height:1.5;}
+.ins-alert.visible{display:block;animation:fi .2s ease;}
+
+/* ── SUBMIT BTN ── */
+.btn-submit{padding:9px 20px;border-radius:7px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:var(--blue);color:#fff;}
+.btn-submit:hover:not(:disabled){background:var(--navy);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,94,184,.3);}
+.btn-submit:disabled{background:var(--t3);cursor:not-allowed;transform:none;}
+.btn-submit.done{background:var(--teal);}
+.btn-submit.blocked{background:var(--red);}
+
+/* ── SUBMIT OVERLAY ── */
+#submit-overlay{display:none;margin-top:14px;border:1.5px solid var(--bot-bd);border-radius:11px;background:var(--bot-bg);overflow:hidden;}
+#submit-overlay.visible{display:block;animation:fi .3s ease;}
+.so-hdr{padding:10px 14px;background:var(--navy);display:flex;align-items:center;gap:9px;font-size:11px;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;}
+.so-body{padding:12px 14px;display:flex;flex-direction:column;gap:6px;}
+
+/* ── STEP ITEMS ── */
+.si{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#fff;border:1px solid var(--border);border-radius:8px;opacity:0;transform:translateY(4px);transition:opacity .3s,transform .3s;}
+.si.show{opacity:1;transform:translateY(0);}
+.si.s-ok{border-color:var(--ok-bd);background:var(--ok-bg);}
+.si.s-run{border-color:var(--bot-bd);background:#D6EAFC;animation:shimmer 1.2s infinite;}
+.si.s-warn{border-color:var(--warn-bd);background:var(--warn-bg);}
+.si.s-err{border-color:#F5B7B1;background:#FFF0EF;}
+@keyframes shimmer{0%,100%{background:#D6EAFC;}50%{background:#EBF4FF;}}
+.si-icon{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;}
+.ic-g{background:#D0F5E8;}.ic-b{background:#D6EAFC;}.ic-a{background:#FEF3D0;}.ic-r{background:#FAD7D3;}.ic-x{background:var(--s2);}
+.si-title{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:1px;}
+.si-detail{font-size:11px;color:var(--t2);line-height:1.4;}
+.si-badge{margin-left:auto;flex-shrink:0;font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;font-weight:500;white-space:nowrap;align-self:flex-start;}
+.bk-ok{background:#D0F5E8;color:#1A7A4A;}.bk-run{background:#D6EAFC;color:#1A5FAA;}
+.bk-pend{background:var(--s2);color:var(--t3);}.bk-new{background:#EAD6FC;color:#6A1AAA;}
+.bk-warn{background:#FEF3D0;color:#9A6A00;}.bk-err{background:#FAD7D3;color:#922B21;}
+
+/* ── RESULT BANNERS ── */
+.result-banner{display:none;margin-top:12px;border-radius:9px;padding:12px 14px;align-items:flex-start;gap:11px;}
+.result-banner.visible{display:flex;animation:fi .4s ease;}
+.rb-ok{background:var(--ok-bg);border:1px solid var(--ok-bd);}
+.rb-err{background:#FFF0EF;border:1px solid #F5B7B1;}
+
+/* ── PULSE ── */
+.pulse{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:pulse 1.4s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.7);}}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── TAGS / PILLS ── */
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10.5px;font-weight:500;}
+.t-blue{background:#D6EAFC;color:#1A5FAA;}.t-teal{background:#D0F5F2;color:#0A7A73;}
+.t-navy{background:#D0D8E8;color:var(--navy);}.t-amber{background:#FEF3D0;color:#9A6A00;}
+.t-purple{background:#EAD6FC;color:#6A1AAA;}.t-red{background:#FAD7D3;color:#922B21;}
+.intake-badge{display:inline-flex;align-items:center;gap:4px;background:var(--navy);color:rgba(255,255,255,.65);font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:20px;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:var(--navy);color:rgba(255,255,255,.6);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:8px 11px;text-align:left;}
+.tbl td{padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--s2);}
+.pname{font-weight:600;color:var(--navy);}
+.mono{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--t2);}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+.pill::before{content:'●';font-size:7px;}
+.pill-ok{background:#D0F5E8;color:#1A7A4A;}.pill-proc{background:#D6EAFC;color:#1A5FAA;}
+.pill-new{background:#EAD6FC;color:#6A1AAA;}.pill-err{background:#FAD7D3;color:#922B21;}
+
+/* ── EPIC FIELDS ── */
+.ef-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ef{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+.ef.mapped{border-color:var(--teal);background:#F5FFFE;}
+.ef.updated{border-color:var(--amber);background:#FFFBF0;}
+.ef-label{font-size:9px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.ef.mapped .ef-label{color:var(--teal);}.ef.updated .ef-label{color:var(--amber);}
+.ef-val{font-size:12px;font-weight:500;color:var(--navy);font-family:'DM Mono',monospace;}
+
+/* ── MEDIA ITEMS ── */
+.mi{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--s2);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;}
+.mi-thumb{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.mi-thumb.pdf{background:#FFEDED;}.mi-thumb.img{background:#E8F4FF;}
+.mi-name{font-size:12px;font-weight:500;color:var(--text);}
+.mi-meta{font-size:10px;color:var(--t3);}
+.mi-status{margin-left:auto;}
+
+/* ── INFO BOX ── */
+.info-box{background:var(--bot-bg);border:1.5px solid var(--bot-bd);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:13px;}
+.info-box strong{color:var(--navy);}
+
+/* ── DECISION BLOCK ── */
+.db{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:12px;}
+.db-head{background:var(--navy);color:#fff;padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:.3px;}
+.db-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border);}
+.db-cell{padding:12px 13px;border-right:1px solid var(--border);}
+.db-cell:last-child{border-right:none;}
+.db-cell-title{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.db-cell ul{list-style:none;display:flex;flex-direction:column;gap:3px;}
+.db-cell li{font-size:11px;color:var(--t2);display:flex;align-items:flex-start;gap:4px;}
+.db-cell li::before{content:'→';color:var(--t3);font-size:9px;margin-top:2px;flex-shrink:0;}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:11px;padding:14px 13px;box-shadow:0 1px 4px rgba(0,40,85,.05);position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi.kb::before{background:var(--blue);}.kpi.kt::before{background:var(--teal);}
+.kpi.kg::before{background:var(--green);}.kpi.ka::before{background:var(--amber);}
+.kpi-label{font-size:9.5px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+.kpi-val{font-size:27px;font-weight:300;color:var(--navy);letter-spacing:-1px;line-height:1;margin-bottom:2px;}
+.kpi-sub{font-size:10.5px;color:var(--t2);}
+.kpi-trend{font-size:10px;font-weight:600;margin-top:4px;}
+.up{color:var(--teal);}.dn{color:var(--red);}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:72px;}
+.bc{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;}
+.bar{width:100%;border-radius:3px 3px 0 0;min-height:3px;}
+.bar.bs{background:var(--blue);}.bar.bp{background:var(--teal);}.bar.br{background:var(--red);opacity:.55;}
+.blabel{font-size:9px;color:var(--t3);font-family:'DM Mono',monospace;}
+
+/* PROG BARS */
+.prog-row{margin-bottom:8px;}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:3px;}
+.prog-track{height:5px;background:var(--border);border-radius:3px;}
+.prog-fill{height:100%;border-radius:3px;}
+
+/* ── SMARTSHEET TAB ── */
+.ss-wrap{padding:24px 30px;}
+.ss-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.ss-top h2{font-size:18px;font-weight:600;color:var(--navy);}
+.ss-top p{font-size:12.5px;color:var(--t2);margin-top:3px;}
+.ss-link-btn{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:7px;text-decoration:none;transition:all .2s;}
+.ss-link-btn:hover{background:var(--navy);transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,94,184,.3);}
+.ss-iframe-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,40,85,.07);}
+.ss-iframe-wrap iframe{width:100%;height:calc(100vh - 230px);min-height:600px;border:none;display:block;}
+.ss-iframe-placeholder{width:100%;height:calc(100vh - 230px);min-height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--s2);}
+.ss-iframe-placeholder .big-icon{font-size:48px;}
+.ss-iframe-placeholder h3{font-size:16px;font-weight:600;color:var(--navy);}
+.ss-iframe-placeholder p{font-size:13px;color:var(--t2);text-align:center;max-width:380px;line-height:1.6;}
+
+/* ── DASHBOARD TAB ── */
+.dash-wrap{padding:24px 30px 60px;}
+.dash-wrap h2{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.dash-wrap .sub{font-size:12.5px;color:var(--t2);margin-bottom:20px;}
+
+@media(max-width:800px){
+  .process-wrap{grid-template-columns:1fr;}
+  .sidebar{position:static;height:auto;}
+  .fg,.ef-grid{grid-template-columns:1fr;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .db-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <div class="hi">🏥</div>
+    <div><div class="ht">Dermatology</div><div class="hs">Referral Automation System</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="vendor-badge">🤖 Automation Vendor Solution</div>
+    <div class="hbadge">⚡ Automation Active</div>
+  </div>
+</header>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <button class="tn-btn active" onclick="showView('smartsheet')">📋 Intake Form</button>
+  <div class="tn-sep"></div>
+  <button class="tn-btn" onclick="showView('process')">⚙️ Automation Process</button>
+  <div class="tn-sep"></div>
+  <button class="tn-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+</nav>
+
+<!-- ════════════════════════════════════════════════
+     VIEW 1: PROCESS
+════════════════════════════════════════════════ -->
+<div class="view" id="view-process">
+<div class="process-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <span class="sb-label">Select Scenario</span>
+    <div class="sb-section">
+      <div class="sc-card active" id="sc0" onclick="selectScenario(0)">
+        <div class="sc-num">Scenario A</div>
+        <div class="sc-name">Emma Rodriguez</div>
+        <span class="sc-pill sc-pill-ok">Existing Patient · Shell Found</span>
+      </div>
+      <div class="sc-card" id="sc1" onclick="selectScenario(1)">
+        <div class="sc-num">Scenario B</div>
+        <div class="sc-name">Marcus Chen</div>
+        <span class="sc-pill sc-pill-new">New Patient · No Shell</span>
+      </div>
+      <div class="sc-card" id="sc2" onclick="selectScenario(2)">
+        <div class="sc-num">Scenario C</div>
+        <div class="sc-name">Priya Nair</div>
+        <span class="sc-pill sc-pill-err">Insurance Not Accepted</span>
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+    <span class="sb-label">Process Steps</span>
+
+    <div class="step-nav-item active" onclick="showStep(0)" id="sni0"><div class="sni-num">1</div><div class="sni-label">📋 Referral Form</div></div>
+    <div class="step-nav-item" onclick="showStep(1)" id="sni1"><div class="sni-num">2</div><div class="sni-label">🗄️ Intake &amp; Storage</div></div>
+    <div class="step-nav-item" onclick="showStep(2)" id="sni2"><div class="sni-num">3</div><div class="sni-label">🤖 Automation Vendor Solution Bot</div></div>
+    <div class="step-nav-item" onclick="showStep(3)" id="sni3"><div class="sni-num">4</div><div class="sni-label">📎 Media Upload</div></div>
+    <div class="step-nav-item" onclick="showStep(4)" id="sni4"><div class="sni-num">5</div><div class="sni-label">✅ Status Write-back</div></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- ── STEP 1: FORM ── -->
+    <div id="step0">
+      <div class="sh">
+        <div class="sh-icon" style="background:#EBF4FF;">📋</div>
+        <div><h2>Referral Form Submission</h2><p>Referring provider completes the Dermatology intake form. Select a scenario on the left, then click <strong>Submit Referral</strong>.</p></div>
+      </div>
+
+      <div class="card">
+        <div class="ch">
+          <span class="ct">🏥 Dermatology — New Patient Referral</span>
+          <span class="intake-badge">🌐 Online Intake Form</span>
+        </div>
+        <div class="cb">
+          <div class="slabel">Patient Information</div>
+          <div class="fg" style="margin-bottom:14px;">
+            <div><label class="fl">First Name *</label><input class="fi ok" id="f-fname" value="Emma"></div>
+            <div><label class="fl">Last Name *</label><input class="fi ok" id="f-lname" value="Rodriguez"></div>
+            <div><label class="fl">Date of Birth *</label><input class="fi ok" id="f-dob" value="03/14/2017"></div>
+            <div><label class="fl">MRN (if known)</label><input class="fi ok" id="f-mrn" value="CHK-448821"></div>
+            <div><label class="fl">Phone</label><input class="fi ok" id="f-phone" value="(609) 555-0182"></div>
+            <div><label class="fl">Address</label><input class="fi ok" id="f-addr" value="412 Maple Ave, Cherry Hill, NJ"></div>
+          </div>
+
+          <div class="slabel">Language &amp; Interpreter Needs</div>
+          <div style="margin-bottom:14px;">
+            <label class="fl">Does the patient require an interpreter? *</label>
+            <div class="radio-row">
+              <label><input type="radio" name="interp" id="interp-yes" value="yes" onchange="toggleInterp()"> Yes</label>
+              <label><input type="radio" name="interp" id="interp-no" value="no" onchange="toggleInterp()" checked> No</label>
+            </div>
+            <div id="interp-lang-row" style="display:none;margin-top:6px;">
+              <label class="fl">Preferred Language *</label>
+              <select class="fi ok sel" id="f-lang" style="max-width:240px;">
+                <option>Spanish</option><option>Mandarin</option><option>Arabic</option><option>Portuguese</option><option>Vietnamese</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="slabel">Insurance Information</div>
+          <div class="fg" style="margin-bottom:6px;">
+            <div>
+              <label class="fl">Insurance Provider *</label>
+              <select class="fi ok sel" id="f-ins" onchange="checkIns()">
+                <option value="aetna">Aetna Better Health</option>
+                <option value="bcbs">BCBS of NJ</option>
+                <option value="horizon">Horizon NJ Health</option>
+                <option value="amerihealth">AmeriHealth Mercy</option>
+                <option value="uhccp">UHCCP of NJ</option>
+                <option value="amerigroup">AmeriGroup of NJ</option>
+              </select>
+            </div>
+            <div><label class="fl">Member ID *</label><input class="fi ok" id="f-memberid" value="W1039847222"></div>
+            <div><label class="fl">Group Number</label><input class="fi ok" id="f-groupnum" value="GRP-8821-NJ"></div>
+            <div><label class="fl">Plan Name</label><input class="fi ok" id="f-planname" value="Aetna Better Health NJ Medicaid"></div>
+          </div>
+          <div class="ins-alert" id="ins-alert">⛔ <strong>Insurance not accepted at Dermatology.</strong> <span id="ins-alert-name"></span> is not a contracted plan. This referral will be flagged and the coordinator notified. No Epic actions will be taken until insurance is resolved.</div>
+
+          <div class="slabel" style="margin-top:13px;">Referral Details</div>
+          <div class="fg" style="margin-bottom:14px;">
+            <div><label class="fl">Referring Provider *</label><input class="fi ok" id="f-refprov" value="Dr. Sarah Kim, MD"></div>
+            <div><label class="fl">Referring Practice *</label><input class="fi ok" id="f-refprac" value="Pediatric Associates of NJ"></div>
+            <div><label class="fl">Referral Type *</label><select class="fi ok sel" id="f-reftype"><option>Consultation</option><option>Follow-up</option></select></div>
+            <div><label class="fl">Urgency *</label><select class="fi ok sel" id="f-urgency"><option>Routine (within 30 days)</option><option>Urgent (within 72 hrs)</option></select></div>
+            <div class="fgf"><label class="fl">Primary Reason *</label><input class="fi ok" id="f-reason" value="Persistent atopic dermatitis, unresponsive to topical steroids"></div>
+            <div class="fgf"><label class="fl">Clinical Notes</label><textarea class="fi ok" id="f-notes" rows="3" style="resize:none;">Patient has history of seasonal allergies. Current regimen: hydrocortisone 2.5% — minimal improvement over 6 weeks. Requesting specialist evaluation for potential dupilumab candidacy.</textarea></div>
+          </div>
+
+          <div class="slabel">Attachments</div>
+          <div id="attachments-list"></div>
+
+          <div class="divider"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="font-size:11px;color:var(--t3);" id="form-footer-note">All required fields completed · 5 files attached</div>
+            <button class="btn-submit" id="submitBtn" onclick="runSubmit()">Submit Referral →</button>
+          </div>
+
+          <div id="submit-overlay">
+            <div class="so-hdr"><div class="pulse" id="so-pulse"></div><span id="so-hdr-text">Initiating submission…</span></div>
+            <div class="so-body" id="so-body"></div>
+          </div>
+          <div class="result-banner rb-ok" id="banner-ok">
+            <span style="font-size:20px;">✅</span>
+            <div><div style="font-size:13px;font-weight:600;color:#1A7A4A;margin-bottom:2px;" id="banner-ok-title"></div><div style="font-size:11.5px;color:#2A8A5A;line-height:1.5;" id="banner-ok-detail"></div></div>
+          </div>
+          <div class="result-banner rb-err" id="banner-err">
+            <span style="font-size:20px;">⛔</span>
+            <div><div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:2px;">Referral flagged — insurance not accepted</div><div style="font-size:11.5px;color:#922B21;line-height:1.5;" id="banner-err-detail"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: INTAKE & STORAGE ── -->
+    <div id="step1" style="display:none;">
+      <div class="sh">
+        <div class="sh-icon" style="background:#E8F5E9;">🗄️</div>
+        <div><h2>Intake System &amp; Data Storage</h2><p id="s2-subtitle">Submitted form data captured and stored. Automation bot triggered when new record is ready.</p></div>
+      </div>
+      <div class="info-box"><strong>Platform-agnostic intake layer.</strong> Any intake system can be used — web portal, patient intake tool, or custom app. Automation Vendor Solution monitors for new submissions via webhook, API poll, or scheduled job.</div>
+      <div class="card">
+        <div class="ch"><span class="ct">Stored Referral Records — Backend Data Store</span><span class="tag t-navy" style="font-size:10px;">Structured Storage</span></div>
+        <div class="cb" style="overflow-x:auto;" id="s2-table-wrap">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+      <div style="background:var(--bot-bg);border:1.5px solid var(--bot-bd);border-radius:11px;padding:15px;" id="s2-trigger-box">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- ── STEP 3: UIPATH BOT ── -->
+    <div id="step2" style="display:none;">
+      <div class="sh">
+        <div class="sh-icon" style="background:#FFF3E0;">🤖</div>
+        <div><h2 id="s3-title">Automation Vendor Solution Bot — Epic Navigation &amp; Referral Logic</h2><p id="s3-subtitle">Automation Vendor Solution searches for the patient in Epic and applies the correct referral shell logic.</p></div>
+      </div>
+      <div style="background:var(--bot-bg);border:1.5px solid var(--bot-bd);border-radius:11px;padding:15px;margin-bottom:13px;" id="s3-log-box"><!-- JS --></div>
+      <div class="db">
+        <div class="db-head">🔀 Automation Vendor Solution Referral Shell Decision Logic — Three Paths</div>
+        <div class="db-row">
+          <div class="db-cell">
+            <div class="db-cell-title" style="color:var(--teal);">✓ Patient Found + Shell Exists</div>
+            <ul><li>Confirm patient demographics</li><li>Open existing referral shell</li><li>Update insurance &amp; coverage</li><li>Update referring provider info</li><li>Refresh reason &amp; clinical notes</li><li>Flag interpreter need if present</li><li>Upload docs to Media Manager</li></ul>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-title" style="color:var(--purple);">⊕ Patient Found + No Shell</div>
+            <ul><li>Confirm patient demographics</li><li>No existing referral shell found</li><li>Create new incoming referral shell</li><li>Populate all intake fields</li><li>Set insurance &amp; coverage</li><li>Flag interpreter need if present</li><li>Upload docs to Media Manager</li></ul>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-title" style="color:var(--red);">⛔ Insurance Not Accepted</div>
+            <ul><li>Insurance pre-check fails at intake</li><li>Automation bot does NOT enter Epic</li><li>Referral flagged in data store</li><li>Status set to "Insurance Review"</li><li>Coordinator notified via alert</li><li>All intake data &amp; docs retained</li><li>Held until insurance is resolved</li></ul>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:13px;" id="s3-mapping-card"><!-- JS --></div>
+    </div>
+
+    <!-- ── STEP 4: MEDIA UPLOAD ── -->
+    <div id="step3" style="display:none;">
+      <div class="sh">
+        <div class="sh-icon" style="background:#FFF4E5;">📎</div>
+        <div><h2>Epic Media Manager Upload</h2><p id="s4-subtitle">Automation Vendor Solution generates a referral summary PDF and uploads all attachments to Epic Media Manager.</p></div>
+      </div>
+      <div class="card" id="s4-files-card"><!-- JS --></div>
+      <div style="background:var(--bot-bg);border:1.5px solid var(--bot-bd);border-radius:11px;padding:15px;" id="s4-logic-box"><!-- JS --></div>
+    </div>
+
+    <!-- ── STEP 5: STATUS WRITE-BACK ── -->
+    <div id="step4" style="display:none;">
+      <div class="sh">
+        <div class="sh-icon" style="background:#E8FAF4;">✅</div>
+        <div><h2>Status Write-back</h2><p id="s5-subtitle">Automation Vendor Solution writes outcome, Epic IDs, and timestamps back to the intake data store.</p></div>
+      </div>
+      <div class="card" id="s5-fields-card"><!-- JS --></div>
+      <div class="card" id="s5-table-card"><!-- JS --></div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end process-wrap -->
+</div><!-- end view-process -->
+
+<!-- ════════════════════════════════════════════════
+     VIEW 2: SMARTSHEET / INTAKE FORM
+════════════════════════════════════════════════ -->
+<div class="view active" id="view-smartsheet">
+  <div class="ss-wrap">
+    <div class="ss-top">
+      <div>
+        <h2>📋 Dermatology — Intake Form</h2>
+        <p>This is the live digital referral form. Submit directly here or <a href="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf" target="_blank" style="color:var(--blue);font-weight:600;">open in a new tab ↗</a></p>
+      </div>
+      <a href="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf" target="_blank" class="ss-link-btn">🔗 Open Form in New Tab ↗</a>
+    </div>
+    <div class="ss-iframe-wrap">
+      <iframe
+        src="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf"
+        title="Dermatology Referral Form"
+        allow="fullscreen"
+        id="ss-iframe">
+      </iframe>
+    </div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--t3);text-align:center;">
+      If the form doesn't load above, <a href="https://app.smartsheet.com/b/form/019d49d67ffc75afbd9cc368b12b3fcf" target="_blank" style="color:var(--blue);">click here to open it directly ↗</a>. Some browsers block embedded third-party forms due to security policies.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     VIEW 3: DASHBOARD
+════════════════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+  <div class="dash-wrap">
+    <h2>📊 Referral Operations Dashboard</h2>
+    <div class="sub">Aggregated view of all referrals processed — volume, bot performance, insurance flags, and coordinator exceptions.</div>
+
+    <div class="kpi-grid">
+      <div class="kpi kb"><div class="kpi-label">Total Submitted</div><div class="kpi-val">83</div><div class="kpi-sub">April 2025 MTD</div><div class="kpi-trend up">↑ 14% vs March</div></div>
+      <div class="kpi kt"><div class="kpi-label">Bot Processed</div><div class="kpi-val">78</div><div class="kpi-sub">94% auto-completion</div><div class="kpi-trend up">↑ Automation Vendor Solution handled</div></div>
+      <div class="kpi kg"><div class="kpi-label">Avg Process Time</div><div class="kpi-val">4.4<span style="font-size:13px;"> min</span></div><div class="kpi-sub">End-to-end per referral</div><div class="kpi-trend up">↓ 94% vs manual (72 min)</div></div>
+      <div class="kpi ka"><div class="kpi-label">Insurance Flags</div><div class="kpi-val">5</div><div class="kpi-sub">Plans not accepted</div><div class="kpi-trend dn">Coordinator action needed</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:13px;margin-bottom:13px;">
+      <div class="card">
+        <div class="ch">
+          <span class="ct">Daily Referral Volume — April 2025</span>
+          <div style="display:flex;gap:10px;">
+            <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--t2);"><div style="width:7px;height:7px;border-radius:2px;background:var(--blue);"></div>Submitted</div>
+            <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--t2);"><div style="width:7px;height:7px;border-radius:2px;background:var(--teal);"></div>Processed</div>
+            <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--t2);"><div style="width:7px;height:7px;border-radius:2px;background:var(--red);opacity:.7;"></div>Flagged</div>
+          </div>
+        </div>
+        <div class="cb">
+          <div class="bar-chart"><div class="bc"><div class="bar bs" style="height:40px;"></div><div class="blabel">Apr 7</div></div><div class="bc"><div class="bar bs" style="height:30px;"></div><div class="blabel">Apr 8</div></div><div class="bc"><div class="bar bs" style="height:54px;"></div><div class="blabel">Apr 9</div></div><div class="bc"><div class="bar bs" style="height:70px;"></div><div class="blabel">Apr 10</div></div></div>
+          <div class="bar-chart" style="margin-top:3px;"><div class="bc"><div class="bar bp" style="height:38px;"></div></div><div class="bc"><div class="bar bp" style="height:28px;"></div></div><div class="bc"><div class="bar bp" style="height:52px;"></div></div><div class="bc"><div class="bar bp" style="height:63px;"></div></div></div>
+          <div class="bar-chart" style="margin-top:3px;"><div class="bc"><div class="bar br" style="height:5px;"></div></div><div class="bc"><div class="bar br" style="height:4px;"></div></div><div class="bc"><div class="bar br" style="height:7px;"></div></div><div class="bc"><div class="bar br" style="height:9px;"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">Outcome Breakdown</span></div>
+        <div class="cb">
+          <div class="prog-row"><div class="prog-meta"><span>Existing Shell — Updated</span><strong>52</strong></div><div class="prog-track"><div class="prog-fill" style="width:63%;background:var(--teal);"></div></div></div>
+          <div class="prog-row"><div class="prog-meta"><span>New Shell — Created</span><strong>26</strong></div><div class="prog-track"><div class="prog-fill" style="width:31%;background:var(--purple);"></div></div></div>
+          <div class="prog-row"><div class="prog-meta"><span>Insurance Flagged — Held</span><strong>5</strong></div><div class="prog-track"><div class="prog-fill" style="width:6%;background:var(--red);"></div></div></div>
+          <div class="divider"></div>
+          <div style="font-size:9.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;">Interpreter Requests</div>
+          <div style="display:flex;gap:7px;">
+            <div style="flex:1;text-align:center;padding:8px;background:var(--s2);border-radius:6px;"><div style="font-size:17px;font-weight:300;color:var(--blue);">19</div><div style="font-size:9.5px;color:var(--t3);">Required</div></div>
+            <div style="flex:1;text-align:center;padding:8px;background:var(--s2);border-radius:6px;"><div style="font-size:17px;font-weight:300;color:var(--teal);">11</div><div style="font-size:9.5px;color:var(--t3);">Spanish</div></div>
+            <div style="flex:1;text-align:center;padding:8px;background:var(--s2);border-radius:6px;"><div style="font-size:17px;font-weight:300;color:var(--amber);">8</div><div style="font-size:9.5px;color:var(--t3);">Other</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ct">All Referrals — April 2025</span><span class="tag t-navy" style="font-size:10px;">83 records</span></div>
+      <div class="cb" style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Referral ID</th><th>Patient</th><th>DOB</th><th>Insurance</th><th>Shell Action</th><th>Interpreter</th><th>Uploads</th><th>Time</th><th>Outcome</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mono">REF-0081</span></td><td><span class="pname">Rodriguez, Emma</span></td><td><span class="mono">03/14/2017</span></td><td>Aetna Better Health</td><td><span class="tag t-amber">Updated</span></td><td><span class="tag t-blue">Spanish 🇪🇸</span></td><td><span class="tag t-teal">6/6</span></td><td><span class="mono">4m 18s</span></td><td><span class="pill pill-ok">Completed</span></td></tr>
+            <tr><td><span class="mono">REF-0082</span></td><td><span class="pname">Chen, Marcus</span></td><td><span class="mono">08/22/2019</span></td><td>Horizon NJ Health</td><td><span class="tag t-purple">Created</span></td><td><span class="tag t-navy">None</span></td><td><span class="tag t-teal">5/5</span></td><td><span class="mono">5m 42s</span></td><td><span class="pill pill-new">New Patient</span></td></tr>
+            <tr><td><span class="mono">REF-0083</span></td><td><span class="pname">Nair, Priya</span></td><td><span class="mono">06/07/2014</span></td><td>UHCCP of NJ</td><td><span class="tag t-red">Blocked</span></td><td><span class="tag t-navy">None</span></td><td><span class="tag t-red">0 (held)</span></td><td><span class="mono">0m 12s</span></td><td><span class="pill pill-err">Ins. Review</span></td></tr>
+            <tr><td><span class="mono">REF-0080</span></td><td><span class="pname">Patel, Anika</span></td><td><span class="mono">11/05/2015</span></td><td>AmeriHealth Mercy</td><td><span class="tag t-amber">Updated</span></td><td><span class="tag t-navy">None</span></td><td><span class="tag t-teal">4/4</span></td><td><span class="mono">3m 55s</span></td><td><span class="pill pill-ok">Completed</span></td></tr>
+            <tr><td><span class="mono">REF-0079</span></td><td><span class="pname">Torres, Diego</span></td><td><span class="mono">02/18/2013</span></td><td>AmeriGroup of NJ</td><td><span class="tag t-red">Blocked</span></td><td><span class="tag t-blue">Spanish 🇪🇸</span></td><td><span class="tag t-red">0 (held)</span></td><td><span class="mono">0m 11s</span></td><td><span class="pill pill-err">Ins. Review</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch" style="background:#FFFBEE;border-color:var(--warn-bd);"><span class="ct" style="color:#9A6A00;">⚠ Coordinator Action Queue (5 insurance + 2 other)</span></div>
+      <div class="cb" style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Referral ID</th><th>Patient</th><th>Issue</th><th>Insurance</th><th>Action Required</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><span class="mono">REF-0083</span></td><td><span class="pname">Nair, Priya</span></td><td><span class="tag t-red">Not Accepted</span></td><td>UHCCP of NJ</td><td style="font-size:11px;color:var(--t2);">Not contracted with Dermatology — contact family to verify coverage</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
+            <tr><td><span class="mono">REF-0079</span></td><td><span class="pname">Torres, Diego</span></td><td><span class="tag t-red">Not Accepted</span></td><td>AmeriGroup of NJ</td><td style="font-size:11px;color:var(--t2);">AmeriGroup of NJ not contracted — patient may need alternate referral pathway</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
+            <tr><td><span class="mono">REF-0075</span></td><td><span class="pname">Wilson, James</span></td><td><span class="tag t-amber">Dupe Match</span></td><td>Horizon NJ Health</td><td style="font-size:11px;color:var(--t2);">2 patients matched name + DOB — manual selection needed before bot can proceed</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// SCENARIO DATA
+// ════════════════════════════════════════════════
+const SC = {
+  0:{
+    fname:'Emma',lname:'Rodriguez',dob:'03/14/2017',mrn:'CHK-448821',
+    phone:'(609) 555-0182',addr:'412 Maple Ave, Cherry Hill, NJ',
+    ins:'aetna',insLabel:'Aetna Better Health',memberid:'W1039847222',
+    groupnum:'GRP-8821-NJ',planname:'Aetna Better Health NJ Medicaid',
+    interp:true,lang:'Spanish',
+    refprov:'Dr. Sarah Kim, MD',refprac:'Pediatric Associates of NJ',
+    reftype:'Consultation',urgency:'Routine (within 30 days)',
+    reason:'Persistent atopic dermatitis, unresponsive to topical steroids',
+    notes:'Patient has history of seasonal allergies. Current regimen: hydrocortisone 2.5% — minimal improvement over 6 weeks. Requesting specialist evaluation for potential dupilumab candidacy.',
+    insOk:true,
+    refId:'REF-0081', epicShell:'RS-2025-04-1184', shellAction:'Updated',
+    shellActionTag:'<span class="tag t-amber">Updated</span>',
+    patientStatus:'Existing Match',
+    uploadCount:6, uploadLabel:'6/6 ✓', duration:'4m 18s',
+    attachments:[
+      {type:'pdf',name:'Prior_Authorization_Aetna.pdf',meta:'2.1 MB · Prior Auth'},
+      {type:'img',name:'Insurance_Card_Front.jpg',meta:'310 KB · Insurance Card'},
+      {type:'img',name:'Insurance_Card_Back.jpg',meta:'285 KB · Insurance Card'},
+      {type:'img',name:'Skin_Photo_Left_Arm.jpg',meta:'840 KB · Clinical Photo'},
+      {type:'img',name:'Skin_Photo_Right_Arm.jpg',meta:'720 KB · Clinical Photo'},
+    ],
+    submitSteps:[
+      {delay:0,   icon:'⟳',ic:'ic-b',state:'s-run',title:'Packaging and submitting form data…',detail:'Validating all fields · Bundling 5 attachments for storage',badge:'SUBMITTING',bk:'bk-run'},
+      {delay:950, icon:'✓',ic:'ic-g',state:'s-ok', title:'Form data stored · Insurance pre-check: PASSED',detail:'REF-0081 created · Aetna Better Health — accepted plan · Automation job queued',badge:'STORED',bk:'bk-ok'},
+      {delay:1900,icon:'⚡',ic:'ic-b',state:'s-run',title:'Automation bot dispatched → Epic session opening',detail:'Job assigned in Orchestrator · Service account authenticated via Credential Store',badge:'BOT ACTIVE',bk:'bk-run'},
+      {delay:2900,icon:'🔍',ic:'ic-b',state:'s-run',title:'Epic: Searching patient record…',detail:'Query: Rodriguez, Emma · DOB 03/14/2017 · Patient Index search in progress',badge:'SEARCHING',bk:'bk-run'},
+      {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Patient found · MRN CHK-448821 confirmed',detail:'Existing patient matched · Demographics verified',badge:'MATCHED',bk:'bk-ok'},
+      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell under Dermatology…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
+      {delay:6100,icon:'✓',ic:'ic-g',state:'s-ok', title:'Referral shell RS-2025-04-1184 found — updating',detail:'Existing shell located · No new shell created · Updating insurance, interpreter, clinical details',badge:'UPDATING',bk:'bk-ok'},
+      {delay:7200,icon:'🇪🇸',ic:'ic-b',state:'s-run',title:'Flagging interpreter requirement — Spanish',detail:'Interpreter need recorded on referral shell per intake form submission',badge:'FLAGGED',bk:'bk-run'},
+      {delay:8100,icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 6 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards (front/back) + 2 clinical photos',badge:'UPLOADING',bk:'bk-run'},
+      {delay:9400,icon:'✓',ic:'ic-g',state:'s-ok', title:'All 6 files uploaded · Status written back',detail:'Media Manager complete · Intake record updated · Coordinator notified',badge:'COMPLETE',bk:'bk-ok'},
+    ],
+    okTitle:'Referral submitted &amp; automation complete',
+    okDetail:'REF-0081 · Referral shell RS-2025-04-1184 <strong>updated</strong> (existing found) · Interpreter: Spanish flagged · 6 docs uploaded · Proceed to Step 2 →',
+    s2Subtitle:'Emma Rodriguez · REF-0081 · Aetna Better Health — accepted · Bot dispatched',
+    s2TableHighlight:0,
+    s3Title:'Automation Vendor Solution Bot — Scenario A: Rodriguez, Emma',
+    s3Subtitle:'Existing patient, existing shell found → shell updated with new intake data',
+    s3Log:[
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Automation bot opens Epic · Navigates to Patient Search',detail:'Service account authenticated · Patient Search loaded',badge:'DONE',bk:'bk-ok'},
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Search: Rodriguez, Emma · DOB 03/14/2017',detail:'MRN CHK-448821 also verified against search result',badge:'DONE',bk:'bk-ok'},
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Patient found · Existing referral shell RS-2025-04-1184 located',detail:'No new shell created · Opening existing shell for update',badge:'SHELL FOUND',bk:'bk-ok'},
+      {icon:'✏️',ic:'ic-a',state:'s-warn',title:'Shell updated — insurance, interpreter, clinical notes refreshed',detail:'Aetna Better Health, W1039847222, Spanish interpreter flag, updated reason and notes',badge:'UPDATED',bk:'bk-warn'},
+      {icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 6 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards + Clinical Photos',badge:'IN PROGRESS',bk:'bk-run'},
+    ],
+    s3MappingLabel:'Field Mapping — Intake Data → Existing Shell (Updated)',
+    s3Fields:[
+      {cls:'mapped',label:'Patient Name',val:'Rodriguez, Emma'},
+      {cls:'mapped',label:'Date of Birth',val:'03/14/2017'},
+      {cls:'mapped',label:'MRN',val:'CHK-448821'},
+      {cls:'updated',label:'Insurance ↑',val:'Aetna Better Hlth'},
+      {cls:'updated',label:'Member ID ↑',val:'W1039847222'},
+      {cls:'updated',label:'Group Number ↑',val:'GRP-8821-NJ'},
+      {cls:'mapped',label:'Referring Provider',val:'Kim, Sarah MD'},
+      {cls:'mapped',label:'Referring Practice',val:'Ped. Assoc. NJ'},
+      {cls:'mapped',label:'Referral Type',val:'Consultation'},
+      {cls:'mapped',label:'Urgency',val:'Routine / 30 days'},
+      {cls:'mapped',label:'Diagnosis',val:'Atopic Dermatitis'},
+      {cls:'updated',label:'Interpreter ↑',val:'Spanish 🇪🇸'},
+      {cls:'mapped',label:'Clinical Notes',val:'See attached PDF'},
+    ],
+    s4Subtitle:'Scenario A — 6 files queued for RS-2025-04-1184',
+    s4Shell:'RS-2025-04-1184',
+    s4Files:[
+      {type:'pdf',name:'REF-0081_Referral_Summary.pdf',meta:'Auto-generated by Automation Vendor Solution · 1.4 MB',status:'bk-ok',statusLabel:'✓ UPLOADED'},
+      {type:'pdf',name:'Prior_Authorization_Aetna.pdf',meta:'Prior Auth · 2.1 MB',status:'bk-ok',statusLabel:'✓ UPLOADED'},
+      {type:'img',name:'Insurance_Card_Front.jpg',meta:'Insurance Card · 310 KB',status:'bk-ok',statusLabel:'✓ UPLOADED'},
+      {type:'img',name:'Insurance_Card_Back.jpg',meta:'Insurance Card · 285 KB',status:'bk-run',statusLabel:'⟳ UPLOADING'},
+      {type:'img',name:'Skin_Photo_Left_Arm.jpg',meta:'Clinical Photo · 840 KB',status:'bk-pend',statusLabel:'PENDING'},
+      {type:'img',name:'Skin_Photo_Right_Arm.jpg',meta:'Clinical Photo · 720 KB',status:'bk-pend',statusLabel:'PENDING'},
+    ],
+    s5Subtitle:'Scenario A — write-back after shell update',
+    s5Fields:[
+      {cls:'mapped',label:'Bot Status',val:'✓ Completed'},
+      {cls:'mapped',label:'Epic Shell ID',val:'RS-2025-04-1184'},
+      {cls:'mapped',label:'Shell Action',val:'Updated'},
+      {cls:'mapped',label:'Patient Status',val:'Existing Match'},
+      {cls:'mapped',label:'Interpreter',val:'Spanish 🇪🇸'},
+      {cls:'mapped',label:'Media Uploads',val:'6 of 6 ✓'},
+      {cls:'mapped',label:'Bot Completed',val:'04/10 14:23:41'},
+      {cls:'mapped',label:'Processing Time',val:'4m 18s'},
+      {cls:'mapped',label:'Coordinator',val:'Email sent ✓'},
+    ],
+    s5Rows:[
+      {id:'REF-0081',patient:'Rodriguez, Emma',shell:'RS-2025-04-1184',action:'<span class="tag t-amber">Updated</span>',interp:'<span class="tag t-blue">Spanish 🇪🇸</span>',uploads:'<span class="tag t-teal">6/6 ✓</span>',time:'4m 18s',outcome:'<span class="pill pill-ok">Completed</span>'},
+      {id:'REF-0082',patient:'Chen, Marcus',shell:'RS-2025-04-1185',action:'<span class="tag t-purple">Created</span>',interp:'<span class="tag t-navy">None</span>',uploads:'<span class="tag t-teal">5/5 ✓</span>',time:'5m 42s',outcome:'<span class="pill pill-new">New Patient</span>'},
+      {id:'REF-0083',patient:'Nair, Priya',shell:'—',action:'<span class="tag t-red">Blocked</span>',interp:'<span class="tag t-navy">None</span>',uploads:'<span class="tag t-red">0 (held)</span>',time:'0m 12s',outcome:'<span class="pill pill-err">Ins. Review</span>'},
+    ],
+  },
+  1:{
+    fname:'Marcus',lname:'Chen',dob:'08/22/2019',mrn:'',
+    phone:'(856) 555-0349',addr:'89 Birch St, Moorestown, NJ',
+    ins:'horizon',insLabel:'Horizon NJ Health',memberid:'HNJ-3392811',
+    groupnum:'GRP-4420-NJ',planname:'Horizon NJ TotalCare Medicaid',
+    interp:false,lang:'',
+    refprov:'Dr. Thomas Park, MD',refprac:'Camden Pediatric Group',
+    reftype:'Consultation',urgency:'Urgent (within 72 hrs)',
+    reason:'Severe eczema with suspected secondary infection',
+    notes:'Patient presenting with widespread eczema lesions. Topical treatment ineffective. Two prior ER visits in past 3 months. MRN unknown to referring practice.',
+    insOk:true,
+    refId:'REF-0082',epicShell:'RS-2025-04-1185',shellAction:'Created',
+    attachments:[
+      {type:'pdf',name:'Prior_Auth_Horizon.pdf',meta:'1.8 MB · Prior Auth'},
+      {type:'img',name:'Insurance_Card_Front.jpg',meta:'295 KB · Insurance Card'},
+      {type:'img',name:'Insurance_Card_Back.jpg',meta:'270 KB · Insurance Card'},
+      {type:'img',name:'Eczema_Photo_Trunk.jpg',meta:'910 KB · Clinical Photo'},
+      {type:'img',name:'Eczema_Photo_Legs.jpg',meta:'780 KB · Clinical Photo'},
+    ],
+    submitSteps:[
+      {delay:0,   icon:'⟳',ic:'ic-b',state:'s-run',title:'Packaging and submitting form data…',detail:'Validating all fields · Bundling 5 attachments for storage',badge:'SUBMITTING',bk:'bk-run'},
+      {delay:950, icon:'✓',ic:'ic-g',state:'s-ok', title:'Form data stored · Insurance pre-check: PASSED',detail:'REF-0082 created · Horizon NJ Health — accepted plan · Automation job queued',badge:'STORED',bk:'bk-ok'},
+      {delay:1900,icon:'⚡',ic:'ic-b',state:'s-run',title:'Automation bot dispatched → Epic session opening',detail:'Job assigned in Orchestrator · Robot authenticated into Epic via Credential Store',badge:'BOT ACTIVE',bk:'bk-run'},
+      {delay:2900,icon:'🔍',ic:'ic-b',state:'s-run',title:'Epic: Searching patient record…',detail:'Query: Chen, Marcus · DOB 08/22/2019 · No MRN provided — name + DOB search only',badge:'SEARCHING',bk:'bk-run'},
+      {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Patient found · MRN CHK-509934 retrieved from Epic',detail:'Marcus Chen matched by name + DOB · MRN populated from Epic',badge:'MATCHED',bk:'bk-ok'},
+      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell under Dermatology…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
+      {delay:6100,icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell found — creating new shell',detail:'No active Derm referral shell on record · Automation bot initiating new Incoming Referral',badge:'CREATING',bk:'bk-warn'},
+      {delay:7300,icon:'✓',ic:'ic-g',state:'s-ok', title:'New referral shell RS-2025-04-1185 created',detail:'All 13 intake fields populated · Urgency: Urgent · No interpreter required',badge:'CREATED',bk:'bk-new'},
+      {delay:8300,icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 5 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards (front/back) + 2 clinical photos',badge:'UPLOADING',bk:'bk-run'},
+      {delay:9600,icon:'✓',ic:'ic-g',state:'s-ok', title:'All 5 files uploaded · Status written back',detail:'Media Manager complete · REF-0082 updated with Shell ID RS-2025-04-1185 · Coordinator notified',badge:'COMPLETE',bk:'bk-ok'},
+    ],
+    okTitle:'Referral submitted &amp; automation complete',
+    okDetail:'REF-0082 · New referral shell RS-2025-04-1185 <strong>created</strong> (no prior shell found) · No interpreter needed · 5 docs uploaded · Proceed to Step 2 →',
+    s2Subtitle:'Marcus Chen · REF-0082 · Horizon NJ Health — accepted · Bot dispatched',
+    s2TableHighlight:1,
+    s3Title:'Automation Vendor Solution Bot — Scenario B: Chen, Marcus',
+    s3Subtitle:'Existing patient, no prior shell found → new referral shell created and populated',
+    s3Log:[
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Automation bot opens Epic · Navigates to Patient Search',detail:'Service account authenticated · Patient Search loaded',badge:'DONE',bk:'bk-ok'},
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Search: Chen, Marcus · DOB 08/22/2019 · No MRN on intake',detail:'Name + DOB search only · MRN retrieved from Epic result',badge:'DONE',bk:'bk-ok'},
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Patient found · MRN CHK-509934 confirmed from Epic',detail:'Existing patient record located · Demographics verified',badge:'MATCHED',bk:'bk-ok'},
+      {icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell under Dermatology — creating new',detail:'Automation bot initiates new Incoming Referral in Epic Referral Management',badge:'CREATING',bk:'bk-warn'},
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'New shell RS-2025-04-1185 created · All fields populated',detail:'13 intake fields mapped · Urgency: Urgent · Interpreter: None',badge:'CREATED',bk:'bk-new'},
+      {icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 5 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards + Clinical Photos',badge:'IN PROGRESS',bk:'bk-run'},
+    ],
+    s3MappingLabel:'Field Mapping — Intake Data → New Shell (Created)',
+    s3Fields:[
+      {cls:'mapped',label:'Patient Name',val:'Chen, Marcus'},
+      {cls:'mapped',label:'Date of Birth',val:'08/22/2019'},
+      {cls:'mapped',label:'MRN (from Epic)',val:'CHK-509934'},
+      {cls:'mapped',label:'Insurance',val:'Horizon NJ Hlth'},
+      {cls:'mapped',label:'Member ID',val:'HNJ-3392811'},
+      {cls:'mapped',label:'Group Number',val:'GRP-4420-NJ'},
+      {cls:'mapped',label:'Referring Provider',val:'Park, Thomas MD'},
+      {cls:'mapped',label:'Referring Practice',val:'Camden Ped. Grp'},
+      {cls:'mapped',label:'Referral Type',val:'Consultation'},
+      {cls:'mapped',label:'Urgency',val:'Urgent / 72 hrs'},
+      {cls:'mapped',label:'Diagnosis',val:'Severe Eczema'},
+      {cls:'mapped',label:'Interpreter',val:'Not Required'},
+      {cls:'mapped',label:'Clinical Notes',val:'See attached PDF'},
+    ],
+    s4Subtitle:'Scenario B — 5 files queued for RS-2025-04-1185',
+    s4Shell:'RS-2025-04-1185',
+    s4Files:[
+      {type:'pdf',name:'REF-0082_Referral_Summary.pdf',meta:'Auto-generated by Automation Vendor Solution · 1.4 MB',status:'bk-ok',statusLabel:'✓ UPLOADED'},
+      {type:'pdf',name:'Prior_Auth_Horizon.pdf',meta:'Prior Auth · 1.8 MB',status:'bk-ok',statusLabel:'✓ UPLOADED'},
+      {type:'img',name:'Insurance_Card_Front.jpg',meta:'Insurance Card · 295 KB',status:'bk-run',statusLabel:'⟳ UPLOADING'},
+      {type:'img',name:'Insurance_Card_Back.jpg',meta:'Insurance Card · 270 KB',status:'bk-pend',statusLabel:'PENDING'},
+      {type:'img',name:'Eczema_Photo_Trunk.jpg',meta:'Clinical Photo · 910 KB',status:'bk-pend',statusLabel:'PENDING'},
+    ],
+    s5Subtitle:'Scenario B — write-back after new shell creation',
+    s5Fields:[
+      {cls:'mapped',label:'Bot Status',val:'✓ Completed'},
+      {cls:'mapped',label:'Epic Shell ID',val:'RS-2025-04-1185'},
+      {cls:'mapped',label:'Shell Action',val:'Created'},
+      {cls:'mapped',label:'Patient Status',val:'Existing / New Shell'},
+      {cls:'mapped',label:'Interpreter',val:'Not Required'},
+      {cls:'mapped',label:'Media Uploads',val:'5 of 5 ✓'},
+      {cls:'mapped',label:'Bot Completed',val:'04/10 14:31:59'},
+      {cls:'mapped',label:'Processing Time',val:'5m 42s'},
+      {cls:'mapped',label:'Coordinator',val:'Email sent ✓'},
+    ],
+    s5Rows:[
+      {id:'REF-0082',patient:'Chen, Marcus',shell:'RS-2025-04-1185',action:'<span class="tag t-purple">Created</span>',interp:'<span class="tag t-navy">None</span>',uploads:'<span class="tag t-teal">5/5 ✓</span>',time:'5m 42s',outcome:'<span class="pill pill-new">New Patient Shell</span>'},
+      {id:'REF-0081',patient:'Rodriguez, Emma',shell:'RS-2025-04-1184',action:'<span class="tag t-amber">Updated</span>',interp:'<span class="tag t-blue">Spanish 🇪🇸</span>',uploads:'<span class="tag t-teal">6/6 ✓</span>',time:'4m 18s',outcome:'<span class="pill pill-ok">Completed</span>'},
+      {id:'REF-0083',patient:'Nair, Priya',shell:'—',action:'<span class="tag t-red">Blocked</span>',interp:'<span class="tag t-navy">None</span>',uploads:'<span class="tag t-red">0 (held)</span>',time:'0m 12s',outcome:'<span class="pill pill-err">Ins. Review</span>'},
+    ],
+  },
+  2:{
+    fname:'Priya',lname:'Nair',dob:'06/07/2014',mrn:'CHK-290017',
+    phone:'(732) 555-0091',addr:'227 Cedar Ln, Edison, NJ',
+    ins:'uhccp',insLabel:'UHCCP of NJ',memberid:'UHC-7741229',
+    groupnum:'GRP-0033-NJ',planname:'UnitedHealthcare Community Plan NJ',
+    interp:false,lang:'',
+    refprov:'Dr. Rita Patel, MD',refprac:'Edison Pediatric Partners',
+    reftype:'Consultation',urgency:'Routine (within 30 days)',
+    reason:'Chronic urticaria with suspected allergic component',
+    notes:'Patient has recurring hives over 8-week period, primarily nocturnal. Cetirizine 10mg with partial relief only. Requesting specialist evaluation.',
+    insOk:false,
+    refId:'REF-0083',epicShell:'—',shellAction:'Blocked',
+    attachments:[
+      {type:'pdf',name:'Referral_Letter_Patel.pdf',meta:'900 KB · Referral Letter'},
+      {type:'img',name:'Insurance_Card_Front.jpg',meta:'290 KB · Insurance Card'},
+      {type:'img',name:'Insurance_Card_Back.jpg',meta:'265 KB · Insurance Card'},
+      {type:'img',name:'Hives_Photo_Abdomen.jpg',meta:'760 KB · Clinical Photo'},
+    ],
+    submitSteps:[
+      {delay:0,   icon:'⟳',ic:'ic-b',state:'s-run',title:'Packaging and submitting form data…',detail:'Validating all fields · Bundling 4 attachments for storage',badge:'SUBMITTING',bk:'bk-run'},
+      {delay:950, icon:'✓',ic:'ic-g',state:'s-ok', title:'Form data stored in intake system',detail:'REF-0083 created · All intake data captured and retained',badge:'STORED',bk:'bk-ok'},
+      {delay:1900,icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check: FAILED — UHCCP of NJ not accepted',detail:'UHCCP of NJ is not a contracted plan with Dermatology · Automation bot will not proceed to Epic',badge:'FLAGGED',bk:'bk-err'},
+      {delay:3000,icon:'⚠',ic:'ic-a',state:'s-warn',title:'Referral status set to "Insurance Review"',detail:'Epic actions blocked · All intake data and attachments retained · Coordinator alert triggered',badge:'ON HOLD',bk:'bk-warn'},
+      {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Status written back · Coordinator notified',detail:'REF-0083 flagged in data store · Email sent to referral coordinator with insurance and patient details',badge:'NOTIFIED',bk:'bk-ok'},
+    ],
+    okTitle:'',okDetail:'',
+    errDetail:'REF-0083 · UHCCP of NJ is not accepted at Dermatology · No Epic actions taken · All intake data retained · Coordinator has been notified to review and contact the family.',
+    s2Subtitle:'Priya Nair · REF-0083 · UHCCP of NJ — NOT accepted · Bot blocked',
+    s2TableHighlight:2,
+    s3Title:'Automation Vendor Solution Bot — Scenario C: Nair, Priya',
+    s3Subtitle:'Insurance not accepted — Automation Vendor Solution blocked from Epic. Referral held pending coordinator review.',
+    s3Log:[
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Form data stored · Insurance pre-check performed',detail:'REF-0083 created · UHCCP of NJ checked against accepted plan list',badge:'STORED',bk:'bk-ok'},
+      {icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check FAILED — UHCCP of NJ not contracted',detail:'Plan not accepted at Dermatology · Automation Vendor Solution will NOT open Epic for this referral',badge:'BLOCKED',bk:'bk-err'},
+      {icon:'⚠',ic:'ic-a',state:'s-warn',title:'Referral held · Status set to "Insurance Review"',detail:'No Epic actions taken · All intake data and attachments preserved in data store',badge:'ON HOLD',bk:'bk-warn'},
+      {icon:'✓',ic:'ic-g',state:'s-ok',title:'Coordinator notified · Status written back',detail:'Alert email sent · REF-0083 marked "Insurance Review" · Awaiting coordinator resolution',badge:'NOTIFIED',bk:'bk-ok'},
+    ],
+    s3MappingLabel:'Epic Actions Blocked — No Field Mapping Performed',
+    s3Fields:null,
+    s4Subtitle:'Scenario C — Epic Media Manager upload blocked (insurance not accepted)',
+    s4Shell:'N/A — Blocked',
+    s4Files:[
+      {type:'pdf',name:'Referral_Letter_Patel.pdf',meta:'Referral Letter · 900 KB',status:'bk-warn',statusLabel:'⏸ ON HOLD'},
+      {type:'img',name:'Insurance_Card_Front.jpg',meta:'Insurance Card · 290 KB',status:'bk-warn',statusLabel:'⏸ ON HOLD'},
+      {type:'img',name:'Insurance_Card_Back.jpg',meta:'Insurance Card · 265 KB',status:'bk-warn',statusLabel:'⏸ ON HOLD'},
+      {type:'img',name:'Hives_Photo_Abdomen.jpg',meta:'Clinical Photo · 760 KB',status:'bk-warn',statusLabel:'⏸ ON HOLD'},
+    ],
+    s5Subtitle:'Scenario C — write-back after insurance block',
+    s5Fields:[
+      {cls:'updated',label:'Bot Status',val:'⛔ Flagged'},
+      {cls:'updated',label:'Epic Shell ID',val:'N/A — Blocked'},
+      {cls:'updated',label:'Shell Action',val:'None Taken'},
+      {cls:'updated',label:'Insurance Issue',val:'UHCCP of NJ'},
+      {cls:'mapped',label:'Interpreter',val:'Not Required'},
+      {cls:'updated',label:'Media Uploads',val:'0 (On Hold)'},
+      {cls:'mapped',label:'Bot Completed',val:'04/10 14:45:12'},
+      {cls:'mapped',label:'Processing Time',val:'0m 12s'},
+      {cls:'updated',label:'Coordinator',val:'⚠ Review Needed'},
+    ],
+    s5Rows:[
+      {id:'REF-0083',patient:'Nair, Priya',shell:'—',action:'<span class="tag t-red">Blocked</span>',interp:'<span class="tag t-navy">None</span>',uploads:'<span class="tag t-red">0 (held)</span>',time:'0m 12s',outcome:'<span class="pill pill-err">Ins. Review</span>'},
+      {id:'REF-0081',patient:'Rodriguez, Emma',shell:'RS-2025-04-1184',action:'<span class="tag t-amber">Updated</span>',interp:'<span class="tag t-blue">Spanish 🇪🇸</span>',uploads:'<span class="tag t-teal">6/6 ✓</span>',time:'4m 18s',outcome:'<span class="pill pill-ok">Completed</span>'},
+      {id:'REF-0082',patient:'Chen, Marcus',shell:'RS-2025-04-1185',action:'<span class="tag t-purple">Created</span>',interp:'<span class="tag t-navy">None</span>',uploads:'<span class="tag t-teal">5/5 ✓</span>',time:'5m 42s',outcome:'<span class="pill pill-new">New Patient</span>'},
+    ],
+  },
+};
+
+// ════════════════════════════════════════════════
+// VIEW SWITCHING
+// ════════════════════════════════════════════════
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tn-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  const idx = {smartsheet:0,process:1,dashboard:2}[v];
+  document.querySelectorAll('.tn-btn')[idx].classList.add('active');
+}
+
+// ════════════════════════════════════════════════
+// STEP SWITCHING
+// ════════════════════════════════════════════════
+let currentStep = 0;
+function showStep(i){
+  for(let j=0;j<5;j++){
+    document.getElementById('step'+j).style.display = j===i?'block':'none';
+    document.getElementById('sni'+j).classList.toggle('active',j===i);
+  }
+  currentStep = i;
+}
+
+// ════════════════════════════════════════════════
+// SCENARIO
+// ════════════════════════════════════════════════
+let currentSc = 0;
+let animDone = false;
+
+const NOT_ACCEPTED = ['uhccp','amerigroup'];
+
+function selectScenario(idx){
+  if(animDone){ resetAnim(); }
+  currentSc = idx;
+  document.querySelectorAll('.sc-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  const sc = SC[idx];
+
+  // populate form
+  ['fname','lname','dob','mrn','phone','addr','memberid','groupnum','planname','refprov','refprac','reason'].forEach(k=>{
+    const el = document.getElementById('f-'+k);
+    if(el) el.value = sc[k];
+  });
+  document.getElementById('f-notes').value = sc.notes;
+
+  const insEl = document.getElementById('f-ins');
+  for(let o of insEl.options) o.selected = (o.value===sc.ins);
+  document.getElementById('interp-yes').checked = sc.interp;
+  document.getElementById('interp-no').checked = !sc.interp;
+  document.getElementById('interp-lang-row').style.display = sc.interp?'block':'none';
+
+  // insurance styling
+  const insOk = sc.insOk;
+  ['f-ins','f-memberid','f-groupnum','f-planname'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.classList.toggle('ok',insOk);
+    el.classList.toggle('warn',!insOk);
+  });
+  checkIns(sc.ins);
+
+  // attachments
+  renderAttachments(sc.attachments);
+  document.getElementById('form-footer-note').textContent = `All required fields completed · ${sc.attachments.length} files attached`;
+
+  // re-render dynamic step sections if already visible
+  renderStepContent();
+}
+
+function renderAttachments(atts){
+  const list = document.getElementById('attachments-list');
+  list.innerHTML = atts.map(a=>`
+    <div class="mi">
+      <div class="mi-thumb ${a.type}">${a.type==='pdf'?'📄':'🖼️'}</div>
+      <div><div class="mi-name">${a.name}</div><div class="mi-meta">${a.meta}</div></div>
+      <div class="mi-status"><span class="si-badge bk-ok">✓ Attached</span></div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// RENDER DYNAMIC STEP CONTENT
+// ════════════════════════════════════════════════
+function renderStepContent(){
+  const sc = SC[currentSc];
+
+  // STEP 2 — storage table
+  const s2wrap = document.getElementById('s2-table-wrap');
+  document.getElementById('s2-subtitle').textContent = sc.s2Subtitle;
+  const rows = [
+    {id:'REF-0081',patient:'Rodriguez, Emma',dob:'03/14/2017',ins:'Aetna Better Health',interp:'<span class="tag t-blue">Spanish</span>',urg:'<span class="tag t-teal">Routine</span>',time:'04/10 14:18',status:'<span class="pill pill-ok">Completed</span>'},
+    {id:'REF-0082',patient:'Chen, Marcus',dob:'08/22/2019',ins:'Horizon NJ Health',interp:'<span class="tag t-navy">None</span>',urg:'<span class="tag t-blue">Urgent</span>',time:'04/10 14:31',status:'<span class="pill pill-proc">Bot Processing</span>'},
+    {id:'REF-0083',patient:'Nair, Priya',dob:'06/07/2014',ins:'UHCCP of NJ',interp:'<span class="tag t-navy">None</span>',urg:'<span class="tag t-teal">Routine</span>',time:'04/10 14:45',status:'<span class="pill pill-err">Flagged</span>'},
+  ];
+  s2wrap.innerHTML = `<table class="tbl">
+    <thead><tr><th>Referral ID</th><th>Patient</th><th>DOB</th><th>Insurance</th><th>Interpreter</th><th>Urgency</th><th>Submitted</th><th>Bot Status</th></tr></thead>
+    <tbody>${rows.map((r,i)=>`
+    <tr style="${i===sc.s2TableHighlight?'background:#EBF4FF;font-weight:500;':''}">
+      <td><span class="mono">${r.id}</span></td>
+      <td><span class="pname">${r.patient}</span></td>
+      <td><span class="mono">${r.dob}</span></td>
+      <td>${r.ins}</td><td>${r.interp}</td><td>${r.urg}</td>
+      <td><span class="mono">${r.time}</span></td>
+      <td>${r.status}</td>
+    </tr>`).join('')}</tbody></table>`;
+
+  // s2 trigger box
+  document.getElementById('s2-trigger-box').innerHTML = `
+    <div style="display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;"><div class="pulse"></div>Automation Vendor Solution Trigger Chain — ${sc.refId}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="si show s-ok"><div class="si-icon ic-g">✓</div><div><div class="si-title">New record detected — ${sc.fname} ${sc.lname}</div><div class="si-detail">${sc.refId} created · Fields validated · Attachments accessible</div></div><span class="si-badge bk-ok">RECEIVED</span></div>
+      <div class="si show ${sc.insOk?'s-ok':'s-err'}"><div class="si-icon ${sc.insOk?'ic-g':'ic-r'}">${sc.insOk?'✓':'⛔'}</div><div><div class="si-title">Insurance pre-check: ${sc.insOk?'PASSED — '+sc.insLabel+' accepted':'FAILED — '+sc.insLabel+' not accepted'}</div><div class="si-detail">${sc.insOk?'Plan verified against accepted list · Automation job queued':'Plan not contracted · Automation job blocked · Coordinator alerted'}</div></div><span class="si-badge ${sc.insOk?'bk-ok':'bk-err'}">${sc.insOk?'PASSED':'BLOCKED'}</span></div>
+      ${sc.insOk?`<div class="si show s-run"><div class="si-icon ic-b">🤖</div><div><div class="si-title">Automation bot dispatched · Epic session opening</div><div class="si-detail">Job assigned to Automation Orchestrator · Robot authenticated into Epic</div></div><span class="si-badge bk-run">BOT ACTIVE</span></div>`:''}
+    </div>`;
+
+  // STEP 3
+  document.getElementById('s3-title').textContent = sc.s3Title;
+  document.getElementById('s3-subtitle').textContent = sc.s3Subtitle;
+  document.getElementById('s3-log-box').innerHTML = `
+    <div style="display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;"><div class="pulse"></div>Bot Execution Log — ${sc.refId}: ${sc.fname} ${sc.lname}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">${sc.s3Log.map(s=>`
+      <div class="si show ${s.state}"><div class="si-icon ${s.ic}">${s.icon}</div><div><div class="si-title">${s.title}</div><div class="si-detail">${s.detail}</div></div><span class="si-badge ${s.bk}">${s.badge}</span></div>`).join('')}</div>`;
+
+  const mappingCard = document.getElementById('s3-mapping-card');
+  if(sc.s3Fields){
+    mappingCard.innerHTML = `
+      <div class="ch"><span class="ct">${sc.s3MappingLabel}</span><span class="tag t-teal">13 fields</span></div>
+      <div class="cb">
+        <div class="ef-grid">${sc.s3Fields.map(f=>`<div class="ef ${f.cls}"><div class="ef-label">${f.label}</div><div class="ef-val">${f.val}</div></div>`).join('')}</div>
+        <div style="margin-top:9px;font-size:10.5px;color:var(--t2);">
+          <span style="display:inline-block;width:9px;height:9px;background:#F5FFFE;border:1px solid var(--teal);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Teal = populated &nbsp;
+          <span style="display:inline-block;width:9px;height:9px;background:#FFFBF0;border:1px solid var(--amber);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Amber = updated on existing shell
+        </div>
+      </div>`;
+  } else {
+    mappingCard.innerHTML = `
+      <div class="ch" style="background:#FFF0EF;border-color:#F5B7B1;"><span class="ct" style="color:var(--red);">⛔ ${sc.s3MappingLabel}</span></div>
+      <div class="cb"><div style="padding:16px;text-align:center;color:var(--t2);font-size:12.5px;background:#FFF0EF;border-radius:8px;">No Epic field mapping performed for this referral.<br>Automation bot was blocked before entering Epic due to unaccepted insurance.<br><strong style="color:var(--red);">All intake data is retained and will be processed once insurance is resolved.</strong></div></div>`;
+  }
+
+  // STEP 4
+  document.getElementById('s4-subtitle').textContent = sc.s4Subtitle;
+  document.getElementById('s4-files-card').innerHTML = `
+    <div class="ch"><span class="ct">Documents → Epic Media Manager</span><span class="tag t-navy">Shell: ${sc.s4Shell}</span></div>
+    <div class="cb">
+      ${sc.insOk?'<div class="info-box" style="margin-bottom:12px;">Automation bot auto-generates a consolidated PDF of the full intake submission, then uploads all attached files — each tagged by document type in Epic Media Manager.</div>':'<div style="margin-bottom:12px;padding:10px 13px;background:#FFF0EF;border:1.5px solid #F5B7B1;border-radius:8px;font-size:12px;color:var(--red);">⛔ Media Manager upload is <strong>blocked</strong> for this referral. UHCCP of NJ is not accepted — no files will be uploaded to Epic until the insurance issue is resolved by the coordinator.</div>'}
+      ${sc.s4Files.map(f=>`
+        <div class="mi"><div class="mi-thumb ${f.type}">${f.type==='pdf'?'📄':'🖼️'}</div>
+          <div><div class="mi-name">${f.name}</div><div class="mi-meta">${f.meta}</div></div>
+          <div class="mi-status"><span class="si-badge ${f.status}">${f.statusLabel}</span></div>
+        </div>`).join('')}
+      <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:9px;text-align:center;">
+        <div style="padding:9px;background:var(--s2);border-radius:7px;"><div style="font-size:20px;font-weight:300;color:var(--navy);">${sc.s4Files.length}</div><div style="font-size:9.5px;color:var(--t3);margin-top:2px;">Total Files</div></div>
+        <div style="padding:9px;background:${sc.insOk?'var(--ok-bg)':'#FFF0EF'};border-radius:7px;"><div style="font-size:20px;font-weight:300;color:${sc.insOk?'var(--teal)':'var(--red)'};">${sc.s4Files.filter(f=>f.status==='bk-ok').length}</div><div style="font-size:9.5px;color:var(--t3);margin-top:2px;">Uploaded</div></div>
+        <div style="padding:9px;background:${sc.insOk?'var(--bot-bg)':'var(--warn-bg)'};border-radius:7px;"><div style="font-size:20px;font-weight:300;color:${sc.insOk?'var(--blue)':'var(--amber)'};">${sc.s4Files.filter(f=>f.status!=='bk-ok').length}</div><div style="font-size:9.5px;color:var(--t3);margin-top:2px;">${sc.insOk?'In Progress':'On Hold'}</div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('s4-logic-box').innerHTML = sc.insOk ? `
+    <div style="display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;"><div class="pulse"></div>Media Manager Upload Logic</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="si show s-ok"><div class="si-icon ic-g">✓</div><div><div class="si-title">Generate referral summary PDF from intake data</div><div class="si-detail">All intake fields rendered into structured PDF · ${sc.refId} header-stamped · Generated by Automation Bot</div></div><span class="si-badge bk-ok">GENERATED</span></div>
+      <div class="si show s-ok"><div class="si-icon ic-g">✓</div><div><div class="si-title">Retrieve all attachments from intake storage</div><div class="si-detail">${sc.s4Files.length-1} attachment files downloaded · Temporarily cached on bot server</div></div><span class="si-badge bk-ok">RETRIEVED</span></div>
+      <div class="si show s-ok"><div class="si-icon ic-g">✓</div><div><div class="si-title">Open Epic Media Manager for shell ${sc.s4Shell}</div><div class="si-detail">Automation bot navigated to Media Manager · Target shell confirmed open</div></div><span class="si-badge bk-ok">OPEN</span></div>
+      <div class="si show s-run"><div class="si-icon ic-b">⬆️</div><div><div class="si-title">Upload each file — tagged by document type per department standards</div><div class="si-detail">Summary PDF → "Referral Documentation" · Prior Auth → "Prior Authorization" · Insurance Cards → "Insurance Card" · Photos → "Clinical Images"</div></div><span class="si-badge bk-run">IN PROGRESS</span></div>
+    </div>` : `
+    <div style="padding:14px;background:#FFF0EF;border:1.5px solid #F5B7B1;border-radius:9px;font-size:12px;color:var(--red);line-height:1.6;">
+      <strong>⛔ Media Manager upload not initiated.</strong> Because UHCCP of NJ is not a contracted plan with Dermatology, the Automation bot did not open Epic and no Media Manager actions were taken. All files are retained in the intake storage system and will be uploaded once the coordinator resolves the insurance issue.
+    </div>`;
+
+  // STEP 5
+  document.getElementById('s5-subtitle').textContent = sc.s5Subtitle;
+  document.getElementById('s5-fields-card').innerHTML = `
+    <div class="ch"><span class="ct">Updated Record — ${sc.refId}: ${sc.fname} ${sc.lname}</span><span class="tag ${sc.insOk?'t-teal':'t-red'}">${sc.insOk?'Write-back Complete':'Insurance Review'}</span></div>
+    <div class="cb"><div class="ef-grid">${sc.s5Fields.map(f=>`<div class="ef ${f.cls}"><div class="ef-label">${f.label}</div><div class="ef-val">${f.val}</div></div>`).join('')}</div></div>`;
+
+  document.getElementById('s5-table-card').innerHTML = `
+    <div class="ch"><span class="ct">All Referrals — Current Session</span></div>
+    <div class="cb" style="overflow-x:auto;"><table class="tbl">
+      <thead><tr><th>Referral ID</th><th>Patient</th><th>Epic Shell</th><th>Shell Action</th><th>Interpreter</th><th>Uploads</th><th>Duration</th><th>Outcome</th></tr></thead>
+      <tbody>${sc.s5Rows.map(r=>`
+        <tr><td><span class="mono">${r.id}</span></td><td><span class="pname">${r.patient}</span></td><td><span class="mono">${r.shell}</span></td>
+        <td>${r.action}</td><td>${r.interp}</td><td>${r.uploads}</td>
+        <td><span class="mono">${r.time}</span></td><td>${r.outcome}</td></tr>`).join('')}
+      </tbody></table></div>`;
+}
+
+// ════════════════════════════════════════════════
+// INSURANCE CHECK
+// ════════════════════════════════════════════════
+function toggleInterp(){
+  document.getElementById('interp-lang-row').style.display =
+    document.getElementById('interp-yes').checked ? 'block':'none';
+}
+function checkIns(val){
+  const v = val || document.getElementById('f-ins').value;
+  const bad = NOT_ACCEPTED.includes(v);
+  const alert = document.getElementById('ins-alert');
+  const map = {uhccp:'UHCCP of NJ',amerigroup:'AmeriGroup of NJ'};
+  if(bad){
+    document.getElementById('ins-alert-name').textContent = map[v]||v;
+    alert.classList.add('visible');
+    document.getElementById('f-ins').classList.add('warn');
+    document.getElementById('f-ins').classList.remove('ok');
+  } else {
+    alert.classList.remove('visible');
+    document.getElementById('f-ins').classList.remove('warn');
+    document.getElementById('f-ins').classList.add('ok');
+  }
+}
+
+// ════════════════════════════════════════════════
+// SUBMIT ANIMATION
+// ════════════════════════════════════════════════
+function resetAnim(){
+  animDone = false;
+  document.getElementById('submit-overlay').classList.remove('visible');
+  document.getElementById('banner-ok').classList.remove('visible');
+  document.getElementById('banner-err').classList.remove('visible');
+  document.getElementById('so-body').innerHTML = '';
+  document.getElementById('so-hdr-text').textContent = 'Initiating submission…';
+  const p = document.getElementById('so-pulse');
+  p.style.animation=''; p.style.background='var(--teal)';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled=false; btn.textContent='Submit Referral →';
+  btn.className='btn-submit';
+}
+
+function runSubmit(){
+  if(animDone) return;
+  animDone = true;
+  const sc = SC[currentSc];
+  const btn=document.getElementById('submitBtn');
+  const ov=document.getElementById('submit-overlay');
+  const body=document.getElementById('so-body');
+  const hdr=document.getElementById('so-hdr-text');
+  const pulse=document.getElementById('so-pulse');
+
+  btn.disabled=true; btn.textContent='Processing…';
+  body.innerHTML=''; ov.classList.add('visible');
+  setTimeout(()=>ov.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+
+  sc.submitSteps.forEach((s,i)=>{
+    setTimeout(()=>{
+      const prev=body.querySelector('.s-run');
+      if(prev){prev.classList.remove('s-run');prev.classList.add('s-ok');}
+      const el=document.createElement('div');
+      el.className=`si ${s.state}`;
+      el.innerHTML=`<div class="si-icon ${s.ic}">${s.icon}</div><div style="flex:1;min-width:0;"><div class="si-title">${s.title}</div><div class="si-detail">${s.detail}</div></div><span class="si-badge ${s.bk}">${s.badge}</span>`;
+      body.appendChild(el);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+      hdr.textContent=s.title;
+      el.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+      if(i===sc.submitSteps.length-1){
+        setTimeout(()=>{
+          pulse.style.animation='none';
+          if(sc.insOk){
+            pulse.style.background='var(--teal)';
+            hdr.textContent='✓ Automation complete';
+            btn.textContent='✓ Submitted'; btn.classList.add('done');
+            const b=document.getElementById('banner-ok');
+            document.getElementById('banner-ok-title').innerHTML=sc.okTitle;
+            document.getElementById('banner-ok-detail').innerHTML=sc.okDetail;
+            b.classList.add('visible');
+            setTimeout(()=>b.scrollIntoView({behavior:'smooth',block:'nearest'}),150);
+            // Update all other steps with this scenario's data
+            renderStepContent();
+          } else {
+            pulse.style.background='var(--red)';
+            hdr.textContent='⛔ Referral flagged — insurance not accepted';
+            btn.textContent='⛔ Flagged'; btn.classList.add('blocked');
+            const b=document.getElementById('banner-err');
+            document.getElementById('banner-err-detail').innerHTML=sc.errDetail;
+            b.classList.add('visible');
+            setTimeout(()=>b.scrollIntoView({behavior:'smooth',block:'nearest'}),150);
+            renderStepContent();
+          }
+        },700);
+      }
+    },s.delay);
+  });
+}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+selectScenario(0);
+showStep(0);
+</script>
+</body>
+</html>
