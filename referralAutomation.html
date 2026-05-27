@@ -455,26 +455,153 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
             </div>
           </div>
 
-          <!-- DRAFT SAVED PANEL -->
+          <!-- ── DRAFT FLOW PANEL ── -->
           <div class="draft-bar" id="draft-bar">
             <div class="draft-bar-hdr">
               <span>💾</span>
               <span id="draft-hdr-text">Draft saved — referral record created</span>
             </div>
             <div class="draft-bar-body">
-              <div style="font-size:12px;color:var(--t2);margin-bottom:12px;" id="draft-desc">
-                Stage 1 data has been saved and a draft record has been created. Share the link below with the referring provider to complete clinical details on any device. The record stays in <strong>Draft</strong> status until Stage 2 is submitted. If all details are already complete, use <strong>Submit Referral</strong> instead to send the full record for processing.
+
+              <!-- GENERATED LINK ROW -->
+              <div style="margin-bottom:14px;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--amber);margin-bottom:6px;">🔗 Draft Link Generated</div>
+                <div class="share-link-row">
+                  <span class="share-link-url" id="share-link-url">https://referrals.practice.org/draft/REF-0081?token=a7f3d9</span>
+                  <button class="share-link-copy" id="copy-btn" onclick="copyLink()">Copy Link</button>
+                </div>
+                <div style="font-size:10.5px;color:var(--t3);margin-top:5px;">Anyone with this link and token can view and edit the draft — no login required.</div>
               </div>
-              <div class="share-link-row">
-                <span class="share-link-label">🔗 Draft Link:</span>
-                <span class="share-link-url" id="share-link-url">https://referrals.practice.org/draft/REF-0081?token=a7f3d9</span>
-                <button class="share-link-copy" id="copy-btn" onclick="copyLink()">Copy Link</button>
+
+              <!-- STEP 1: SEND EMAIL -->
+              <div id="draft-send-step" style="background:#fff;border:1.5px solid #FFD099;border-radius:9px;padding:14px;">
+                <div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">📧 Send Draft Link to Recipient</div>
+                <div style="font-size:12px;color:var(--t2);margin-bottom:12px;">Enter the email address of the person you'd like to complete or review this referral. They'll receive the draft link and can fill in remaining fields, send it back, or submit directly.</div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <input class="fi" id="draft-email-input" type="email" placeholder="Enter recipient email address…" style="flex:1;min-width:200px;border-color:#FFD099;">
+                  <button class="btn-draft" id="draft-send-btn" onclick="sendDraftEmail()" style="white-space:nowrap;">Send Link →</button>
+                </div>
+                <div id="draft-email-error" style="display:none;font-size:11px;color:var(--red);margin-top:6px;">Please enter a valid email address.</div>
               </div>
-              <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">
-                <div style="font-size:10.5px;color:var(--t2);background:var(--s2);border-radius:6px;padding:5px 10px;">📧 Email sent to: <strong id="draft-provider-email">provider@practice.org</strong></div>
-                <div style="font-size:10.5px;color:var(--t2);background:var(--s2);border-radius:6px;padding:5px 10px;">🕐 Saved: <strong id="draft-timestamp"></strong></div>
-                <div style="font-size:10.5px;background:#EBF4FF;color:var(--blue);border-radius:6px;padding:5px 10px;font-weight:600;">Status: Draft</div>
+
+              <!-- STEP 2: EMAIL SENT CONFIRMATION (hidden until send) -->
+              <div id="draft-sent-confirm" style="display:none;margin-top:10px;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:9px;padding:12px 14px;">
+                <div style="font-size:12px;font-weight:600;color:#1A7A4A;margin-bottom:4px;">✅ Link sent successfully</div>
+                <div style="font-size:11.5px;color:#2A8A5A;">Draft link emailed to <strong id="draft-sent-to"></strong> · Record status: <strong>Draft</strong> · Awaiting recipient action</div>
               </div>
+
+              <!-- STEP 3: SIMULATE RECIPIENT VIEW -->
+              <div id="draft-simulate-row" style="display:none;margin-top:14px;border-top:1px solid #FFD099;padding-top:14px;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:8px;">Simulate Recipient Experience</div>
+                <button class="btn-draft" onclick="showRecipientView()" style="font-size:12px;width:100%;">👁 Open as Recipient — See what they see →</button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── RECIPIENT VIEW MODAL ── -->
+          <div id="recipient-modal" style="display:none;position:fixed;inset:0;background:rgba(0,20,50,.55);z-index:500;overflow-y:auto;">
+            <div style="max-width:720px;margin:40px auto;padding:0 16px 60px;">
+
+              <!-- MODAL HEADER -->
+              <div style="background:var(--navy);border-radius:14px 14px 0 0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:28px;height:28px;background:var(--teal);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🏥</div>
+                  <div>
+                    <div style="color:#fff;font-size:13px;font-weight:600;">Specialty Referral — Draft</div>
+                    <div style="color:rgba(255,255,255,.4);font-size:10px;letter-spacing:.5px;text-transform:uppercase;">Recipient View · Link Access</div>
+                  </div>
+                </div>
+                <button onclick="closeRecipientView()" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;width:30px;height:30px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+              </div>
+
+              <!-- ACCESS NOTICE -->
+              <div style="background:#FFF8F0;border:1px solid #FFD099;border-left:none;border-right:none;padding:10px 20px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:16px;">🔗</span>
+                <div style="font-size:11.5px;color:#7A4800;">You're viewing this referral via a <strong>shared draft link</strong>. No login required. Stage 1 fields are locked — please complete Stage 2 and either <strong>Submit</strong> or <strong>Send Back</strong> with notes.</div>
+              </div>
+
+              <!-- MODAL BODY -->
+              <div style="background:#fff;border-radius:0 0 14px 14px;padding:20px;">
+
+                <!-- DRAFT STATUS BAR -->
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:18px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="background:#EBF4FF;color:var(--blue);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;">Status: Draft</span>
+                    <span id="modal-refid" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);">REF-0081</span>
+                  </div>
+                  <div style="font-size:10.5px;color:var(--t3);">🕐 Saved by: <strong id="modal-originator">staff@practice.org</strong></div>
+                </div>
+
+                <!-- STAGE PROGRESS IN MODAL -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+                  <div style="background:var(--ok-bg);border:1.5px solid var(--ok-bd);border-radius:9px;padding:11px 13px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+                      <span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);">Stage 1</span>
+                      <span style="background:#D0F5E8;color:#1A7A4A;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">✓ Complete — Locked</span>
+                    </div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;">Back-Office / Staff</div>
+                    <div style="font-size:10.5px;color:var(--t2);" id="modal-stage1-summary">Patient details, guardian contact, insurance info</div>
+                  </div>
+                  <div style="background:#FFF8F0;border:1.5px solid #FFD099;border-radius:9px;padding:11px 13px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+                      <span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);">Stage 2</span>
+                      <span style="background:#FEF3D0;color:#9A6A00;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">⏳ Your Turn</span>
+                    </div>
+                    <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;">Referring Provider</div>
+                    <div style="font-size:10.5px;color:var(--t2);">Provider details, specialty, reason, clinical notes</div>
+                  </div>
+                </div>
+
+                <!-- LOCKED STAGE 1 FIELDS -->
+                <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">Stage 1 — Pre-filled &amp; Locked</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Patient Name</label><input class="fi" id="modal-fname" readonly style="background:var(--s2);color:var(--t2);cursor:not-allowed;"></div>
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Date of Birth</label><input class="fi" id="modal-dob" readonly style="background:var(--s2);color:var(--t2);cursor:not-allowed;"></div>
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Guardian Name</label><input class="fi" id="modal-guardian" readonly style="background:var(--s2);color:var(--t2);cursor:not-allowed;"></div>
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Insurance</label><input class="fi" id="modal-ins" readonly style="background:var(--s2);color:var(--t2);cursor:not-allowed;"></div>
+                </div>
+
+                <!-- STAGE 2 FIELDS — EDITABLE -->
+                <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--amber);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #FFD099;">Stage 2 — Complete These Fields</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Provider Name *</label><input class="fi ok" id="modal-refprov" placeholder="Dr. Full Name, MD" value=""></div>
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Specialty *</label><input class="fi ok" id="modal-refspec" placeholder="e.g. Pediatric Primary Care" value=""></div>
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Practice Name *</label><input class="fi ok" id="modal-refprac" placeholder="Practice name" value=""></div>
+                  <div><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Office Phone *</label><input class="fi ok" id="modal-refphone" placeholder="(000) 000-0000" value=""></div>
+                  <div style="grid-column:1/-1;"><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Reason for Referral *</label><input class="fi ok" id="modal-reason" placeholder="Primary reason for referral" value=""></div>
+                  <div style="grid-column:1/-1;"><label style="font-size:9.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:3px;">Clinical Notes</label><textarea class="fi ok" id="modal-notes" rows="3" placeholder="Any relevant clinical history, current treatments, prior workup…" style="resize:none;"></textarea></div>
+                </div>
+
+                <!-- SEND BACK SECTION -->
+                <div id="sendback-section" style="background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:14px;">
+                  <div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">↩ Send Back to Originator</div>
+                  <div style="font-size:11.5px;color:var(--t2);margin-bottom:8px;">Need to return this to the original sender with a note? Enter their email and a message below.</div>
+                  <div style="display:grid;gap:8px;">
+                    <input class="fi" id="sendback-email" type="email" placeholder="Originator's email address…" style="border-color:var(--border);">
+                    <textarea class="fi" id="sendback-note" rows="2" placeholder="Add a note (e.g. 'Please confirm the insurance info before I complete this')…" style="resize:none;border-color:var(--border);"></textarea>
+                    <button onclick="sendBack()" style="padding:8px 16px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--t2);transition:all .2s;" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--t2)';">↩ Send Back with Note</button>
+                  </div>
+                </div>
+
+                <!-- SEND BACK CONFIRM -->
+                <div id="sendback-confirm" style="display:none;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:9px;padding:12px 14px;margin-bottom:14px;">
+                  <div style="font-size:12.5px;font-weight:600;color:#1A7A4A;margin-bottom:3px;">↩ Sent back to originator</div>
+                  <div style="font-size:11.5px;color:#2A8A5A;">Your note has been sent to <strong id="sendback-sent-to"></strong>. Record status updated to <strong>Needs Revision</strong>. The originator will receive the link and your message to make corrections.</div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div id="modal-actions" style="display:flex;gap:10px;padding-top:6px;flex-wrap:wrap;">
+                  <button class="btn-submit" onclick="recipientSubmit()" style="flex:1;">Submit Referral →</button>
+                </div>
+
+                <!-- RECIPIENT SUBMIT RESULT -->
+                <div id="modal-submit-result" style="display:none;margin-top:14px;background:var(--ok-bg);border:1px solid var(--ok-bd);border-radius:9px;padding:14px 16px;">
+                  <div style="font-size:13px;font-weight:600;color:#1A7A4A;margin-bottom:4px;">✅ Referral submitted successfully</div>
+                  <div style="font-size:11.5px;color:#2A8A5A;line-height:1.6;" id="modal-submit-detail">Record status updated to <strong>Pending Review</strong>. The referral coordinator has been notified and will review the complete record before the automation bot processes it in Epic.</div>
+                </div>
+
+              </div><!-- end modal body -->
             </div>
           </div>
 
@@ -1374,46 +1501,40 @@ function checkIns(val){ /* insurance flagging removed — handled downstream */ 
 // ════════════════════════════════════════════════
 // DRAFT SAVE
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// DRAFT FLOW
+// ════════════════════════════════════════════════
 const DRAFT_STAGE1 = {
-  0: { fields:'Patient: Emma Rodriguez · DOB: 03/14/2017 · MRN: CHK-448821 · Guardian: Maria Rodriguez · (609) 555-0182 · Insurance: Aetna Better Health · Member ID: W1039847222', email:'skim@pediatricassoc.com', refId:'REF-0081', token:'a7f3d9' },
-  1: { fields:'Patient: Marcus Chen · DOB: 08/22/2019 · Guardian: David Chen · (856) 555-0349 · Insurance: Horizon NJ Health · Member ID: HNJ-3392811', email:'tpark@camdenpeds.com', refId:'REF-0082', token:'b2c8e1' },
-  2: { fields:'Patient: Priya Nair · DOB: 06/07/2014 · MRN: CHK-290017 · Guardian: Anita Nair · (732) 555-0091 · Insurance: UHCCP of NJ · Member ID: UHC-7741229', email:'rpatel@edisonpeds.com', refId:'REF-0083', token:'f4a1c6' },
+  0: { fields:'Patient: Emma Rodriguez · DOB: 03/14/2017 · MRN: CHK-448821 · Guardian: Maria Rodriguez · (609) 555-0182 · Insurance: Aetna Better Health · Member ID: W1039847222', email:'skim@pediatricassoc.com', refId:'REF-0081', token:'a7f3d9', originator:'staff.ma@practice.org' },
+  1: { fields:'Patient: Marcus Chen · DOB: 08/22/2019 · Guardian: David Chen · (856) 555-0349 · Insurance: Horizon NJ Health · Member ID: HNJ-3392811', email:'tpark@camdenpeds.com', refId:'REF-0082', token:'b2c8e1', originator:'staff.ma@practice.org' },
+  2: { fields:'Patient: Priya Nair · DOB: 06/07/2014 · MRN: CHK-290017 · Guardian: Anita Nair · (732) 555-0091 · Insurance: UHCCP of NJ · Member ID: UHC-7741229', email:'rpatel@edisonpeds.com', refId:'REF-0083', token:'f4a1c6', originator:'staff.ma@practice.org' },
 };
 
 function saveDraft(){
-  const sc = SC[currentSc];
-  const d  = DRAFT_STAGE1[currentSc];
+  const sc  = SC[currentSc];
+  const d   = DRAFT_STAGE1[currentSc];
   const btn = document.getElementById('draftBtn');
   const bar = document.getElementById('draft-bar');
   const ind = document.getElementById('stage-indicator');
 
-  // Animate button
   btn.textContent = '✓ Draft Saved';
   btn.classList.add('saved');
 
-  // Populate draft bar
-  const now = new Date();
-  const ts  = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'});
-  document.getElementById('draft-hdr-text').textContent   = `Draft saved — ${sc.refId} created · Awaiting provider to complete Stage 2`;
-  document.getElementById('draft-desc').innerHTML         = `Stage 1 data has been saved by back-office staff. Share the link below with the referring provider to complete clinical details on <strong>any device</strong>. The record remains in <strong>Draft</strong> status until Stage 2 is submitted.`;
-  document.getElementById('share-link-url').textContent   = `https://referrals.practice.org/draft/${d.refId}?token=${d.token}`;
-  document.getElementById('draft-provider-email').textContent = d.email;
-  document.getElementById('draft-timestamp').textContent  = ts;
-  document.getElementById('stage1-fields').textContent    = d.fields;
+  // Populate link
+  document.getElementById('share-link-url').textContent = `https://referrals.practice.org/draft/${d.refId}?token=${d.token}`;
+  document.getElementById('stage1-fields').textContent  = d.fields;
 
-  // Highlight Stage 1 filled fields with amber border
+  // Highlight Stage 1 filled fields amber
   ['f-fname','f-dob','f-mrn','f-addr','f-phone','f-guardian','f-ins','f-memberid','f-groupnum'].forEach(id=>{
     const el = document.getElementById(id);
     if(el && el.value){ el.classList.add('draft-saved'); el.classList.remove('ok'); }
   });
-
-  // Stage 2 fields go amber-outlined to signal "your turn"
+  // Stage 2 fields signal "your turn"
   ['f-refprov','f-refspec','f-refprac','f-refphone','f-reason','f-notes'].forEach(id=>{
     const el = document.getElementById(id);
     if(el){ el.style.borderColor='var(--amber)'; el.style.background='#FFFBF0'; }
   });
 
-  // Show stage indicator and draft bar
   ind.style.display = 'block';
   bar.classList.add('visible');
   setTimeout(()=> bar.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
@@ -1427,6 +1548,106 @@ function copyLink(){
   btn.classList.add('copied');
   setTimeout(()=>{ btn.textContent='Copy Link'; btn.classList.remove('copied'); }, 2000);
 }
+
+function sendDraftEmail(){
+  const input = document.getElementById('draft-email-input');
+  const err   = document.getElementById('draft-email-error');
+  const email = input.value.trim();
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if(!validEmail){
+    err.style.display = 'block';
+    input.style.borderColor = 'var(--red)';
+    return;
+  }
+  err.style.display = 'none';
+  input.style.borderColor = 'var(--teal)';
+
+  // Show confirmation
+  document.getElementById('draft-sent-to').textContent = email;
+  document.getElementById('draft-sent-confirm').style.display = 'block';
+
+  // Disable send row
+  document.getElementById('draft-send-btn').disabled = true;
+  document.getElementById('draft-send-btn').textContent = '✓ Sent';
+  document.getElementById('draft-send-btn').style.opacity = '0.6';
+
+  // Show simulate row after short delay
+  setTimeout(()=>{
+    document.getElementById('draft-simulate-row').style.display = 'block';
+    document.getElementById('draft-simulate-row').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 600);
+}
+
+function showRecipientView(){
+  const sc = SC[currentSc];
+  const d  = DRAFT_STAGE1[currentSc];
+
+  // Populate locked Stage 1 fields in modal
+  document.getElementById('modal-fname').value    = sc.fname || '';
+  document.getElementById('modal-dob').value      = sc.dob   || '';
+  document.getElementById('modal-guardian').value = sc.guardian || '';
+  document.getElementById('modal-ins').value      = sc.insLabel || '';
+  document.getElementById('modal-refid').textContent       = d.refId;
+  document.getElementById('modal-originator').textContent  = document.getElementById('draft-email-input').value || d.originator;
+  document.getElementById('modal-stage1-summary').textContent = `Patient: ${sc.fname} · DOB: ${sc.dob} · Guardian: ${sc.guardian || '—'} · Insurance: ${sc.insLabel}`;
+
+  // Pre-fill Stage 2 with scenario data so it looks realistic
+  document.getElementById('modal-refprov').value  = sc.refprov  || '';
+  document.getElementById('modal-refspec').value  = sc.refspec  || '';
+  document.getElementById('modal-refprac').value  = sc.refprac  || '';
+  document.getElementById('modal-refphone').value = sc.refphone || '';
+  document.getElementById('modal-reason').value   = sc.reason   || '';
+  document.getElementById('modal-notes').value    = sc.notes    || '';
+
+  // Reset result states
+  document.getElementById('sendback-confirm').style.display  = 'none';
+  document.getElementById('modal-submit-result').style.display = 'none';
+  document.getElementById('modal-actions').style.display     = 'flex';
+  document.getElementById('sendback-section').style.display  = 'block';
+  document.getElementById('sendback-email').value = '';
+  document.getElementById('sendback-note').value  = '';
+
+  document.getElementById('recipient-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRecipientView(){
+  document.getElementById('recipient-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function sendBack(){
+  const email = document.getElementById('sendback-email').value.trim();
+  const note  = document.getElementById('sendback-note').value.trim();
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if(!valid){
+    document.getElementById('sendback-email').style.borderColor = 'var(--red)';
+    return;
+  }
+  document.getElementById('sendback-email').style.borderColor = 'var(--teal)';
+  document.getElementById('sendback-sent-to').textContent = email;
+  document.getElementById('sendback-section').style.display  = 'none';
+  document.getElementById('sendback-confirm').style.display  = 'block';
+  document.getElementById('modal-actions').style.display     = 'none';
+  document.getElementById('sendback-confirm').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function recipientSubmit(){
+  const d = DRAFT_STAGE1[currentSc];
+  document.getElementById('modal-submit-detail').innerHTML =
+    `Record <strong>${d.refId}</strong> status updated to <strong>Pending Review</strong>. The referral coordinator has been notified and will review the complete record before the automation bot processes it in Epic.`;
+  document.getElementById('modal-submit-result').style.display = 'block';
+  document.getElementById('modal-actions').style.display       = 'none';
+  document.getElementById('sendback-section').style.display    = 'none';
+  document.getElementById('modal-submit-result').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// Close modal on backdrop click
+document.addEventListener('click', function(e){
+  const modal = document.getElementById('recipient-modal');
+  if(e.target === modal) closeRecipientView();
+});
 
 // ════════════════════════════════════════════════
 // SUBMIT ANIMATION
@@ -1450,6 +1671,18 @@ function resetAnim(){
   document.getElementById('stage-indicator').style.display='none';
   document.getElementById('copy-btn').textContent='Copy Link';
   document.getElementById('copy-btn').classList.remove('copied');
+  // reset email send step
+  const emailInput = document.getElementById('draft-email-input');
+  if(emailInput){ emailInput.value=''; emailInput.style.borderColor=''; }
+  const sendBtn = document.getElementById('draft-send-btn');
+  if(sendBtn){ sendBtn.disabled=false; sendBtn.textContent='Send Link →'; sendBtn.style.opacity=''; }
+  const sentConfirm = document.getElementById('draft-sent-confirm');
+  if(sentConfirm) sentConfirm.style.display='none';
+  const simRow = document.getElementById('draft-simulate-row');
+  if(simRow) simRow.style.display='none';
+  const emailErr = document.getElementById('draft-email-error');
+  if(emailErr) emailErr.style.display='none';
+  closeRecipientView();
 }
 
 function runSubmit(){
