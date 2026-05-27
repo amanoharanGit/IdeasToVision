@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referral Automation</title>
+<title>Specialty Referral Automation</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 :root{
@@ -111,6 +111,42 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 .btn-submit:disabled{background:var(--t3);cursor:not-allowed;transform:none;}
 .btn-submit.done{background:var(--teal);}
 .btn-submit.blocked{background:var(--red);}
+.btn-draft{padding:9px 20px;border-radius:7px;border:1.5px solid var(--amber);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:#fff;color:var(--amber);}
+.btn-draft:hover{background:#FFF8F0;transform:translateY(-1px);box-shadow:0 4px 12px rgba(230,126,34,.2);}
+.btn-draft.saved{background:#FFF3E0;border-color:var(--amber);color:var(--amber);}
+
+/* DRAFT STATUS BAR */
+.draft-bar{display:none;margin-top:14px;background:#FFF8F0;border:1.5px solid #FFD099;border-radius:11px;overflow:hidden;}
+.draft-bar.visible{display:block;animation:fi .3s ease;}
+.draft-bar-hdr{background:#E67E22;padding:9px 14px;display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.5px;}
+.draft-bar-body{padding:14px;}
+
+/* STAGE PROGRESS */
+.stage-track{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stage-card{border-radius:9px;padding:12px 14px;border:1.5px solid var(--border);background:#fff;}
+.stage-card.done{border-color:#7FD8B8;background:var(--ok-bg);}
+.stage-card.active{border-color:#FFD099;background:#FFF8F0;}
+.stage-card.waiting{opacity:.5;}
+.stage-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.stage-num{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);}
+.stage-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.sb-done   {background:#D0F5E8;color:#1A7A4A;}
+.sb-active {background:#FEF3D0;color:#9A6A00;}
+.sb-waiting{background:var(--s2);color:var(--t3);}
+.stage-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.stage-fields{font-size:10.5px;color:var(--t2);line-height:1.5;}
+
+/* SHARE LINK */
+.share-link-row{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #FFD099;border-radius:8px;padding:9px 12px;}
+.share-link-label{font-size:10.5px;font-weight:600;color:var(--amber);white-space:nowrap;}
+.share-link-url{flex:1;font-family:'DM Mono',monospace;font-size:10.5px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.share-link-copy{padding:4px 11px;border-radius:6px;border:1.5px solid #FFD099;background:#FFF3E0;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--amber);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.share-link-copy:hover{background:#FFE0B2;}
+.share-link-copy.copied{background:#D0F5E8;border-color:#7FD8B8;color:var(--green);}
+
+/* DRAFT SAVED NOTICE on fields */
+.field-saved-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-left:5px;vertical-align:middle;}
+.fi.draft-saved{border-color:var(--amber);background:#FFFBF0;}
 
 /* ── SUBMIT OVERLAY ── */
 #submit-overlay{display:none;margin-top:14px;border:1.5px solid var(--bot-bd);border-radius:11px;background:var(--bot-bg);overflow:hidden;}
@@ -242,7 +278,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 <header>
   <div class="hl">
     <div class="hi">🏥</div>
-    <div><div class="ht">Referral Automation System</div><div class="hs"></div></div>
+    <div><div class="ht">Specialty Referral</div><div class="hs">Referral Automation System</div></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <div class="vendor-badge">🤖 Automation Vendor Solution</div>
@@ -282,7 +318,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
       <div class="sc-card" id="sc2" onclick="selectScenario(2)">
         <div class="sc-num">Scenario C</div>
         <div class="sc-name">Priya Nair</div>
-        <span class="sc-pill sc-pill-err">Insurance Not Accepted</span>
+        <span class="sc-pill sc-pill-err">Insurance Flag — Deferred</span>
       </div>
     </div>
 
@@ -291,7 +327,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 
     <div class="step-nav-item active" onclick="showStep(0)" id="sni0"><div class="sni-num">1</div><div class="sni-label">📋 Referral Form</div></div>
     <div class="step-nav-item" onclick="showStep(1)" id="sni1"><div class="sni-num">2</div><div class="sni-label">🗄️ Intake &amp; Storage</div></div>
-    <div class="step-nav-item" onclick="showStep(2)" id="sni2"><div class="sni-num">3</div><div class="sni-label">🤖 Automation Vendor Solution Bot</div></div>
+    <div class="step-nav-item" onclick="showStep(2)" id="sni2"><div class="sni-num">3</div><div class="sni-label">🤖 Automation Bot</div></div>
     <div class="step-nav-item" onclick="showStep(3)" id="sni3"><div class="sni-num">4</div><div class="sni-label">📎 Media Upload</div></div>
     <div class="step-nav-item" onclick="showStep(4)" id="sni4"><div class="sni-num">5</div><div class="sni-label">✅ Status Write-back</div></div>
   </div>
@@ -303,12 +339,12 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
     <div id="step0">
       <div class="sh">
         <div class="sh-icon" style="background:#EBF4FF;">📋</div>
-        <div><h2>Referral Form Submission</h2><p>Referring provider completes the intake form. Select a scenario on the left, then click <strong>Submit Referral</strong>.</p></div>
+        <div><h2>Referral Form Submission</h2><p>Referring provider completes the specialty referral intake form. Select a scenario on the left, then click <strong>Submit Referral</strong>.</p></div>
       </div>
 
       <div class="card">
         <div class="ch">
-          <span class="ct">🏥 New Patient Referral</span>
+          <span class="ct">🏥 Specialty — New Patient Referral</span>
           <span class="intake-badge">🌐 Online Intake Form</span>
         </div>
         <div class="cb">
@@ -317,7 +353,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
             <div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#9A6A00;margin-bottom:8px;">⚠ Please Read Before Submitting</div>
             <p style="margin-bottom:6px;">• This form should be completed by a healthcare professional familiar with the patient's condition.</p>
             <p style="margin-bottom:6px;">• We will make every effort to fulfill your request. However, please understand our need to triage the urgency of all requests. Completing this form does not guarantee a patient appointment. Our reviewing staff may make additional recommendations to the referring provider before the patient is seen.</p>
-            <p>• If you would like to talk with an attending physician directly about a case, please call <strong>1-800-TRY-CHOP</strong>.</p>
+            <p>• If you would like to speak directly with a specialist about a case, please contact the referring department directly.</p>
           </div>
           <div style="background:#EBF4FF;border:1px solid #B3D4F5;border-radius:9px;padding:12px 15px;margin-bottom:18px;font-size:12px;color:#1A5FAA;line-height:1.6;display:flex;align-items:flex-start;gap:10px;">
             <span style="font-size:18px;flex-shrink:0;">💡</span>
@@ -387,9 +423,59 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
           <div id="attachments-list"></div>
 
           <div class="divider"></div>
+
+          <!-- STAGE INDICATOR (visible when draft saved) -->
+          <div id="stage-indicator" style="display:none;margin-bottom:14px;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--t3);margin-bottom:8px;">Form Completion Progress</div>
+            <div class="stage-track">
+              <div class="stage-card done" id="stage1-card">
+                <div class="stage-hdr">
+                  <span class="stage-num">Stage 1</span>
+                  <span class="stage-badge sb-done" id="stage1-badge">✓ Complete</span>
+                </div>
+                <div class="stage-title">Back-Office / Staff</div>
+                <div class="stage-fields" id="stage1-fields">Patient details, guardian contact, insurance info, urgency</div>
+              </div>
+              <div class="stage-card active" id="stage2-card">
+                <div class="stage-hdr">
+                  <span class="stage-num">Stage 2</span>
+                  <span class="stage-badge sb-active" id="stage2-badge">⏳ Awaiting Provider</span>
+                </div>
+                <div class="stage-title">Referring Provider</div>
+                <div class="stage-fields" id="stage2-fields">Provider name, specialty, office phone, reason for referral, clinical notes</div>
+              </div>
+            </div>
+          </div>
+
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
             <div style="font-size:11px;color:var(--t3);" id="form-footer-note">All required fields completed · 5 files attached</div>
-            <button class="btn-submit" id="submitBtn" onclick="runSubmit()">Submit Referral →</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-draft" id="draftBtn" onclick="saveDraft()">💾 Save as Draft</button>
+              <button class="btn-submit" id="submitBtn" onclick="runSubmit()">Submit Referral →</button>
+            </div>
+          </div>
+
+          <!-- DRAFT SAVED PANEL -->
+          <div class="draft-bar" id="draft-bar">
+            <div class="draft-bar-hdr">
+              <span>💾</span>
+              <span id="draft-hdr-text">Draft saved — referral record created</span>
+            </div>
+            <div class="draft-bar-body">
+              <div style="font-size:12px;color:var(--t2);margin-bottom:12px;" id="draft-desc">
+                Stage 1 data has been saved and a draft record has been created. Share the link below with the referring provider to complete clinical details on any device. The record stays in <strong>Draft</strong> status until Stage 2 is submitted. If all details are already complete, use <strong>Submit Referral</strong> instead to send the full record for processing.
+              </div>
+              <div class="share-link-row">
+                <span class="share-link-label">🔗 Draft Link:</span>
+                <span class="share-link-url" id="share-link-url">https://referrals.practice.org/draft/REF-0081?token=a7f3d9</span>
+                <button class="share-link-copy" id="copy-btn" onclick="copyLink()">Copy Link</button>
+              </div>
+              <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;">
+                <div style="font-size:10.5px;color:var(--t2);background:var(--s2);border-radius:6px;padding:5px 10px;">📧 Email sent to: <strong id="draft-provider-email">provider@practice.org</strong></div>
+                <div style="font-size:10.5px;color:var(--t2);background:var(--s2);border-radius:6px;padding:5px 10px;">🕐 Saved: <strong id="draft-timestamp"></strong></div>
+                <div style="font-size:10.5px;background:#EBF4FF;color:var(--blue);border-radius:6px;padding:5px 10px;font-weight:600;">Status: Draft</div>
+              </div>
+            </div>
           </div>
 
           <div id="submit-overlay">
@@ -414,7 +500,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
         <div class="sh-icon" style="background:#E8F5E9;">🗄️</div>
         <div><h2>Intake System &amp; Data Storage</h2><p id="s2-subtitle">Submitted form data captured and stored. Automation bot triggered when new record is ready.</p></div>
       </div>
-      <div class="info-box"><strong>Platform-agnostic intake layer.</strong> Any intake system can be used — web portal, patient intake tool, or custom app. Automation Vendor Solution monitors for new submissions via webhook, API poll, or scheduled job.</div>
+      <div class="info-box"><strong>Platform-agnostic intake layer.</strong> Any intake system can be used — web portal, patient intake tool, or custom app. The automation bot monitors for new submissions via webhook, API poll, or scheduled job.</div>
       <div class="card">
         <div class="ch"><span class="ct">Stored Referral Records — Backend Data Store</span><span class="tag t-navy" style="font-size:10px;">Structured Storage</span></div>
         <div class="cb" style="overflow-x:auto;" id="s2-table-wrap">
@@ -430,11 +516,11 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
     <div id="step2" style="display:none;">
       <div class="sh">
         <div class="sh-icon" style="background:#FFF3E0;">🤖</div>
-        <div><h2 id="s3-title">Automation Vendor Solution Bot — Epic Navigation &amp; Referral Logic</h2><p id="s3-subtitle">Automation Vendor Solution searches for the patient in Epic and applies the correct referral shell logic.</p></div>
+        <div><h2 id="s3-title">Automation Bot — Epic Navigation &amp; Referral Logic</h2><p id="s3-subtitle">The automation bot searches for the patient in Epic and applies the correct referral shell logic.</p></div>
       </div>
       <div style="background:var(--bot-bg);border:1.5px solid var(--bot-bd);border-radius:11px;padding:15px;margin-bottom:13px;" id="s3-log-box"><!-- JS --></div>
       <div class="db">
-        <div class="db-head">🔀 Automation Vendor Solution Referral Shell Decision Logic — Three Paths</div>
+        <div class="db-head">🔀 Automation Bot — Referral Shell Decision Logic</div>
         <div class="db-row">
           <div class="db-cell">
             <div class="db-cell-title" style="color:var(--teal);">✓ Patient Found + Shell Exists</div>
@@ -445,8 +531,8 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
             <ul><li>Confirm patient demographics</li><li>No existing referral shell found</li><li>Create new incoming referral shell</li><li>Populate all intake fields</li><li>Set insurance &amp; coverage</li><li>Flag interpreter need if present</li><li>Upload docs to Media Manager</li></ul>
           </div>
           <div class="db-cell">
-            <div class="db-cell-title" style="color:var(--red);">⛔ Insurance Not Accepted</div>
-            <ul><li>Insurance pre-check fails at intake</li><li>Automation bot does NOT enter Epic</li><li>Referral flagged in data store</li><li>Status set to "Insurance Review"</li><li>Coordinator notified via alert</li><li>All intake data &amp; docs retained</li><li>Held until insurance is resolved</li></ul>
+            <div class="db-cell-title" style="color:var(--red);">⚠ Insurance Flag — Coordinator Review</div>
+            <ul><li>Non-PAR insurance noted at intake</li><li>Referral record created and stored</li><li>Status set to "Pending Insurance Review"</li><li>Coordinator notified to verify coverage</li><li>All intake data &amp; docs retained</li><li>Bot held until coordinator clears flag</li><li>Epic actions proceed once approved</li></ul>
           </div>
         </div>
       </div>
@@ -547,7 +633,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
         <table class="tbl">
           <thead><tr><th>Referral ID</th><th>Patient</th><th>Issue</th><th>Insurance</th><th>Action Required</th><th></th></tr></thead>
           <tbody>
-            <tr><td><span class="mono">REF-0083</span></td><td><span class="pname">Nair, Priya</span></td><td><span class="tag t-red">Not Accepted</span></td><td>UHCCP of NJ</td><td style="font-size:11px;color:var(--t2);">Not contracted with team — contact family to verify coverage</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
+            <tr><td><span class="mono">REF-0083</span></td><td><span class="pname">Nair, Priya</span></td><td><span class="tag t-red">Not Accepted</span></td><td>UHCCP of NJ</td><td style="font-size:11px;color:var(--t2);">Not a contracted plan — contact family to verify coverage</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
             <tr><td><span class="mono">REF-0079</span></td><td><span class="pname">Torres, Diego</span></td><td><span class="tag t-red">Not Accepted</span></td><td>AmeriGroup of NJ</td><td style="font-size:11px;color:var(--t2);">AmeriGroup of NJ not contracted — patient may need alternate referral pathway</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
             <tr><td><span class="mono">REF-0075</span></td><td><span class="pname">Wilson, James</span></td><td><span class="tag t-amber">Dupe Match</span></td><td>Horizon NJ Health</td><td style="font-size:11px;color:var(--t2);">2 patients matched name + DOB — manual selection needed before bot can proceed</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
           </tbody>
@@ -872,7 +958,7 @@ const SC = {
       {delay:1900,icon:'⚡',ic:'ic-b',state:'s-run',title:'Automation bot dispatched → Epic session opening',detail:'Job assigned in Orchestrator · Service account authenticated via Credential Store',badge:'BOT ACTIVE',bk:'bk-run'},
       {delay:2900,icon:'🔍',ic:'ic-b',state:'s-run',title:'Epic: Searching patient record…',detail:'Query: Rodriguez, Emma · DOB 03/14/2017 · Patient Index search in progress',badge:'SEARCHING',bk:'bk-run'},
       {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Patient found · MRN CHK-448821 confirmed',detail:'Existing patient matched · Demographics verified',badge:'MATCHED',bk:'bk-ok'},
-      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
+      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell for this specialty…',detail:'Searching Referral Management for active referral shells',badge:'CHECKING',bk:'bk-run'},
       {delay:6100,icon:'✓',ic:'ic-g',state:'s-ok', title:'Referral shell RS-2025-04-1184 found — updating',detail:'Existing shell located · No new shell created · Updating insurance, interpreter, clinical details',badge:'UPDATING',bk:'bk-ok'},
       {delay:7200,icon:'🇪🇸',ic:'ic-b',state:'s-run',title:'Flagging interpreter requirement — Spanish',detail:'Interpreter need recorded on referral shell per intake form submission',badge:'FLAGGED',bk:'bk-run'},
       {delay:8100,icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 6 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards (front/back) + 2 clinical photos',badge:'UPLOADING',bk:'bk-run'},
@@ -882,7 +968,7 @@ const SC = {
     okDetail:'REF-0081 · Referral shell RS-2025-04-1184 <strong>updated</strong> (existing found) · Interpreter: Spanish flagged · 6 docs uploaded · Proceed to Step 2 →',
     s2Subtitle:'Emma Rodriguez · REF-0081 · Aetna Better Health — accepted · Bot dispatched',
     s2TableHighlight:0,
-    s3Title:'Automation Vendor Solution Bot — Scenario A: Rodriguez, Emma',
+    s3Title:'Automation Bot — Scenario A: Rodriguez, Emma',
     s3Subtitle:'Existing patient, existing shell found → shell updated with new intake data',
     s3Log:[
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Automation bot opens Epic · Navigates to Patient Search',detail:'Service account authenticated · Patient Search loaded',badge:'DONE',bk:'bk-ok'},
@@ -959,8 +1045,8 @@ const SC = {
       {delay:1900,icon:'⚡',ic:'ic-b',state:'s-run',title:'Automation bot dispatched → Epic session opening',detail:'Job assigned in Orchestrator · Robot authenticated into Epic via Credential Store',badge:'BOT ACTIVE',bk:'bk-run'},
       {delay:2900,icon:'🔍',ic:'ic-b',state:'s-run',title:'Epic: Searching patient record…',detail:'Query: Chen, Marcus · DOB 08/22/2019 · No MRN provided — name + DOB search only',badge:'SEARCHING',bk:'bk-run'},
       {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Patient found · MRN CHK-509934 retrieved from Epic',detail:'Marcus Chen matched by name + DOB · MRN populated from Epic',badge:'MATCHED',bk:'bk-ok'},
-      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
-      {delay:6100,icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell found — creating new shell',detail:'No active Derm referral shell on record · Automation bot initiating new Incoming Referral',badge:'CREATING',bk:'bk-warn'},
+      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell for this specialty…',detail:'Searching Referral Management for active referral shells',badge:'CHECKING',bk:'bk-run'},
+      {delay:6100,icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell found — creating new shell',detail:'No active referral shell on record · Automation bot initiating new Incoming Referral',badge:'CREATING',bk:'bk-warn'},
       {delay:7300,icon:'✓',ic:'ic-g',state:'s-ok', title:'New referral shell RS-2025-04-1185 created',detail:'All 13 intake fields populated · Urgency: Urgent · No interpreter required',badge:'CREATED',bk:'bk-new'},
       {delay:8300,icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 5 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards (front/back) + 2 clinical photos',badge:'UPLOADING',bk:'bk-run'},
       {delay:9600,icon:'✓',ic:'ic-g',state:'s-ok', title:'All 5 files uploaded · Status written back',detail:'Media Manager complete · REF-0082 updated with Shell ID RS-2025-04-1185 · Coordinator notified',badge:'COMPLETE',bk:'bk-ok'},
@@ -969,13 +1055,13 @@ const SC = {
     okDetail:'REF-0082 · New referral shell RS-2025-04-1185 <strong>created</strong> (no prior shell found) · No interpreter needed · 5 docs uploaded · Proceed to Step 2 →',
     s2Subtitle:'Marcus Chen · REF-0082 · Horizon NJ Health — accepted · Bot dispatched',
     s2TableHighlight:1,
-    s3Title:'Automation Vendor Solution Bot — Scenario B: Chen, Marcus',
+    s3Title:'Automation Bot — Scenario B: Chen, Marcus',
     s3Subtitle:'Existing patient, no prior shell found → new referral shell created and populated',
     s3Log:[
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Automation bot opens Epic · Navigates to Patient Search',detail:'Service account authenticated · Patient Search loaded',badge:'DONE',bk:'bk-ok'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Search: Chen, Marcus · DOB 08/22/2019 · No MRN on intake',detail:'Name + DOB search only · MRN retrieved from Epic result',badge:'DONE',bk:'bk-ok'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Patient found · MRN CHK-509934 confirmed from Epic',detail:'Existing patient record located · Demographics verified',badge:'MATCHED',bk:'bk-ok'},
-      {icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell — creating new',detail:'Automation bot initiates new Incoming Referral in Epic Referral Management',badge:'CREATING',bk:'bk-warn'},
+      {icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell found — creating new',detail:'Automation bot initiates new Incoming Referral in Epic Referral Management',badge:'CREATING',bk:'bk-warn'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'New shell RS-2025-04-1185 created · All fields populated',detail:'13 intake fields mapped · Urgency: Urgent · Interpreter: None',badge:'CREATED',bk:'bk-new'},
       {icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 5 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards + Clinical Photos',badge:'IN PROGRESS',bk:'bk-run'},
     ],
@@ -1031,7 +1117,7 @@ const SC = {
     reftype:'Consultation',urgency:'Routine (within 30 days)',
     reason:'Chronic urticaria with suspected allergic component',
     notes:'Patient has recurring hives over 8-week period, primarily nocturnal. Cetirizine 10mg with partial relief only. Requesting specialist evaluation.',
-    insOk:false,
+    insOk:true,
     refId:'REF-0083',epicShell:'—',shellAction:'Blocked',
     attachments:[
       {type:'pdf',name:'Referral_Letter_Patel.pdf',meta:'900 KB · Referral Letter'},
@@ -1041,20 +1127,21 @@ const SC = {
     ],
     submitSteps:[
       {delay:0,   icon:'⟳',ic:'ic-b',state:'s-run',title:'Packaging and submitting form data…',detail:'Validating all fields · Bundling 4 attachments for storage',badge:'SUBMITTING',bk:'bk-run'},
-      {delay:950, icon:'✓',ic:'ic-g',state:'s-ok', title:'Form data stored in intake system',detail:'REF-0083 created · All intake data captured and retained',badge:'STORED',bk:'bk-ok'},
-      {delay:1900,icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check: FAILED — UHCCP of NJ not accepted',detail:'UHCCP of NJ is not a contracted plan · Automation bot will not proceed to Epic',badge:'FLAGGED',bk:'bk-err'},
-      {delay:3000,icon:'⚠',ic:'ic-a',state:'s-warn',title:'Referral status set to "Insurance Review"',detail:'Epic actions blocked · All intake data and attachments retained · Coordinator alert triggered',badge:'ON HOLD',bk:'bk-warn'},
-      {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Status written back · Coordinator notified',detail:'REF-0083 flagged in data store · Email sent to referral coordinator with insurance and patient details',badge:'NOTIFIED',bk:'bk-ok'},
+      {delay:950, icon:'✓',ic:'ic-g',state:'s-ok', title:'Form data stored · Insurance noted for downstream review',detail:'REF-0083 created · UHCCP of NJ captured — coordinator will verify coverage before Epic processing',badge:'STORED',bk:'bk-ok'},
+      {delay:1900,icon:'⚠',ic:'ic-a',state:'s-warn',title:'Insurance flag added to record — UHCCP of NJ',detail:'Non-PAR plan noted on record · Referral proceeds · Coordinator will handle insurance resolution before bot acts',badge:'FLAGGED',bk:'bk-warn'},
+      {delay:3000,icon:'⚡',ic:'ic-b',state:'s-run',title:'Submission complete · Coordinator notified of insurance flag',detail:'All form data and attachments retained · REF-0083 queued for coordinator review before automation proceeds',badge:'PENDING',bk:'bk-run'},
+      {delay:4100,icon:'✓',ic:'ic-g',state:'s-ok', title:'Record created · Status written back',detail:'REF-0083 recorded · Status: Pending Insurance Review · Coordinator alerted · No Epic actions until cleared',badge:'NOTIFIED',bk:'bk-ok'},
     ],
-    okTitle:'',okDetail:'',
-    errDetail:'REF-0083 · UHCCP of NJ is not accepted · No Epic actions taken · All intake data retained · Coordinator has been notified to review and contact the family.',
+    okTitle:'Referral submitted — insurance flag noted for coordinator review',
+okDetail:'REF-0083 · All intake data captured · UHCCP of NJ flagged for coordinator review — insurance will be verified before Epic processing · Proceed to Step 2 →',
+errDetail:'',
     s2Subtitle:'Priya Nair · REF-0083 · UHCCP of NJ — NOT accepted · Bot blocked',
     s2TableHighlight:2,
-    s3Title:'Automation Vendor Solution Bot — Scenario C: Nair, Priya',
+    s3Title:'Automation Bot — Scenario C: Nair, Priya',
     s3Subtitle:'Insurance not accepted — Automation Vendor Solution blocked from Epic. Referral held pending coordinator review.',
     s3Log:[
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Form data stored · Insurance pre-check performed',detail:'REF-0083 created · UHCCP of NJ checked against accepted plan list',badge:'STORED',bk:'bk-ok'},
-      {icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check FAILED — UHCCP of NJ not contracted',detail:'Plan not accepted · Automation Vendor Solution will NOT open Epic for this referral',badge:'BLOCKED',bk:'bk-err'},
+      {icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check FAILED — UHCCP of NJ not contracted',detail:'Plan not contracted · Automation bot will not proceed to Epic for this referral',badge:'BLOCKED',bk:'bk-err'},
       {icon:'⚠',ic:'ic-a',state:'s-warn',title:'Referral held · Status set to "Insurance Review"',detail:'No Epic actions taken · All intake data and attachments preserved in data store',badge:'ON HOLD',bk:'bk-warn'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Coordinator notified · Status written back',detail:'Alert email sent · REF-0083 marked "Insurance Review" · Awaiting coordinator resolution',badge:'NOTIFIED',bk:'bk-ok'},
     ],
@@ -1145,8 +1232,10 @@ function selectScenario(idx){
   // all insurance fields default ok (flagging removed from intake)
   ['f-ins','f-memberid','f-groupnum'].forEach(id=>{
     const el = document.getElementById(id);
-    if(el){ el.classList.add('ok'); el.classList.remove('warn'); }
+    if(el){ el.classList.add('ok'); el.classList.remove('warn','draft-saved'); el.style.borderColor=''; el.style.background=''; }
   });
+  // reset all field draft styling
+  document.querySelectorAll('.fi').forEach(el=>{ el.classList.remove('draft-saved'); el.style.borderColor=''; el.style.background=''; el.classList.add('ok'); });
 
   // attachments
   renderAttachments(sc.attachments);
@@ -1283,6 +1372,63 @@ function toggleInterp(){
 function checkIns(val){ /* insurance flagging removed — handled downstream */ }
 
 // ════════════════════════════════════════════════
+// DRAFT SAVE
+// ════════════════════════════════════════════════
+const DRAFT_STAGE1 = {
+  0: { fields:'Patient: Emma Rodriguez · DOB: 03/14/2017 · MRN: CHK-448821 · Guardian: Maria Rodriguez · (609) 555-0182 · Insurance: Aetna Better Health · Member ID: W1039847222', email:'skim@pediatricassoc.com', refId:'REF-0081', token:'a7f3d9' },
+  1: { fields:'Patient: Marcus Chen · DOB: 08/22/2019 · Guardian: David Chen · (856) 555-0349 · Insurance: Horizon NJ Health · Member ID: HNJ-3392811', email:'tpark@camdenpeds.com', refId:'REF-0082', token:'b2c8e1' },
+  2: { fields:'Patient: Priya Nair · DOB: 06/07/2014 · MRN: CHK-290017 · Guardian: Anita Nair · (732) 555-0091 · Insurance: UHCCP of NJ · Member ID: UHC-7741229', email:'rpatel@edisonpeds.com', refId:'REF-0083', token:'f4a1c6' },
+};
+
+function saveDraft(){
+  const sc = SC[currentSc];
+  const d  = DRAFT_STAGE1[currentSc];
+  const btn = document.getElementById('draftBtn');
+  const bar = document.getElementById('draft-bar');
+  const ind = document.getElementById('stage-indicator');
+
+  // Animate button
+  btn.textContent = '✓ Draft Saved';
+  btn.classList.add('saved');
+
+  // Populate draft bar
+  const now = new Date();
+  const ts  = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('draft-hdr-text').textContent   = `Draft saved — ${sc.refId} created · Awaiting provider to complete Stage 2`;
+  document.getElementById('draft-desc').innerHTML         = `Stage 1 data has been saved by back-office staff. Share the link below with the referring provider to complete clinical details on <strong>any device</strong>. The record remains in <strong>Draft</strong> status until Stage 2 is submitted.`;
+  document.getElementById('share-link-url').textContent   = `https://referrals.practice.org/draft/${d.refId}?token=${d.token}`;
+  document.getElementById('draft-provider-email').textContent = d.email;
+  document.getElementById('draft-timestamp').textContent  = ts;
+  document.getElementById('stage1-fields').textContent    = d.fields;
+
+  // Highlight Stage 1 filled fields with amber border
+  ['f-fname','f-dob','f-mrn','f-addr','f-phone','f-guardian','f-ins','f-memberid','f-groupnum'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.value){ el.classList.add('draft-saved'); el.classList.remove('ok'); }
+  });
+
+  // Stage 2 fields go amber-outlined to signal "your turn"
+  ['f-refprov','f-refspec','f-refprac','f-refphone','f-reason','f-notes'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.style.borderColor='var(--amber)'; el.style.background='#FFFBF0'; }
+  });
+
+  // Show stage indicator and draft bar
+  ind.style.display = 'block';
+  bar.classList.add('visible');
+  setTimeout(()=> bar.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+}
+
+function copyLink(){
+  const url = document.getElementById('share-link-url').textContent;
+  const btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(url).catch(()=>{});
+  btn.textContent = '✓ Copied!';
+  btn.classList.add('copied');
+  setTimeout(()=>{ btn.textContent='Copy Link'; btn.classList.remove('copied'); }, 2000);
+}
+
+// ════════════════════════════════════════════════
 // SUBMIT ANIMATION
 // ════════════════════════════════════════════════
 function resetAnim(){
@@ -1297,6 +1443,13 @@ function resetAnim(){
   const btn = document.getElementById('submitBtn');
   btn.disabled=false; btn.textContent='Submit Referral →';
   btn.className='btn-submit';
+  // reset draft state
+  const draftBtn = document.getElementById('draftBtn');
+  draftBtn.textContent='💾 Save as Draft'; draftBtn.className='btn-draft';
+  document.getElementById('draft-bar').classList.remove('visible');
+  document.getElementById('stage-indicator').style.display='none';
+  document.getElementById('copy-btn').textContent='Copy Link';
+  document.getElementById('copy-btn').classList.remove('copied');
 }
 
 function runSubmit(){
