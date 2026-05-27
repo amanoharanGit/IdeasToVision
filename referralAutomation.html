@@ -254,6 +254,8 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 <nav class="top-nav">
   <button class="tn-btn active" onclick="showView('process')">⚙️ Automation Process</button>
   <div class="tn-sep"></div>
+  <button class="tn-btn" onclick="showView('workflow')">🔄 Approval Workflow</button>
+  <div class="tn-sep"></div>
   <button class="tn-btn" onclick="showView('dashboard')">📊 Dashboard</button>
 </nav>
 
@@ -310,25 +312,38 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
           <span class="intake-badge">🌐 Online Intake Form</span>
         </div>
         <div class="cb">
-          <div class="slabel">Patient Information</div>
+          <!-- NOTICES -->
+          <div style="background:#FFF8E7;border:1px solid #F5D78B;border-radius:9px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:#5A4000;line-height:1.7;">
+            <div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#9A6A00;margin-bottom:8px;">⚠ Please Read Before Submitting</div>
+            <p style="margin-bottom:6px;">• This form should be completed by a healthcare professional familiar with the patient's condition.</p>
+            <p style="margin-bottom:6px;">• We will make every effort to fulfill your request. However, please understand our need to triage the urgency of all requests. Completing this form does not guarantee a patient appointment. Our reviewing staff may make additional recommendations to the referring provider before the patient is seen.</p>
+            <p>• If you would like to talk with a dermatology attending physician directly about a case, please call <strong>1-800-TRY-CHOP</strong>.</p>
+          </div>
+          <div style="background:#EBF4FF;border:1px solid #B3D4F5;border-radius:9px;padding:12px 15px;margin-bottom:18px;font-size:12px;color:#1A5FAA;line-height:1.6;display:flex;align-items:flex-start;gap:10px;">
+            <span style="font-size:18px;flex-shrink:0;">💡</span>
+            <div><strong style="display:block;margin-bottom:3px;">Completing this form across multiple devices?</strong>
+            If different team members (e.g. the referring provider and a back-office staff member) need to contribute to a single referral, we recommend using a shared device or a shared browser session. Alternatively, one person can begin the form and pass the partially completed link to the other — some intake platforms support draft-saving and shareable links natively. Ask your coordinator about the best approach for your practice's workflow.</div>
+          </div>
+
+          <div class="slabel">Patient Details</div>
           <div class="fg" style="margin-bottom:14px;">
-            <div><label class="fl">First Name *</label><input class="fi ok" id="f-fname" value="Emma"></div>
-            <div><label class="fl">Last Name *</label><input class="fi ok" id="f-lname" value="Rodriguez"></div>
-            <div><label class="fl">Date of Birth *</label><input class="fi ok" id="f-dob" value="03/14/2017"></div>
+            <div><label class="fl">Patient's Full Name *</label><input class="fi ok" id="f-fname" placeholder="Enter the patient's full name" value="Emma Rodriguez"></div>
+            <div><label class="fl">Date of Birth (DOB) *</label><input class="fi ok" id="f-dob" placeholder="Enter the patient's date of birth (DOB)" value="03/14/2017"></div>
             <div><label class="fl">MRN (if known)</label><input class="fi ok" id="f-mrn" value="CHK-448821"></div>
-            <div><label class="fl">Phone</label><input class="fi ok" id="f-phone" value="(609) 555-0182"></div>
             <div><label class="fl">Address</label><input class="fi ok" id="f-addr" value="412 Maple Ave, Cherry Hill, NJ"></div>
+            <div><label class="fl">Full Name of Parent / Guardian *</label><input class="fi ok" id="f-guardian" placeholder="Enter the full name of the parent/guardian of the patient" value="Maria Rodriguez"></div>
+            <div><label class="fl">Parent / Guardian Phone Number *</label><input class="fi ok" id="f-phone" placeholder="Phone number of the parent/guardian of the patient" value="(609) 555-0182"></div>
           </div>
 
           <div class="slabel">Language &amp; Interpreter Needs</div>
           <div style="margin-bottom:14px;">
-            <label class="fl">Does the patient require an interpreter? *</label>
+            <label class="fl">Is an interpreter needed?</label>
             <div class="radio-row">
               <label><input type="radio" name="interp" id="interp-yes" value="yes" onchange="toggleInterp()"> Yes</label>
               <label><input type="radio" name="interp" id="interp-no" value="no" onchange="toggleInterp()" checked> No</label>
             </div>
             <div id="interp-lang-row" style="display:none;margin-top:6px;">
-              <label class="fl">Preferred Language *</label>
+              <label class="fl">Preferred Language</label>
               <select class="fi ok sel" id="f-lang" style="max-width:240px;">
                 <option>Spanish</option><option>Mandarin</option><option>Arabic</option><option>Portuguese</option><option>Vietnamese</option><option>Other</option>
               </select>
@@ -336,7 +351,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
           </div>
 
           <div class="slabel">Insurance Information</div>
-          <div class="fg" style="margin-bottom:6px;">
+          <div class="fg" style="margin-bottom:14px;">
             <div>
               <label class="fl">Insurance Provider *</label>
               <select class="fi ok sel" id="f-ins" onchange="checkIns()">
@@ -349,18 +364,22 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
               </select>
             </div>
             <div><label class="fl">Member ID *</label><input class="fi ok" id="f-memberid" value="W1039847222"></div>
-            <div><label class="fl">Group Number</label><input class="fi ok" id="f-groupnum" value="GRP-8821-NJ"></div>
-            <div><label class="fl">Plan Name</label><input class="fi ok" id="f-planname" value="Aetna Better Health NJ Medicaid"></div>
+            <div><label class="fl">Group Number <span style="font-weight:400;font-style:italic;opacity:.7">(tentative)</span></label><input class="fi ok" id="f-groupnum" placeholder="Enter group number if insurance card not available" value="GRP-8821-NJ"></div>
           </div>
-          <div class="ins-alert" id="ins-alert">⛔ <strong>Insurance not accepted at Dermatology.</strong> <span id="ins-alert-name"></span> is not a contracted plan. This referral will be flagged and the coordinator notified. No Epic actions will be taken until insurance is resolved.</div>
 
-          <div class="slabel" style="margin-top:13px;">Referral Details</div>
+          <div class="slabel" style="margin-top:13px;">Referring Provider Details</div>
           <div class="fg" style="margin-bottom:14px;">
-            <div><label class="fl">Referring Provider *</label><input class="fi ok" id="f-refprov" value="Dr. Sarah Kim, MD"></div>
+            <div><label class="fl">Referring Provider's Name *</label><input class="fi ok" id="f-refprov" placeholder="Enter the referring provider's name" value="Dr. Sarah Kim, MD"></div>
+            <div><label class="fl">Provider Specialty *</label><input class="fi ok" id="f-refspec" placeholder="Identify the referring provider's specialty" value="Pediatric Primary Care"></div>
             <div><label class="fl">Referring Practice *</label><input class="fi ok" id="f-refprac" value="Pediatric Associates of NJ"></div>
+            <div>
+              <label class="fl">Provider Office Phone *</label>
+              <input class="fi ok" id="f-refphone" placeholder="Type in the referring provider's office phone number" value="(856) 555-0210">
+            </div>
+            <div><label class="fl">Extension / Direct Line <span style="font-weight:400;font-style:italic;opacity:.7">(if applicable)</span></label><input class="fi ok" id="f-refext" placeholder="e.g. ext. 204" value=""></div>
             <div><label class="fl">Referral Type *</label><select class="fi ok sel" id="f-reftype"><option>Consultation</option><option>Follow-up</option></select></div>
             <div><label class="fl">Urgency *</label><select class="fi ok sel" id="f-urgency"><option>Routine (within 30 days)</option><option>Urgent (within 72 hrs)</option></select></div>
-            <div class="fgf"><label class="fl">Primary Reason *</label><input class="fi ok" id="f-reason" value="Persistent atopic dermatitis, unresponsive to topical steroids"></div>
+            <div class="fgf"><label class="fl">Primary Reason for Referral *</label><input class="fi ok" id="f-reason" value="Persistent atopic dermatitis, unresponsive to topical steroids"></div>
             <div class="fgf"><label class="fl">Clinical Notes</label><textarea class="fi ok" id="f-notes" rows="3" style="resize:none;">Patient has history of seasonal allergies. Current regimen: hydrocortisone 2.5% — minimal improvement over 6 weeks. Requesting specialist evaluation for potential dupilumab candidacy.</textarea></div>
           </div>
 
@@ -538,18 +557,300 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
   </div>
 </div>
 
+<!-- ════════════════════════════════════════════════
+     VIEW: APPROVAL WORKFLOW
+════════════════════════════════════════════════ -->
+<div class="view" id="view-workflow">
+<style>
+/* ── WORKFLOW VIEW STYLES ── */
+.wf-wrap{max-width:860px;margin:0 auto;padding:32px 24px 72px;}
+.wf-intro{text-align:center;margin-bottom:36px;}
+.wf-intro h2{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:7px;letter-spacing:-.3px;}
+.wf-intro p{font-size:13px;color:var(--t2);max-width:600px;margin:0 auto;line-height:1.65;}
+
+/* STATUS JOURNEY */
+.wf-status-row{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:40px;flex-wrap:wrap;}
+.wf-sp{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.wf-sp-bubble{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px;white-space:nowrap;border:2px solid transparent;}
+.wf-sp-label{font-size:9px;color:var(--t3);font-weight:500;text-transform:uppercase;letter-spacing:.6px;}
+.wf-s-draft   .wf-sp-bubble{background:#EBF4FF;border-color:#B3D4F5;color:var(--blue);}
+.wf-s-pending .wf-sp-bubble{background:#FEF3D0;border-color:#F5D78B;color:#9A6A00;}
+.wf-s-review  .wf-sp-bubble{background:#EDE7F6;border-color:#C5A8E8;color:var(--purple);}
+.wf-s-approved.wf-sp-bubble,.wf-s-approved .wf-sp-bubble{background:#E8FAF4;border-color:#7FD8B8;color:var(--green);}
+.wf-s-processed .wf-sp-bubble{background:var(--navy);border-color:var(--navy);color:#fff;}
+.wf-status-arr{padding:0 5px;color:var(--border);font-size:18px;margin-bottom:18px;align-self:center;}
+
+/* LEGEND */
+.wf-legend{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:36px;}
+.wf-leg{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--t2);}
+.wf-leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* FLOW */
+.wf-flow{display:flex;flex-direction:column;gap:0;}
+.wf-step{display:grid;grid-template-columns:180px 1fr;gap:0;position:relative;}
+.wf-step::before{content:'';position:absolute;left:179px;top:0;bottom:0;width:2px;background:var(--border);z-index:0;}
+.wf-step:first-child::before{top:50%;}
+.wf-step:last-child::before{bottom:50%;}
+
+.wf-actor{display:flex;flex-direction:column;align-items:flex-end;padding:0 18px 0 0;position:relative;z-index:1;}
+.wf-actor-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;text-align:right;box-shadow:0 1px 4px rgba(0,40,85,.06);min-width:148px;}
+.wf-actor-icon{font-size:19px;margin-bottom:2px;}
+.wf-actor-name{font-size:11.5px;font-weight:700;color:var(--navy);}
+.wf-actor-role{font-size:10px;color:var(--t3);margin-top:1px;}
+.wf-actor::after{content:'';position:absolute;right:-7px;top:50%;transform:translateY(-50%);width:13px;height:13px;border-radius:50%;border:2px solid var(--border);background:#fff;z-index:2;}
+
+.wf-content{padding:14px 0 14px 26px;display:flex;flex-direction:column;gap:9px;position:relative;z-index:1;}
+
+/* ACTION CARDS */
+.wf-ac{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 15px;box-shadow:0 1px 4px rgba(0,40,85,.05);display:flex;align-items:flex-start;gap:11px;transition:box-shadow .2s;}
+.wf-ac:hover{box-shadow:0 4px 14px rgba(0,40,85,.1);}
+.wf-ac-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.wf-ac-body{flex:1;}
+.wf-ac-title{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.wf-ac-desc{font-size:11px;color:var(--t2);line-height:1.5;}
+.wf-ac-status{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 9px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.3px;white-space:nowrap;}
+.wf-ac-status::before{content:'●';font-size:6px;}
+.wf-st-draft    {background:#EBF4FF;color:var(--blue);}
+.wf-st-pending  {background:#FEF3D0;color:#9A6A00;}
+.wf-st-review   {background:#EDE7F6;color:var(--purple);}
+.wf-st-approved {background:#E8FAF4;color:var(--green);}
+.wf-st-revision {background:#FAD7D3;color:var(--red);}
+.wf-st-bot      {background:#FFF3E0;color:var(--amber);}
+.wf-st-processed{background:var(--navy);color:#fff;}
+
+/* BRANCH */
+.wf-branch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px;}
+.wf-bc{border-radius:9px;padding:11px 13px;border:1.5px solid var(--border);font-size:11px;color:var(--t2);line-height:1.5;}
+.wf-bc-ok{background:#E8FAF4;border-color:#7FD8B8;}
+.wf-bc-no{background:#FAD7D3;border-color:#F1948A;}
+.wf-bc-head{font-size:10.5px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:4px;}
+.wf-bc-head.ok{color:var(--green);}
+.wf-bc-head.no{color:var(--red);}
+
+/* BOT BLOCK */
+.wf-bot-block{background:#FFF8F0;border:1.5px solid #FFD099;border-radius:11px;padding:14px 18px;margin-top:2px;}
+.wf-bot-title{font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px;display:flex;align-items:center;gap:7px;}
+.wf-bot-steps{display:flex;flex-direction:column;gap:7px;}
+.wf-bot-step{display:flex;align-items:flex-start;gap:9px;font-size:11px;color:var(--t2);}
+.wf-bot-num{width:19px;height:19px;border-radius:50%;background:var(--amber);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+
+/* CONNECTOR */
+.wf-vconn{display:flex;flex-direction:column;align-items:center;padding:3px 0;margin-left:179px;}
+.wf-vconn-line{width:2px;height:22px;background:var(--border);}
+.wf-vconn-arr{font-size:11px;color:var(--t3);}
+
+/* NOTE */
+.wf-note{background:#EBF4FF;border:1px solid #B3D4F5;border-radius:10px;padding:13px 16px;margin-top:26px;font-size:12px;color:var(--t2);line-height:1.65;}
+.wf-note strong{color:var(--navy);}
+</style>
+
+<div class="wf-wrap">
+
+  <div class="wf-intro">
+    <h2>Referral Approval Workflow — Status-Driven</h2>
+    <p>A single referral form drives the entire process. Each submission creates a tracked record whose <strong>status</strong> controls what happens next — routing, notifications, approvals, and automation — all triggered automatically.</p>
+  </div>
+
+  <!-- STATUS JOURNEY -->
+  <div class="wf-status-row">
+    <div class="wf-sp wf-s-draft"><div class="wf-sp-bubble">Draft</div><div class="wf-sp-label">Submitted</div></div>
+    <div class="wf-status-arr">→</div>
+    <div class="wf-sp wf-s-pending"><div class="wf-sp-bubble">Pending Review</div><div class="wf-sp-label">Clinical Added</div></div>
+    <div class="wf-status-arr">→</div>
+    <div class="wf-sp wf-s-review"><div class="wf-sp-bubble">Under Review</div><div class="wf-sp-label">Coordinator</div></div>
+    <div class="wf-status-arr">→</div>
+    <div class="wf-sp wf-s-approved"><div class="wf-sp-bubble">Approved</div><div class="wf-sp-label">Bot Triggered</div></div>
+    <div class="wf-status-arr">→</div>
+    <div class="wf-sp wf-s-processed"><div class="wf-sp-bubble">Processed</div><div class="wf-sp-label">In Epic</div></div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="wf-legend">
+    <div class="wf-leg"><div class="wf-leg-dot" style="background:#B3D4F5;"></div>Staff / Back-Office</div>
+    <div class="wf-leg"><div class="wf-leg-dot" style="background:#a8d5a8;"></div>Referring Provider</div>
+    <div class="wf-leg"><div class="wf-leg-dot" style="background:#C5A8E8;"></div>Referral Coordinator</div>
+    <div class="wf-leg"><div class="wf-leg-dot" style="background:#FFCC80;"></div>Automation Bot</div>
+    <div class="wf-leg"><div class="wf-leg-dot" style="background:#F48FB1;"></div>Epic EHR</div>
+  </div>
+
+  <!-- FLOW -->
+  <div class="wf-flow">
+
+    <!-- STEP 1 -->
+    <div class="wf-step">
+      <div class="wf-actor">
+        <div class="wf-actor-card">
+          <div class="wf-actor-icon">👩‍💼</div>
+          <div class="wf-actor-name">Back-Office Staff</div>
+          <div class="wf-actor-role">MA / Admin</div>
+        </div>
+      </div>
+      <div class="wf-content">
+        <div class="wf-ac">
+          <div class="wf-ac-icon">📋</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Submit Stage 1 — Patient &amp; Insurance Details</div>
+            <div class="wf-ac-desc">Staff completes the intake form with patient demographics, guardian contact, insurance information, and urgency. Clinical fields are left for the provider to complete.</div>
+            <div class="wf-ac-status wf-st-draft">Draft</div>
+          </div>
+        </div>
+        <div class="wf-ac">
+          <div class="wf-ac-icon">🗂️</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Record Created in Tracking List</div>
+            <div class="wf-ac-desc">A new referral record is created automatically from the form submission. Each record has a unique ID and a direct link that can be shared with the referring provider to complete Stage 2 — on any device.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-vconn"><div class="wf-vconn-line"></div><div class="wf-vconn-arr">▼</div></div>
+
+    <!-- STEP 2 -->
+    <div class="wf-step">
+      <div class="wf-actor">
+        <div class="wf-actor-card">
+          <div class="wf-actor-icon">👨‍⚕️</div>
+          <div class="wf-actor-name">Referring Provider</div>
+          <div class="wf-actor-role">Receives link via notification</div>
+        </div>
+      </div>
+      <div class="wf-content">
+        <div class="wf-ac">
+          <div class="wf-ac-icon">✏️</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Complete Stage 2 — Clinical Details</div>
+            <div class="wf-ac-desc">Provider opens their unique record link on any device. Stage 1 fields are already populated and locked. Provider adds specialty, reason for referral, clinical notes, office phone, and extension.</div>
+            <div class="wf-ac-status wf-st-pending">Pending Review</div>
+          </div>
+        </div>
+        <div class="wf-ac">
+          <div class="wf-ac-icon">🔔</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Status Change Triggers Coordinator Notification</div>
+            <div class="wf-ac-desc">When the provider saves their section, the record status automatically updates to <strong>Pending Review</strong> — which sends a notification to the referral coordinator that a new referral is ready for review.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-vconn"><div class="wf-vconn-line"></div><div class="wf-vconn-arr">▼</div></div>
+
+    <!-- STEP 3 -->
+    <div class="wf-step">
+      <div class="wf-actor">
+        <div class="wf-actor-card">
+          <div class="wf-actor-icon">👩‍💻</div>
+          <div class="wf-actor-name">Referral Coordinator</div>
+          <div class="wf-actor-role">Reviews &amp; decides</div>
+        </div>
+      </div>
+      <div class="wf-content">
+        <div class="wf-ac">
+          <div class="wf-ac-icon">🔍</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Review Full Referral Record</div>
+            <div class="wf-ac-desc">Coordinator reviews all submitted details — patient information, insurance, clinical reason, and supporting documents. Can view the complete record from the notification or directly from the tracking list.</div>
+            <div class="wf-ac-status wf-st-review">Under Review</div>
+          </div>
+        </div>
+        <div class="wf-branch">
+          <div class="wf-bc wf-bc-ok">
+            <div class="wf-bc-head ok">✅ Approved</div>
+            Record status set to <strong>Approved</strong>. The automation bot is triggered automatically. No manual handoff needed.
+          </div>
+          <div class="wf-bc wf-bc-no">
+            <div class="wf-bc-head no">🔄 Changes Needed</div>
+            Status set to <strong>Needs Revision</strong>. Coordinator's comments are sent back to the provider, who updates the record and resubmits for re-review.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-vconn"><div class="wf-vconn-line"></div><div class="wf-vconn-arr">▼</div></div>
+
+    <!-- STEP 4 -->
+    <div class="wf-step">
+      <div class="wf-actor">
+        <div class="wf-actor-card">
+          <div class="wf-actor-icon">🤖</div>
+          <div class="wf-actor-name">Automation Bot</div>
+          <div class="wf-actor-role">Triggered by Approved status</div>
+        </div>
+      </div>
+      <div class="wf-content">
+        <div class="wf-ac">
+          <div class="wf-ac-icon">⚡</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Bot Triggered Automatically on Approval</div>
+            <div class="wf-ac-desc">The moment status changes to <strong>Approved</strong>, the automation bot picks up the referral record and begins processing in Epic — no manual trigger needed.</div>
+            <div class="wf-ac-status wf-st-bot">Bot Processing</div>
+          </div>
+        </div>
+        <div class="wf-bot-block">
+          <div class="wf-bot-title">🤖 Automation Bot Actions in Epic</div>
+          <div class="wf-bot-steps">
+            <div class="wf-bot-step"><div class="wf-bot-num">1</div>Search for patient in Epic by name + date of birth (and MRN if provided)</div>
+            <div class="wf-bot-step"><div class="wf-bot-num">2</div>Check if a Dermatology referral shell already exists for that patient</div>
+            <div class="wf-bot-step"><div class="wf-bot-num">3a</div><span><strong>If shell exists:</strong> update insurance details, clinical notes, interpreter flag, and referring provider info</span></div>
+            <div class="wf-bot-step"><div class="wf-bot-num">3b</div><span><strong>If no shell:</strong> create a new incoming referral shell and populate all fields from the record</span></div>
+            <div class="wf-bot-step"><div class="wf-bot-num">4</div>Upload all documents to Epic Media Manager — referral summary PDF, insurance cards, prior auth, clinical photos</div>
+            <div class="wf-bot-step"><div class="wf-bot-num">5</div>Write Epic Shell ID, completion timestamp, and upload count back to the referral record</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-vconn"><div class="wf-vconn-line"></div><div class="wf-vconn-arr">▼</div></div>
+
+    <!-- STEP 5 -->
+    <div class="wf-step">
+      <div class="wf-actor">
+        <div class="wf-actor-card">
+          <div class="wf-actor-icon">✅</div>
+          <div class="wf-actor-name">All Parties</div>
+          <div class="wf-actor-role">Notified on completion</div>
+        </div>
+      </div>
+      <div class="wf-content">
+        <div class="wf-ac">
+          <div class="wf-ac-icon">📣</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Completion Notifications Sent</div>
+            <div class="wf-ac-desc">Once bot processing is complete, notifications are sent automatically: the coordinator receives the Epic Shell ID confirmation; the referring provider receives confirmation the referral is in the system; staff sees the status update in the tracking list.</div>
+            <div class="wf-ac-status wf-st-processed">Processed in Epic</div>
+          </div>
+        </div>
+        <div class="wf-ac">
+          <div class="wf-ac-icon">📊</div>
+          <div class="wf-ac-body">
+            <div class="wf-ac-title">Record Updated — Referral Tracking List</div>
+            <div class="wf-ac-desc">The referral record is updated with Epic Shell ID, processing time, documents uploaded, and final status. The tracking list gives coordinators a real-time view of all referrals — submitted, in review, approved, processed, and flagged.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end wf-flow -->
+
+  <div class="wf-note">
+    <strong>💡 Multi-device, multi-touch:</strong> Because each referral lives as a record with a unique shareable link, the back-office staff and referring provider never need to be on the same device. The provider simply opens their link when convenient — on any phone, tablet, or computer — and picks up exactly where Stage 1 left off. The workflow advances automatically based on status, not on any individual manually moving it forward.
+  </div>
+
+</div><!-- end wf-wrap -->
+</div><!-- end view-workflow -->
+
 <script>
 // ════════════════════════════════════════════════
 // SCENARIO DATA
 // ════════════════════════════════════════════════
 const SC = {
   0:{
-    fname:'Emma',lname:'Rodriguez',dob:'03/14/2017',mrn:'CHK-448821',
-    phone:'(609) 555-0182',addr:'412 Maple Ave, Cherry Hill, NJ',
+    fname:'Emma Rodriguez',dob:'03/14/2017',mrn:'CHK-448821',
+    guardian:'Maria Rodriguez',phone:'(609) 555-0182',addr:'412 Maple Ave, Cherry Hill, NJ',
     ins:'aetna',insLabel:'Aetna Better Health',memberid:'W1039847222',
-    groupnum:'GRP-8821-NJ',planname:'Aetna Better Health NJ Medicaid',
-    interp:true,lang:'Spanish',
-    refprov:'Dr. Sarah Kim, MD',refprac:'Pediatric Associates of NJ',
+    groupnum:'GRP-8821-NJ',interp:true,lang:'Spanish',
+    refprov:'Dr. Sarah Kim, MD',refspec:'Pediatric Primary Care',refprac:'Pediatric Associates of NJ',refphone:'(856) 555-0210',
     reftype:'Consultation',urgency:'Routine (within 30 days)',
     reason:'Persistent atopic dermatitis, unresponsive to topical steroids',
     notes:'Patient has history of seasonal allergies. Current regimen: hydrocortisone 2.5% — minimal improvement over 6 weeks. Requesting specialist evaluation for potential dupilumab candidacy.',
@@ -635,12 +936,11 @@ const SC = {
     ],
   },
   1:{
-    fname:'Marcus',lname:'Chen',dob:'08/22/2019',mrn:'',
-    phone:'(856) 555-0349',addr:'89 Birch St, Moorestown, NJ',
+    fname:'Marcus Chen',dob:'08/22/2019',mrn:'',
+    guardian:'David Chen',phone:'(856) 555-0349',addr:'89 Birch St, Moorestown, NJ',
     ins:'horizon',insLabel:'Horizon NJ Health',memberid:'HNJ-3392811',
-    groupnum:'GRP-4420-NJ',planname:'Horizon NJ TotalCare Medicaid',
-    interp:false,lang:'',
-    refprov:'Dr. Thomas Park, MD',refprac:'Camden Pediatric Group',
+    groupnum:'GRP-4420-NJ',interp:false,lang:'',
+    refprov:'Dr. Thomas Park, MD',refspec:'Pediatric Primary Care',refprac:'Camden Pediatric Group',refphone:'(856) 555-0398',
     reftype:'Consultation',urgency:'Urgent (within 72 hrs)',
     reason:'Severe eczema with suspected secondary infection',
     notes:'Patient presenting with widespread eczema lesions. Topical treatment ineffective. Two prior ER visits in past 3 months. MRN unknown to referring practice.',
@@ -723,12 +1023,11 @@ const SC = {
     ],
   },
   2:{
-    fname:'Priya',lname:'Nair',dob:'06/07/2014',mrn:'CHK-290017',
-    phone:'(732) 555-0091',addr:'227 Cedar Ln, Edison, NJ',
+    fname:'Priya Nair',dob:'06/07/2014',mrn:'CHK-290017',
+    guardian:'Anita Nair',phone:'(732) 555-0091',addr:'227 Cedar Ln, Edison, NJ',
     ins:'uhccp',insLabel:'UHCCP of NJ',memberid:'UHC-7741229',
-    groupnum:'GRP-0033-NJ',planname:'UnitedHealthcare Community Plan NJ',
-    interp:false,lang:'',
-    refprov:'Dr. Rita Patel, MD',refprac:'Edison Pediatric Partners',
+    groupnum:'GRP-0033-NJ',interp:false,lang:'',
+    refprov:'Dr. Rita Patel, MD',refspec:'Internal Medicine',refprac:'Edison Pediatric Partners',refphone:'(732) 555-0140',
     reftype:'Consultation',urgency:'Routine (within 30 days)',
     reason:'Chronic urticaria with suspected allergic component',
     notes:'Patient has recurring hives over 8-week period, primarily nocturnal. Cetirizine 10mg with partial relief only. Requesting specialist evaluation.',
@@ -796,7 +1095,7 @@ function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.tn-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
-  const idx = {process:0,dashboard:1}[v];
+  const idx = {process:0,workflow:1,dashboard:2}[v];
   document.querySelectorAll('.tn-btn')[idx].classList.add('active');
 }
 
@@ -818,8 +1117,6 @@ function showStep(i){
 let currentSc = 0;
 let animDone = false;
 
-const NOT_ACCEPTED = ['uhccp','amerigroup'];
-
 function selectScenario(idx){
   if(animDone){ resetAnim(); }
   currentSc = idx;
@@ -827,11 +1124,17 @@ function selectScenario(idx){
   const sc = SC[idx];
 
   // populate form
-  ['fname','lname','dob','mrn','phone','addr','memberid','groupnum','planname','refprov','refprac','reason'].forEach(k=>{
-    const el = document.getElementById('f-'+k);
-    if(el) el.value = sc[k];
+  const fmap = {fname:'f-fname',dob:'f-dob',mrn:'f-mrn',addr:'f-addr',
+    phone:'f-phone',memberid:'f-memberid',groupnum:'f-groupnum',
+    refprov:'f-refprov',refspec:'f-refspec',refprac:'f-refprac',
+    refphone:'f-refphone',reason:'f-reason'};
+  Object.entries(fmap).forEach(([k,id])=>{
+    const el = document.getElementById(id);
+    if(el && sc[k]!==undefined) el.value = sc[k];
   });
   document.getElementById('f-notes').value = sc.notes;
+  const gd = document.getElementById('f-guardian');
+  if(gd) gd.value = sc.guardian || '';
 
   const insEl = document.getElementById('f-ins');
   for(let o of insEl.options) o.selected = (o.value===sc.ins);
@@ -839,14 +1142,11 @@ function selectScenario(idx){
   document.getElementById('interp-no').checked = !sc.interp;
   document.getElementById('interp-lang-row').style.display = sc.interp?'block':'none';
 
-  // insurance styling
-  const insOk = sc.insOk;
-  ['f-ins','f-memberid','f-groupnum','f-planname'].forEach(id=>{
+  // all insurance fields default ok (flagging removed from intake)
+  ['f-ins','f-memberid','f-groupnum'].forEach(id=>{
     const el = document.getElementById(id);
-    el.classList.toggle('ok',insOk);
-    el.classList.toggle('warn',!insOk);
+    if(el){ el.classList.add('ok'); el.classList.remove('warn'); }
   });
-  checkIns(sc.ins);
 
   // attachments
   renderAttachments(sc.attachments);
@@ -974,28 +1274,13 @@ function renderStepContent(){
 }
 
 // ════════════════════════════════════════════════
-// INSURANCE CHECK
+// INTERPRETER TOGGLE
 // ════════════════════════════════════════════════
 function toggleInterp(){
   document.getElementById('interp-lang-row').style.display =
     document.getElementById('interp-yes').checked ? 'block':'none';
 }
-function checkIns(val){
-  const v = val || document.getElementById('f-ins').value;
-  const bad = NOT_ACCEPTED.includes(v);
-  const alert = document.getElementById('ins-alert');
-  const map = {uhccp:'UHCCP of NJ',amerigroup:'AmeriGroup of NJ'};
-  if(bad){
-    document.getElementById('ins-alert-name').textContent = map[v]||v;
-    alert.classList.add('visible');
-    document.getElementById('f-ins').classList.add('warn');
-    document.getElementById('f-ins').classList.remove('ok');
-  } else {
-    alert.classList.remove('visible');
-    document.getElementById('f-ins').classList.remove('warn');
-    document.getElementById('f-ins').classList.add('ok');
-  }
-}
+function checkIns(val){ /* insurance flagging removed — handled downstream */ }
 
 // ════════════════════════════════════════════════
 // SUBMIT ANIMATION
