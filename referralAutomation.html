@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dermatology Referral Automation</title>
+<title>Referral Automation</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 :root{
@@ -242,7 +242,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 <header>
   <div class="hl">
     <div class="hi">🏥</div>
-    <div><div class="ht">Dermatology</div><div class="hs">Referral Automation System</div></div>
+    <div><div class="ht">Referral Automation System</div><div class="hs"></div></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <div class="vendor-badge">🤖 Automation Vendor Solution</div>
@@ -303,12 +303,12 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
     <div id="step0">
       <div class="sh">
         <div class="sh-icon" style="background:#EBF4FF;">📋</div>
-        <div><h2>Referral Form Submission</h2><p>Referring provider completes the Dermatology intake form. Select a scenario on the left, then click <strong>Submit Referral</strong>.</p></div>
+        <div><h2>Referral Form Submission</h2><p>Referring provider completes the intake form. Select a scenario on the left, then click <strong>Submit Referral</strong>.</p></div>
       </div>
 
       <div class="card">
         <div class="ch">
-          <span class="ct">🏥 Dermatology — New Patient Referral</span>
+          <span class="ct">🏥 New Patient Referral</span>
           <span class="intake-badge">🌐 Online Intake Form</span>
         </div>
         <div class="cb">
@@ -317,7 +317,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
             <div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#9A6A00;margin-bottom:8px;">⚠ Please Read Before Submitting</div>
             <p style="margin-bottom:6px;">• This form should be completed by a healthcare professional familiar with the patient's condition.</p>
             <p style="margin-bottom:6px;">• We will make every effort to fulfill your request. However, please understand our need to triage the urgency of all requests. Completing this form does not guarantee a patient appointment. Our reviewing staff may make additional recommendations to the referring provider before the patient is seen.</p>
-            <p>• If you would like to talk with a dermatology attending physician directly about a case, please call <strong>1-800-TRY-CHOP</strong>.</p>
+            <p>• If you would like to talk with an attending physician directly about a case, please call <strong>1-800-TRY-CHOP</strong>.</p>
           </div>
           <div style="background:#EBF4FF;border:1px solid #B3D4F5;border-radius:9px;padding:12px 15px;margin-bottom:18px;font-size:12px;color:#1A5FAA;line-height:1.6;display:flex;align-items:flex-start;gap:10px;">
             <span style="font-size:18px;flex-shrink:0;">💡</span>
@@ -547,7 +547,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
         <table class="tbl">
           <thead><tr><th>Referral ID</th><th>Patient</th><th>Issue</th><th>Insurance</th><th>Action Required</th><th></th></tr></thead>
           <tbody>
-            <tr><td><span class="mono">REF-0083</span></td><td><span class="pname">Nair, Priya</span></td><td><span class="tag t-red">Not Accepted</span></td><td>UHCCP of NJ</td><td style="font-size:11px;color:var(--t2);">Not contracted with Dermatology — contact family to verify coverage</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
+            <tr><td><span class="mono">REF-0083</span></td><td><span class="pname">Nair, Priya</span></td><td><span class="tag t-red">Not Accepted</span></td><td>UHCCP of NJ</td><td style="font-size:11px;color:var(--t2);">Not contracted with team — contact family to verify coverage</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
             <tr><td><span class="mono">REF-0079</span></td><td><span class="pname">Torres, Diego</span></td><td><span class="tag t-red">Not Accepted</span></td><td>AmeriGroup of NJ</td><td style="font-size:11px;color:var(--t2);">AmeriGroup of NJ not contracted — patient may need alternate referral pathway</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
             <tr><td><span class="mono">REF-0075</span></td><td><span class="pname">Wilson, James</span></td><td><span class="tag t-amber">Dupe Match</span></td><td>Horizon NJ Health</td><td style="font-size:11px;color:var(--t2);">2 patients matched name + DOB — manual selection needed before bot can proceed</td><td><button style="padding:4px 10px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Review →</button></td></tr>
           </tbody>
@@ -791,7 +791,7 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
           <div class="wf-bot-title">🤖 Automation Bot Actions in Epic</div>
           <div class="wf-bot-steps">
             <div class="wf-bot-step"><div class="wf-bot-num">1</div>Search for patient in Epic by name + date of birth (and MRN if provided)</div>
-            <div class="wf-bot-step"><div class="wf-bot-num">2</div>Check if a Dermatology referral shell already exists for that patient</div>
+            <div class="wf-bot-step"><div class="wf-bot-num">2</div>Check if a referral shell already exists for that patient</div>
             <div class="wf-bot-step"><div class="wf-bot-num">3a</div><span><strong>If shell exists:</strong> update insurance details, clinical notes, interpreter flag, and referring provider info</span></div>
             <div class="wf-bot-step"><div class="wf-bot-num">3b</div><span><strong>If no shell:</strong> create a new incoming referral shell and populate all fields from the record</span></div>
             <div class="wf-bot-step"><div class="wf-bot-num">4</div>Upload all documents to Epic Media Manager — referral summary PDF, insurance cards, prior auth, clinical photos</div>
@@ -872,7 +872,7 @@ const SC = {
       {delay:1900,icon:'⚡',ic:'ic-b',state:'s-run',title:'Automation bot dispatched → Epic session opening',detail:'Job assigned in Orchestrator · Service account authenticated via Credential Store',badge:'BOT ACTIVE',bk:'bk-run'},
       {delay:2900,icon:'🔍',ic:'ic-b',state:'s-run',title:'Epic: Searching patient record…',detail:'Query: Rodriguez, Emma · DOB 03/14/2017 · Patient Index search in progress',badge:'SEARCHING',bk:'bk-run'},
       {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Patient found · MRN CHK-448821 confirmed',detail:'Existing patient matched · Demographics verified',badge:'MATCHED',bk:'bk-ok'},
-      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell under Dermatology…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
+      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
       {delay:6100,icon:'✓',ic:'ic-g',state:'s-ok', title:'Referral shell RS-2025-04-1184 found — updating',detail:'Existing shell located · No new shell created · Updating insurance, interpreter, clinical details',badge:'UPDATING',bk:'bk-ok'},
       {delay:7200,icon:'🇪🇸',ic:'ic-b',state:'s-run',title:'Flagging interpreter requirement — Spanish',detail:'Interpreter need recorded on referral shell per intake form submission',badge:'FLAGGED',bk:'bk-run'},
       {delay:8100,icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 6 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards (front/back) + 2 clinical photos',badge:'UPLOADING',bk:'bk-run'},
@@ -959,7 +959,7 @@ const SC = {
       {delay:1900,icon:'⚡',ic:'ic-b',state:'s-run',title:'Automation bot dispatched → Epic session opening',detail:'Job assigned in Orchestrator · Robot authenticated into Epic via Credential Store',badge:'BOT ACTIVE',bk:'bk-run'},
       {delay:2900,icon:'🔍',ic:'ic-b',state:'s-run',title:'Epic: Searching patient record…',detail:'Query: Chen, Marcus · DOB 08/22/2019 · No MRN provided — name + DOB search only',badge:'SEARCHING',bk:'bk-run'},
       {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Patient found · MRN CHK-509934 retrieved from Epic',detail:'Marcus Chen matched by name + DOB · MRN populated from Epic',badge:'MATCHED',bk:'bk-ok'},
-      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell under Dermatology…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
+      {delay:5000,icon:'🔎',ic:'ic-b',state:'s-run',title:'Checking for existing referral shell…',detail:'Searching Referral Management for active Derm referral shells',badge:'CHECKING',bk:'bk-run'},
       {delay:6100,icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell found — creating new shell',detail:'No active Derm referral shell on record · Automation bot initiating new Incoming Referral',badge:'CREATING',bk:'bk-warn'},
       {delay:7300,icon:'✓',ic:'ic-g',state:'s-ok', title:'New referral shell RS-2025-04-1185 created',detail:'All 13 intake fields populated · Urgency: Urgent · No interpreter required',badge:'CREATED',bk:'bk-new'},
       {delay:8300,icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 5 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards (front/back) + 2 clinical photos',badge:'UPLOADING',bk:'bk-run'},
@@ -975,7 +975,7 @@ const SC = {
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Automation bot opens Epic · Navigates to Patient Search',detail:'Service account authenticated · Patient Search loaded',badge:'DONE',bk:'bk-ok'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Search: Chen, Marcus · DOB 08/22/2019 · No MRN on intake',detail:'Name + DOB search only · MRN retrieved from Epic result',badge:'DONE',bk:'bk-ok'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Patient found · MRN CHK-509934 confirmed from Epic',detail:'Existing patient record located · Demographics verified',badge:'MATCHED',bk:'bk-ok'},
-      {icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell under Dermatology — creating new',detail:'Automation bot initiates new Incoming Referral in Epic Referral Management',badge:'CREATING',bk:'bk-warn'},
+      {icon:'⚠',ic:'ic-a',state:'s-warn',title:'No existing referral shell — creating new',detail:'Automation bot initiates new Incoming Referral in Epic Referral Management',badge:'CREATING',bk:'bk-warn'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'New shell RS-2025-04-1185 created · All fields populated',detail:'13 intake fields mapped · Urgency: Urgent · Interpreter: None',badge:'CREATED',bk:'bk-new'},
       {icon:'⬆️',ic:'ic-b',state:'s-run',title:'Uploading 5 documents to Epic Media Manager…',detail:'Summary PDF + Prior Auth + Insurance Cards + Clinical Photos',badge:'IN PROGRESS',bk:'bk-run'},
     ],
@@ -1042,19 +1042,19 @@ const SC = {
     submitSteps:[
       {delay:0,   icon:'⟳',ic:'ic-b',state:'s-run',title:'Packaging and submitting form data…',detail:'Validating all fields · Bundling 4 attachments for storage',badge:'SUBMITTING',bk:'bk-run'},
       {delay:950, icon:'✓',ic:'ic-g',state:'s-ok', title:'Form data stored in intake system',detail:'REF-0083 created · All intake data captured and retained',badge:'STORED',bk:'bk-ok'},
-      {delay:1900,icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check: FAILED — UHCCP of NJ not accepted',detail:'UHCCP of NJ is not a contracted plan with Dermatology · Automation bot will not proceed to Epic',badge:'FLAGGED',bk:'bk-err'},
+      {delay:1900,icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check: FAILED — UHCCP of NJ not accepted',detail:'UHCCP of NJ is not a contracted plan · Automation bot will not proceed to Epic',badge:'FLAGGED',bk:'bk-err'},
       {delay:3000,icon:'⚠',ic:'ic-a',state:'s-warn',title:'Referral status set to "Insurance Review"',detail:'Epic actions blocked · All intake data and attachments retained · Coordinator alert triggered',badge:'ON HOLD',bk:'bk-warn'},
       {delay:4000,icon:'✓',ic:'ic-g',state:'s-ok', title:'Status written back · Coordinator notified',detail:'REF-0083 flagged in data store · Email sent to referral coordinator with insurance and patient details',badge:'NOTIFIED',bk:'bk-ok'},
     ],
     okTitle:'',okDetail:'',
-    errDetail:'REF-0083 · UHCCP of NJ is not accepted at Dermatology · No Epic actions taken · All intake data retained · Coordinator has been notified to review and contact the family.',
+    errDetail:'REF-0083 · UHCCP of NJ is not accepted · No Epic actions taken · All intake data retained · Coordinator has been notified to review and contact the family.',
     s2Subtitle:'Priya Nair · REF-0083 · UHCCP of NJ — NOT accepted · Bot blocked',
     s2TableHighlight:2,
     s3Title:'Automation Vendor Solution Bot — Scenario C: Nair, Priya',
     s3Subtitle:'Insurance not accepted — Automation Vendor Solution blocked from Epic. Referral held pending coordinator review.',
     s3Log:[
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Form data stored · Insurance pre-check performed',detail:'REF-0083 created · UHCCP of NJ checked against accepted plan list',badge:'STORED',bk:'bk-ok'},
-      {icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check FAILED — UHCCP of NJ not contracted',detail:'Plan not accepted at Dermatology · Automation Vendor Solution will NOT open Epic for this referral',badge:'BLOCKED',bk:'bk-err'},
+      {icon:'⛔',ic:'ic-r',state:'s-err',title:'Insurance pre-check FAILED — UHCCP of NJ not contracted',detail:'Plan not accepted · Automation Vendor Solution will NOT open Epic for this referral',badge:'BLOCKED',bk:'bk-err'},
       {icon:'⚠',ic:'ic-a',state:'s-warn',title:'Referral held · Status set to "Insurance Review"',detail:'No Epic actions taken · All intake data and attachments preserved in data store',badge:'ON HOLD',bk:'bk-warn'},
       {icon:'✓',ic:'ic-g',state:'s-ok',title:'Coordinator notified · Status written back',detail:'Alert email sent · REF-0083 marked "Insurance Review" · Awaiting coordinator resolution',badge:'NOTIFIED',bk:'bk-ok'},
     ],
@@ -1253,7 +1253,7 @@ function renderStepContent(){
       <div class="si show s-run"><div class="si-icon ic-b">⬆️</div><div><div class="si-title">Upload each file — tagged by document type per department standards</div><div class="si-detail">Summary PDF → "Referral Documentation" · Prior Auth → "Prior Authorization" · Insurance Cards → "Insurance Card" · Photos → "Clinical Images"</div></div><span class="si-badge bk-run">IN PROGRESS</span></div>
     </div>` : `
     <div style="padding:14px;background:#FFF0EF;border:1.5px solid #F5B7B1;border-radius:9px;font-size:12px;color:var(--red);line-height:1.6;">
-      <strong>⛔ Media Manager upload not initiated.</strong> Because UHCCP of NJ is not a contracted plan with Dermatology, the Automation bot did not open Epic and no Media Manager actions were taken. All files are retained in the intake storage system and will be uploaded once the coordinator resolves the insurance issue.
+      <strong>⛔ Media Manager upload not initiated.</strong> Because UHCCP of NJ is not a contracted plan, the Automation bot did not open Epic and no Media Manager actions were taken. All files are retained in the intake storage system and will be uploaded once the coordinator resolves the insurance issue.
     </div>`;
 
   // STEP 5
