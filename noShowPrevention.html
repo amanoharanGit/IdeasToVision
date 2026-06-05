@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No-Show Prevention Intelligence | Huron</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Brand Color Palette */
+  --plum:#1B3D6E;--plum-deep:#0F2A4E;--plum-mid:#2A5490;--plum-light:#EBF0F8;--plum-xlight:#F4F7FC;
+  --teal:#3E8B5F;--teal-dark:#2D6B48;--teal-light:#E8F4EE;--teal-mid:#5AAF7A;
+  --coral:#C8921A;--coral-light:#FBF3E2;
+  --amber:#C8921A;--amber-light:#FBF3E2;
+  --green:#2D7A4A;--green-light:#E4F3EB;
+  --cream:#F8F9FB;--white:#FFFFFF;
+  --slate:#4A5568;--slate-light:#F5F7FA;
+  --border:#D5DDE8;--border-soft:#E5ECF5;
+  --text:#0F2A4E;--text-mid:#2A3E5C;
+  --font-d:'Libre Baskerville',Georgia,serif;--font-b:'Source Sans 3','Source Sans Pro',sans-serif;
+  --shadow-sm:0 1px 4px rgba(0,0,0,0.07);
+  --shadow-md:0 4px 16px rgba(27,61,110,0.12);
+  --shadow-lg:0 8px 32px rgba(27,61,110,0.18);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--cream);color:var(--text);min-height:100vh;font-size:14px}
+
+/* ── HEADER ── */
+.hdr{
+  background:linear-gradient(135deg,var(--plum-deep) 0%,var(--plum) 55%,var(--plum-mid) 100%);
+  padding:0 36px;height:68px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 4px 24px rgba(61,26,78,0.35);position:sticky;top:0;z-index:200;
+}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.wordmark{font-family:var(--font-d);font-size:24px;color:#fff;letter-spacing:1px}
+.hdr-div{width:1px;height:26px;background:rgba(255,255,255,0.25)}
+.hdr-sub{font-size:12px;font-weight:500;color:rgba(255,255,255,0.75);letter-spacing:.5px;text-transform:uppercase}
+.hdr-pill{
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);
+  border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;
+  color:rgba(255,255,255,0.88);letter-spacing:.5px;text-transform:uppercase
+}
+
+/* ── TABS ── */
+.tabnav{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 36px;display:flex;gap:0;position:sticky;top:68px;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);overflow-x:auto;
+}
+.tbtn{
+  padding:15px 22px;border:none;background:transparent;font-family:var(--font-b);
+  font-size:12.5px;font-weight:500;color:var(--slate);cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;letter-spacing:.2px;
+}
+.tbtn:hover{color:var(--plum);background:var(--plum-xlight)}
+.tbtn.on{color:var(--plum);border-bottom-color:var(--plum);font-weight:700}
+
+.pane{display:none;padding:32px 36px;max-width:1320px;margin:0 auto}
+.pane.on{display:block}
+
+/* ── SHARED ── */
+.sec-title{font-family:var(--font-d);font-size:20px;color:var(--plum-deep);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--plum-light)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between}
+.card-hd-title{font-family:var(--font-d);font-size:14px;color:var(--plum-deep)}
+.card-bd{padding:18px}
+.label-xs{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--slate);margin-bottom:8px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.badge.HIGH{background:#FDECEA;color:#B91C1C}
+.badge.MEDIUM{background:var(--amber-light);color:var(--amber)}
+.badge.LOW{background:var(--green-light);color:#2D7A4A}
+.badge.teal{background:var(--teal-light);color:var(--teal-dark)}
+.badge.plum{background:var(--plum-light);color:var(--plum-deep)}
+
+/* ── TAB 1: ANALYSIS ── */
+.a-grid{display:grid;grid-template-columns:300px 1fr;gap:24px}
+.sel-wrap{display:flex;flex-direction:column;gap:16px}
+select.psel{
+  width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:var(--font-b);font-size:13px;color:var(--text);background:var(--white);cursor:pointer;
+}
+select.psel:focus{outline:none;border-color:var(--plum)}
+.run-btn{
+  width:100%;padding:11px;background:linear-gradient(135deg,var(--plum) 0%,var(--plum-mid) 100%);
+  color:#fff;border:none;border-radius:8px;font-family:var(--font-b);font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.4px;box-shadow:0 4px 12px rgba(92,45,110,0.28);transition:all .2s
+}
+.run-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(92,45,110,0.38)}
+.run-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+.pcard{background:var(--slate-light);border:1px solid var(--border);border-radius:10px;padding:14px}
+.pcard-name{font-family:var(--font-d);font-size:15px;color:var(--plum-deep);margin-bottom:10px}
+.prow{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid var(--border)}
+.prow:last-child{border-bottom:none}
+.pl{color:var(--slate);font-weight:500}.pv{font-weight:600;color:var(--text)}
+
+/* Results layout */
+.r-top{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.r-metric{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.r-metric::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.r-metric.gauge-card::before{background:linear-gradient(90deg,var(--plum),var(--coral))}
+.r-metric.factor-card::before{background:linear-gradient(90deg,var(--teal),#00B8C8)}
+
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+svg.gauge{width:160px;height:92px}
+
+.fbar-list{display:flex;flex-direction:column;gap:9px}
+.fbar-row{}
+.fbar-top{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px}
+.fbar-name{font-weight:600;color:var(--text-mid)}
+.fbar-val{font-weight:700}
+.fbar-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.fbar-fill{height:100%;border-radius:3px;transition:width 1.1s cubic-bezier(.16,1,.3,1)}
+
+/* Trend chart */
+.trend-section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px}
+.trend-canvas-wrap{overflow-x:auto}
+canvas#trendChart{display:block}
+
+/* Reason history */
+.reason-history{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.rh-chip{
+  padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;
+  display:flex;align-items:center;gap:6px;
+}
+.rh-chip.dominant{background:var(--plum-light);color:var(--plum-deep);border:1px solid #C8A8D8}
+.rh-chip.secondary{background:var(--teal-light);color:var(--teal-dark);border:1px solid #B2E0E5}
+.rh-chip .cnt{
+  background:rgba(0,0,0,0.12);border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700
+}
+
+.placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 20px;color:var(--slate);text-align:center;gap:12px;
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+}
+.ph-icon{font-size:44px;opacity:.3}
+.ph-txt{font-size:13px;font-weight:500;opacity:.6;line-height:1.6}
+
+/* ── TAB 2: PREVENTION ── */
+.prev-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.playbook-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.pb-hd{background:linear-gradient(135deg,var(--teal-dark) 0%,var(--teal) 60%,var(--teal-mid) 100%);padding:16px 20px}
+.pb-hd-title{font-family:var(--font-d);font-size:15px;color:#fff}
+.pb-hd-sub{font-size:11.5px;color:rgba(255,255,255,.75);margin-top:2px}
+.pb-bd{padding:16px 20px}
+.action-item{
+  display:flex;gap:12px;padding:11px 14px;border-radius:8px;margin-bottom:8px;
+  border-left:3px solid var(--teal);background:var(--teal-light);font-size:12.5px;line-height:1.5;
+  animation:fadeUp .35s ease both;
+}
+.action-item.urgent{border-left-color:var(--coral);background:var(--coral-light)}
+.action-item.amber{border-left-color:var(--amber);background:var(--amber-light)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.a-icon{font-size:16px;min-width:22px;margin-top:1px}
+.a-body{}
+.a-title{font-weight:700;color:var(--text);margin-bottom:2px}
+.a-desc{color:var(--slate);font-size:12px}
+
+/* Outreach tracker */
+.tracker-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.trk-hd{background:linear-gradient(135deg,var(--plum-deep) 0%,var(--plum) 100%);padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.trk-hd-title{font-family:var(--font-d);font-size:15px;color:#fff}
+.trk-bd{padding:16px 20px}
+
+.log-form{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.log-row{display:flex;gap:10px;flex-wrap:wrap}
+.log-sel,.log-input{
+  flex:1;min-width:120px;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;
+  font-family:var(--font-b);font-size:12.5px;color:var(--text);background:var(--white);
+}
+.log-sel:focus,.log-input:focus{outline:none;border-color:var(--plum)}
+.log-btn{
+  padding:9px 18px;background:var(--plum);color:#fff;border:none;border-radius:7px;
+  font-family:var(--font-b);font-size:12.5px;font-weight:700;cursor:pointer;transition:background .2s;white-space:nowrap;
+}
+.log-btn:hover{background:var(--plum-deep)}
+
+.contact-log{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto}
+.contact-entry{
+  display:flex;gap:10px;align-items:flex-start;padding:10px 12px;
+  background:var(--slate-light);border-radius:7px;font-size:12px;
+  animation:fadeUp .3s ease both;
+}
+.ce-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;min-width:8px}
+.ce-dot.reached{background:#3E8B5F}
+.ce-dot.voicemail{background:var(--amber)}
+.ce-dot.declined{background:var(--coral)}
+.ce-dot.scheduled{background:var(--teal)}
+.ce-meta{font-weight:700;color:var(--text-mid)}
+.ce-note{color:var(--slate);margin-top:1px}
+
+.outcome-bar{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:#E4F3EB;border:1px solid #9ACFB0;border-radius:8px;
+  font-size:12.5px;font-weight:600;color:#2D7A4A;margin-top:12px;
+}
+
+/* ── TAB 3: OUTCOMES ── */
+.outcomes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.o-metric{
+  background:var(--white);border:1px solid var(--border);border-radius:12px;
+  padding:18px;text-align:center;position:relative;overflow:hidden;
+}
+.o-metric::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+}
+.o-metric.m1::after{background:var(--plum)}
+.o-metric.m2::after{background:var(--coral)}
+.o-metric.m3::after{background:var(--green)}
+.o-metric.m4::after{background:var(--teal)}
+.o-num{font-family:var(--font-d);font-size:32px;color:var(--plum-deep)}
+.o-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--slate);margin-top:4px}
+.o-sub{font-size:11px;color:var(--slate);margin-top:2px}
+
+.outcomes-charts{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px}
+.chart-title{font-family:var(--font-d);font-size:14px;color:var(--plum-deep);margin-bottom:16px}
+canvas{display:block}
+
+.intervention-table-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table.it{width:100%;border-collapse:collapse;font-size:12.5px}
+table.it th{background:var(--plum-deep);color:#fff;padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+table.it td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+table.it tr:last-child td{border-bottom:none}
+table.it tbody tr:hover{background:var(--plum-xlight)}
+
+/* ── TAB 4: DEPENDENCIES ── */
+.dep-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.dep-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.dep-hd{padding:13px 18px;font-family:var(--font-d);font-size:13.5px;display:flex;align-items:center;gap:8px}
+.dep-hd.data{background:var(--plum-light);color:var(--plum-deep)}
+.dep-hd.integ{background:var(--teal-light);color:var(--teal-dark)}
+.dep-hd.ops{background:var(--coral-light);color:var(--coral)}
+.dep-hd.priv{background:#FFF9E6;color:#7A5900}
+.dep-bd{padding:14px 18px}
+.dep-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border-soft);font-size:12.5px;line-height:1.5;color:var(--text-mid)}
+.dep-item:last-child{border-bottom:none}
+.dep-ico{min-width:20px;font-size:13px}
+
+.consid-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.consid{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:15px}
+.consid-n{width:26px;height:26px;background:var(--plum);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-bottom:9px}
+.consid-t{font-size:12.5px;font-weight:700;color:var(--plum-deep);margin-bottom:5px}
+.consid-d{font-size:11.5px;color:var(--slate);line-height:1.55}
+
+.assump-list{display:flex;flex-direction:column;gap:8px}
+.assump{display:flex;gap:12px;padding:12px 15px;background:var(--white);border:1px solid var(--border);border-radius:8px;font-size:12.5px;line-height:1.5;color:var(--text-mid)}
+.assump-dot{min-width:8px;height:8px;width:8px;background:var(--plum);border-radius:50%;margin-top:5px}
+
+/* ── TAB 5: DATASET ── */
+.ds-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.ds-title{font-family:var(--font-d);font-size:20px;color:var(--plum-deep)}
+.ds-sub{font-size:12px;color:var(--slate);margin-top:2px}
+.filt-row{display:flex;gap:8px;flex-wrap:wrap}
+select.filt{padding:8px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:var(--font-b);font-size:12.5px;color:var(--text);background:var(--white);cursor:pointer}
+select.filt:focus{outline:none;border-color:var(--plum)}
+.stats-strip{display:flex;gap:20px;padding:14px 18px;background:var(--plum-light);border-radius:10px;margin-bottom:16px;flex-wrap:wrap}
+.ss-item{text-align:center}
+.ss-num{font-family:var(--font-d);font-size:22px;color:var(--plum-deep)}
+.ss-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate)}
+.tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:12px}
+table.dt th{background:var(--plum-deep);color:#fff;padding:10px 12px;text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+table.dt td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap}
+table.dt tbody tr:last-child td{border-bottom:none}
+table.dt tbody tr:hover{background:var(--plum-xlight)}
+.outcome-show{color:#3E8B5F;font-weight:700}
+.outcome-ns{color:#B91C1C;font-weight:700}
+
+@media(max-width:900px){
+  .a-grid,.prev-grid,.dep-2col,.outcomes-charts{grid-template-columns:1fr}
+  .r-top{grid-template-columns:1fr}
+  .outcomes-grid{grid-template-columns:1fr 1fr}
+  .consid-grid{grid-template-columns:1fr}
+  .pane{padding:20px 16px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="wordmark">Huron</div>
+    <div class="hdr-div"></div>
+    <div class="hdr-sub">No-Show Prevention Intelligence</div>
+  </div>
+  <div class="hdr-pill">Demo · Synthetic Data</div>
+</header>
+
+<nav class="tabnav">
+  <button class="tbtn on"  onclick="sw('analysis',this)">🎯 Risk Analysis</button>
+  <button class="tbtn"     onclick="sw('prevention',this)">🛡️ Prevention Actions</button>
+  <button class="tbtn"     onclick="sw('outcomes',this)">📈 Prevention Outcomes</button>
+  <button class="tbtn"     onclick="sw('deps',this)">🔗 Dependencies</button>
+  <button class="tbtn"     onclick="sw('dataset',this)">📋 Visit History</button>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     TAB 1 — RISK ANALYSIS
+══════════════════════════════════════════════ -->
+<div id="tab-analysis" class="pane on">
+  <div class="a-grid">
+    <div class="sel-wrap">
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-title">Select Patient</div></div>
+        <div class="card-bd" style="display:flex;flex-direction:column;gap:12px">
+          <select class="psel" id="pSel" onchange="onPatientChange()">
+            <option value="">— Choose a patient —</option>
+          </select>
+          <div id="pCardArea"></div>
+          <button class="run-btn" id="runBtn" onclick="runAnalysis()" disabled>Run Risk Analysis</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultsArea">
+      <div class="placeholder">
+        <div class="ph-icon">🏥</div>
+        <div class="ph-txt">Select a patient and run analysis<br>to view their no-show risk profile<br>and visit history trend.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TAB 2 — PREVENTION ACTIONS
+══════════════════════════════════════════════ -->
+<div id="tab-prevention" class="pane">
+  <div id="prev-no-patient" style="display:block">
+    <div class="placeholder">
+      <div class="ph-icon">🛡️</div>
+      <div class="ph-txt">Run a patient analysis first<br>to load their prevention playbook.</div>
+    </div>
+  </div>
+  <div id="prev-content" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-family:var(--font-d);font-size:22px;color:var(--plum-deep)" id="prev-patient-name">Patient Name</div>
+        <div style="font-size:12px;color:var(--slate);margin-top:2px" id="prev-patient-meta"></div>
+      </div>
+      <span id="prev-risk-badge" class="badge HIGH" style="font-size:13px;padding:5px 14px"></span>
+    </div>
+    <div class="prev-grid">
+      <div class="playbook-card">
+        <div class="pb-hd">
+          <div class="pb-hd-title">Intervention Playbook</div>
+          <div class="pb-hd-sub" id="pb-reason-label"></div>
+        </div>
+        <div class="pb-bd" id="playbookBody"></div>
+      </div>
+      <div class="tracker-card">
+        <div class="trk-hd">
+          <div>
+            <div class="trk-hd-title">Outreach Tracker</div>
+            <div style="font-size:11.5px;color:rgba(255,255,255,.7);margin-top:2px">72-hour pre-visit window</div>
+          </div>
+        </div>
+        <div class="trk-bd">
+          <div class="log-form">
+            <div class="log-row">
+              <select class="log-sel" id="logMethod">
+                <option value="Phone Call">📞 Phone Call</option>
+                <option value="SMS">💬 SMS</option>
+                <option value="Portal Message">🖥️ Portal Message</option>
+                <option value="CHW Visit">🚶 CHW Visit</option>
+              </select>
+              <select class="log-sel" id="logOutcome">
+                <option value="reached">✅ Reached Patient</option>
+                <option value="voicemail">📬 Left Voicemail</option>
+                <option value="declined">❌ Patient Declined</option>
+                <option value="scheduled">📅 Support Scheduled</option>
+              </select>
+            </div>
+            <div class="log-row">
+              <input class="log-input" type="text" id="logNote" placeholder="Add a note (optional)">
+              <button class="log-btn" onclick="logContact()">Log Contact</button>
+            </div>
+          </div>
+          <div class="contact-log" id="contactLog">
+            <div style="color:var(--slate);font-size:12px;text-align:center;padding:12px">No contacts logged yet.</div>
+          </div>
+          <div id="outcomeBar" style="display:none" class="outcome-bar">
+            ✅ &nbsp;Outreach complete — patient confirmed for visit
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outreach questions -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-hd" style="background:var(--teal-light)">
+        <div class="card-hd-title" style="color:var(--teal-dark)">📋 Recommended Outreach Questions</div>
+        <span class="badge teal">Templated · Reason-Specific</span>
+      </div>
+      <div class="card-bd">
+        <div id="questionsBody" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TAB 3 — PREVENTION OUTCOMES
+══════════════════════════════════════════════ -->
+<div id="tab-outcomes" class="pane">
+  <div class="sec-title">Prevention Outcomes Dashboard</div>
+  <div class="outcomes-grid">
+    <div class="o-metric m1">
+      <div class="o-num">20</div>
+      <div class="o-lbl">Patients Tracked</div>
+      <div class="o-sub">Current cohort</div>
+    </div>
+    <div class="o-metric m2">
+      <div class="o-num">41%</div>
+      <div class="o-lbl">Baseline No-Show Rate</div>
+      <div class="o-sub">Without intervention</div>
+    </div>
+    <div class="o-metric m3">
+      <div class="o-num">74%</div>
+      <div class="o-lbl">Show Rate w/ Outreach</div>
+      <div class="o-sub">72-hr pre-visit contact</div>
+    </div>
+    <div class="o-metric m4">
+      <div class="o-num">33pts</div>
+      <div class="o-lbl">Prevention Lift</div>
+      <div class="o-sub">Percentage point improvement</div>
+    </div>
+  </div>
+
+  <div class="outcomes-charts">
+    <div class="chart-card">
+      <div class="chart-title">No-Show Rate: Contacted vs. Not Contacted</div>
+      <canvas id="barChart" width="380" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">No-Show Reason Distribution (All Patients)</div>
+      <canvas id="donutChart" width="380" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="sec-title">Intervention Playbook by Reason</div>
+  <div class="intervention-table-wrap">
+    <table class="it">
+      <thead>
+        <tr>
+          <th>No-Show Reason</th>
+          <th>Patients Affected</th>
+          <th>Primary Intervention</th>
+          <th>Resource Required</th>
+          <th>Expected Lift</th>
+        </tr>
+      </thead>
+      <tbody id="interventionTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TAB 4 — DEPENDENCIES
+══════════════════════════════════════════════ -->
+<div id="tab-deps" class="pane">
+  <div class="sec-title">Data & System Dependencies</div>
+  <div class="dep-2col">
+    <div class="dep-card">
+      <div class="dep-hd data">📋 Clinical & Scheduling Data</div>
+      <div class="dep-bd">
+        <div class="dep-item"><span class="dep-ico">📅</span>Multi-visit appointment history per patient with show/no-show outcomes</div>
+        <div class="dep-item"><span class="dep-ico">🏷️</span>Appointment type and specialty for each visit</div>
+        <div class="dep-item"><span class="dep-ico">⏱️</span>Lead time between scheduling and appointment date</div>
+        <div class="dep-item"><span class="dep-ico">🔁</span>Prior cancellation and rescheduling patterns</div>
+        <div class="dep-item"><span class="dep-ico">💊</span>Chronic condition and behavioral health flags</div>
+        <div class="dep-item"><span class="dep-ico">📝</span>Self-reported no-show reason (when captured at intake)</div>
+      </div>
+    </div>
+    <div class="dep-card">
+      <div class="dep-hd integ">🔌 System Integrations Required</div>
+      <div class="dep-bd">
+        <div class="dep-item"><span class="dep-ico">🏥</span>EHR (Epic, Athena, eClinicalWorks) for scheduling and clinical data</div>
+        <div class="dep-item"><span class="dep-ico">📞</span>Contact center platform for outreach interaction history</div>
+        <div class="dep-item"><span class="dep-ico">🗺️</span>Address/geocoding service to calculate distance-to-clinic</div>
+        <div class="dep-item"><span class="dep-ico">🚌</span>Public transit API for transportation accessibility scoring</div>
+        <div class="dep-item"><span class="dep-ico">☁️</span>Analytics platform (Azure ML / AWS) for model hosting</div>
+        <div class="dep-item"><span class="dep-ico">💬</span>SMS / messaging gateway for automated outreach</div>
+      </div>
+    </div>
+    <div class="dep-card">
+      <div class="dep-hd ops">⚙️ Operational Process Inputs</div>
+      <div class="dep-bd">
+        <div class="dep-item"><span class="dep-ico">📝</span>Outreach attempt logs (calls, SMS, portal messages)</div>
+        <div class="dep-item"><span class="dep-ico">🧑‍⚕️</span>Care coordinator notes and patient communication preferences</div>
+        <div class="dep-item"><span class="dep-ico">🚗</span>Transportation assistance program enrollment status</div>
+        <div class="dep-item"><span class="dep-ico">👶</span>Childcare assistance program eligibility and status</div>
+        <div class="dep-item"><span class="dep-ico">🌐</span>Preferred language and interpreter availability</div>
+        <div class="dep-item"><span class="dep-ico">🏠</span>Housing stability and social service referral status</div>
+      </div>
+    </div>
+    <div class="dep-card">
+      <div class="dep-hd priv">🔒 Privacy & Compliance</div>
+      <div class="dep-bd">
+        <div class="dep-item"><span class="dep-ico">📜</span>HIPAA Business Associate Agreement with any AI vendor</div>
+        <div class="dep-item"><span class="dep-ico">✅</span>IRB or QI review for use of historical data in predictive modeling</div>
+        <div class="dep-item"><span class="dep-ico">⚖️</span>Bias audit: model must not discriminate by race, ethnicity, or disability</div>
+        <div class="dep-item"><span class="dep-ico">🔐</span>Role-based access control — predictions visible to authorized staff only</div>
+        <div class="dep-item"><span class="dep-ico">📊</span>Model explainability: staff must understand why a risk score was assigned</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">Design & Refinement Considerations</div>
+  <div class="consid-grid">
+    <div class="consid"><div class="consid-n">1</div><div class="consid-t">Minimum Training Volume</div><div class="consid-d">Predictive accuracy improves significantly beyond 500–1,000 historical records. Facilities with lower volume should use pooled FQHC benchmark data until sufficient local history exists.</div></div>
+    <div class="consid"><div class="consid-n">2</div><div class="consid-t">Feature Weight Calibration</div><div class="consid-d">Weights in this demo are illustrative. A production model should derive weights from logistic regression or gradient boosting trained on facility-specific outcomes.</div></div>
+    <div class="consid"><div class="consid-n">3</div><div class="consid-t">Equity & Disparity Monitoring</div><div class="consid-d">No-show risk correlates with SDOH factors tied to race and income. Regular bias audits must ensure the model supports — not penalizes — high-risk populations.</div></div>
+    <div class="consid"><div class="consid-n">4</div><div class="consid-t">Closed-Loop Feedback</div><div class="consid-d">Retrain monthly using actual outcomes. Log outreach actions to measure which interventions reduce no-shows most effectively and update the playbook.</div></div>
+    <div class="consid"><div class="consid-n">5</div><div class="consid-t">Outreach Tiering Protocol</div><div class="consid-d">Not all high-risk patients need the same intervention. Define a tiering protocol (call vs. SMS vs. CHW visit) based on risk score thresholds and available resources.</div></div>
+    <div class="consid"><div class="consid-n">6</div><div class="consid-t">Appointment Type Sensitivity</div><div class="consid-d">Behavioral health, chronic disease management, and follow-up visits each carry different risk profiles and may warrant separate sub-models or adjustment factors.</div></div>
+    <div class="consid"><div class="consid-n">7</div><div class="consid-t">Seasonal & Temporal Effects</div><div class="consid-d">No-show rates spike on Mondays, Fridays, and around holidays. Temporal features should be included as predictors and staff alerted during high-risk windows.</div></div>
+    <div class="consid"><div class="consid-n">8</div><div class="consid-t">Provider Relationship Factor</div><div class="consid-d">Patients with an established PCP relationship show lower no-show rates. Panel assignment continuity and time-since-last-visit are meaningful signals.</div></div>
+    <div class="consid"><div class="consid-n">9</div><div class="consid-t">Care Coordinator Workflow</div><div class="consid-d">Risk score alone is insufficient. Coordinators need actionable next steps, available resources, and an outreach logging mechanism — all at the point of care.</div></div>
+  </div>
+
+  <div class="sec-title">Demo Assumptions</div>
+  <div class="assump-list">
+    <div class="assump"><div class="assump-dot"></div><div>All patient records are <strong>fully synthetic</strong> — generated to represent realistic FQHC population diversity. No real patient data is present.</div></div>
+    <div class="assump"><div class="assump-dot"></div><div>Each patient has <strong>4–7 synthetic visit history records</strong> with randomized but pattern-consistent no-show outcomes and reasons to simulate trend analysis.</div></div>
+    <div class="assump"><div class="assump-dot"></div><div>Risk scores use a <strong>rule-based weighted algorithm</strong> across 7 factors. A production system would use an ML model trained on facility data.</div></div>
+    <div class="assump"><div class="assump-dot"></div><div>Outreach questions are <strong>templated per no-show reason category</strong> — no API call required. In production, AI-generated questions per patient would be ideal.</div></div>
+    <div class="assump"><div class="assump-dot"></div><div>The outreach tracker uses <strong>in-memory state</strong> only — data resets on page refresh. Production would persist to EHR or CRM.</div></div>
+    <div class="assump"><div class="assump-dot"></div><div>Prevention outcome metrics (74% show rate with outreach) are <strong>illustrative benchmarks</strong> drawn from published FQHC no-show intervention literature.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TAB 5 — VISIT HISTORY DATASET
+══════════════════════════════════════════════ -->
+<div id="tab-dataset" class="pane">
+  <div class="ds-controls">
+    <div>
+      <div class="ds-title">Patient Visit History</div>
+      <div class="ds-sub">Multi-visit synthetic dataset — each row is one appointment</div>
+    </div>
+    <div class="filt-row">
+      <select class="filt" id="fPatient" onchange="renderTable()"><option value="">All Patients</option></select>
+      <select class="filt" id="fOutcome" onchange="renderTable()">
+        <option value="">All Outcomes</option>
+        <option value="No-Show">No-Show</option>
+        <option value="Attended">Attended</option>
+      </select>
+      <select class="filt" id="fReason" onchange="renderTable()">
+        <option value="">All Reasons</option>
+        <option value="Transportation">Transportation</option>
+        <option value="Mental Health">Mental Health</option>
+        <option value="Work Conflict">Work Conflict</option>
+        <option value="Childcare">Childcare</option>
+        <option value="Disability">Disability</option>
+        <option value="Language Barrier">Language Barrier</option>
+        <option value="Housing Instability">Housing Instability</option>
+        <option value="Cost Concern">Cost Concern</option>
+        <option value="Forgot Appointment">Forgot Appointment</option>
+        <option value="Caregiver Burden">Caregiver Burden</option>
+      </select>
+    </div>
+  </div>
+  <div id="statsStrip" class="stats-strip"></div>
+  <div class="tbl-wrap">
+    <table class="dt">
+      <thead>
+        <tr>
+          <th>Visit #</th><th>Patient Name</th><th>Age</th><th>Visit Date</th>
+          <th>Appt Type</th><th>Outcome</th><th>No-Show Reason</th>
+          <th>Distance (mi)</th><th>Insurance</th><th>Language</th>
+          <th>Days Until Appt</th><th>Risk Score</th>
+        </tr>
+      </thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  PATIENT MASTER + VISIT HISTORY
+// ════════════════════════════════════════════════════
+const PATIENTS = [
+  {id:1, name:"Maria Gonzalez",    age:52,gender:"F",distance:18.2,insurance:"Medicaid",    language:"Spanish",    disability:true, mh:false, dominantReason:"Transportation"},
+  {id:2, name:"James Carter",      age:34,gender:"M",distance:6.1, insurance:"Uninsured",   language:"English",    disability:false,mh:true,  dominantReason:"Mental Health"},
+  {id:3, name:"Aisha Williams",    age:28,gender:"F",distance:3.4, insurance:"CHIP",        language:"English",    disability:false,mh:false, dominantReason:"Childcare"},
+  {id:4, name:"David Nguyen",      age:61,gender:"M",distance:22.7,insurance:"Medicaid",    language:"Vietnamese", disability:true, mh:false, dominantReason:"Disability"},
+  {id:5, name:"Fatima Hassan",     age:41,gender:"F",distance:9.8, insurance:"Uninsured",   language:"Somali",     disability:false,mh:false, dominantReason:"Language Barrier"},
+  {id:6, name:"Robert Pierce",     age:47,gender:"M",distance:5.5, insurance:"Medicaid",    language:"English",    disability:false,mh:true,  dominantReason:"Mental Health"},
+  {id:7, name:"Sandra Kim",        age:38,gender:"F",distance:11.3,insurance:"Marketplace", language:"Korean",     disability:false,mh:false, dominantReason:"Work Conflict"},
+  {id:8, name:"Carlos Rivera",     age:55,gender:"M",distance:27.1,insurance:"Medicaid",    language:"Spanish",    disability:true, mh:false, dominantReason:"Transportation"},
+  {id:9, name:"Linda Thompson",    age:72,gender:"F",distance:4.2, insurance:"Medicare",    language:"English",    disability:true, mh:false, dominantReason:"Caregiver Burden"},
+  {id:10,name:"Antoine Dupree",    age:29,gender:"M",distance:8.6, insurance:"Uninsured",   language:"English",    disability:false,mh:true,  dominantReason:"Housing Instability"},
+  {id:11,name:"Priya Patel",       age:44,gender:"F",distance:2.1, insurance:"Medicaid",    language:"Hindi",      disability:false,mh:false, dominantReason:"Work Conflict"},
+  {id:12,name:"Michael Brown",     age:58,gender:"M",distance:14.9,insurance:"Medicaid",    language:"English",    disability:false,mh:true,  dominantReason:"Cost Concern"},
+  {id:13,name:"Rosa Mendez",       age:33,gender:"F",distance:6.7, insurance:"CHIP",        language:"Spanish",    disability:false,mh:false, dominantReason:"Childcare"},
+  {id:14,name:"Thomas Osei",       age:25,gender:"M",distance:1.8, insurance:"Medicaid",    language:"Twi",        disability:false,mh:false, dominantReason:"Forgot Appointment"},
+  {id:15,name:"Susan Fletcher",    age:67,gender:"F",distance:19.4,insurance:"Medicare",    language:"English",    disability:true, mh:false, dominantReason:"Transportation"},
+  {id:16,name:"Kevin Marsh",       age:42,gender:"M",distance:7.3, insurance:"Uninsured",   language:"English",    disability:false,mh:true,  dominantReason:"Work Conflict"},
+  {id:17,name:"Yuki Tanaka",       age:36,gender:"F",distance:4.9, insurance:"Medicaid",    language:"Japanese",   disability:false,mh:false, dominantReason:"Language Barrier"},
+  {id:18,name:"DeShawn Harris",    age:19,gender:"M",distance:3.2, insurance:"Medicaid",    language:"English",    disability:false,mh:true,  dominantReason:"Housing Instability"},
+  {id:19,name:"Patricia Solis",    age:63,gender:"F",distance:16.0,insurance:"Marketplace", language:"Spanish",    disability:true, mh:false, dominantReason:"Disability"},
+  {id:20,name:"Raymond Kowalski",  age:50,gender:"M",distance:10.2,insurance:"Medicaid",    language:"English",    disability:false,mh:false, dominantReason:"Caregiver Burden"},
+];
+
+const APPT_TYPES = {
+  Transportation:     ["PCP Follow-Up","Chronic Disease Mgmt","Cardiology Referral","Hypertension Follow-Up","Annual Wellness"],
+  "Mental Health":    ["Behavioral Health","Mental Health F/U","PCP Intake","Crisis Counseling","Psychiatric Eval"],
+  Childcare:          ["Well-Woman Exam","Pediatric Well Visit","OB/GYN","PCP Annual Exam","Prenatal Care"],
+  Disability:         ["PCP Follow-Up","Physical Therapy","Chronic Pain Mgmt","Neurology","Orthopedic F/U"],
+  "Language Barrier": ["OB/GYN","Prenatal Care","Diabetes Mgmt","PCP Intake","Vaccination"],
+  "Work Conflict":    ["PCP Annual Exam","Diabetes Mgmt","Lab F/U","Specialist Referral","Occupational Health"],
+  "Housing Instability":["Behavioral Health","Adolescent Health","STI Screening","Social Work F/U","Mental Health F/U"],
+  "Cost Concern":     ["Cardiology Referral","Specialist Referral","Diabetes Mgmt","PCP Follow-Up","Dental Referral"],
+  "Forgot Appointment":["STI Screening","Annual Wellness","PCP Follow-Up","Lab F/U","Vaccination"],
+  "Caregiver Burden": ["Annual Wellness","PCP Follow-Up","Chronic Disease Mgmt","Cardiology Referral","Geriatric Eval"],
+};
+
+// Generate visit history: 5-7 visits per patient, date range 18 months back
+function genVisits(p) {
+  const visits = [];
+  const numVisits = 5 + (p.id % 3); // 5,6,7
+  const dr = p.dominantReason;
+  const altReasons = ["Transportation","Mental Health","Work Conflict","Childcare","Forgot Appointment","Cost Concern"]
+    .filter(r => r !== dr);
+  const appts = APPT_TYPES[dr] || ["PCP Follow-Up","Annual Wellness"];
+
+  const baseDate = new Date("2024-01-10");
+  for (let i = 0; i < numVisits; i++) {
+    const daysBack = Math.round((numVisits - i) * (450 / numVisits));
+    const vDate = new Date(baseDate);
+    vDate.setDate(vDate.getDate() - daysBack + i * 30 + (p.id * 3 % 7));
+    // Pattern: dominant reason shows up 60-70% of no-show visits; occasional other reasons
+    const isNoShow = i < numVisits - 1
+      ? (Math.random() < (p.id % 5 === 0 ? 0.3 : 0.55)) // last visit always no-show for analysis
+      : true;
+    let reason = null;
+    if (isNoShow) {
+      reason = Math.random() < 0.65 ? dr : altReasons[i % altReasons.length];
+    }
+    const leadDays = 3 + (i * 4 + p.id) % 21;
+    visits.push({
+      pid: p.id,
+      pname: p.name,
+      age: p.age,
+      vdate: vDate.toISOString().split("T")[0],
+      apptType: appts[i % appts.length],
+      outcome: isNoShow ? "No-Show" : "Attended",
+      reason: reason,
+      distance: p.distance,
+      insurance: p.insurance,
+      language: p.language,
+      leadDays: leadDays,
+      riskScore: scorePatient(p).score,
+    });
+  }
+  return visits;
+}
+
+// ════════════════════════════════════════════════════
+//  RISK SCORING
+// ════════════════════════════════════════════════════
+function scorePatient(p) {
+  let score = 0; const factors = [];
+  // Prior no-shows from visit history (computed later on full history)
+  const priorNS = (ALL_VISITS||[]).filter(v=>v.pid===p.id && v.outcome==="No-Show").length;
+  const nsS = Math.min(priorNS*7,35); score+=nsS;
+  factors.push({name:"Prior No-Show History",value:nsS,max:35,desc:`${priorNS} of recent visits`});
+  const dS = p.distance>=20?20:p.distance>=10?12:p.distance>=5?6:2; score+=dS;
+  factors.push({name:"Distance to Clinic",value:dS,max:20,desc:`${p.distance} mi`});
+  const iS = p.insurance==="Uninsured"?10:p.insurance==="Medicaid"?5:2; score+=iS;
+  factors.push({name:"Insurance Status",value:iS,max:10,desc:p.insurance});
+  const disS = p.disability?10:0; score+=disS;
+  if(p.disability) factors.push({name:"Mobility/Disability",value:disS,max:10,desc:"Documented"});
+  const mhS = p.mh?10:0; score+=mhS;
+  if(p.mh) factors.push({name:"Behavioral Health Flag",value:mhS,max:10,desc:"Active"});
+  const langS = p.language==="English"?0:8; score+=langS;
+  if(langS>0) factors.push({name:"Language Barrier",value:langS,max:8,desc:p.language});
+  const aS = ["Behavioral Health","Mental Health F/U","Adolescent Health","Crisis Counseling"].some(a=>p.dominantReason==="Mental Health")||p.mh?7:3;
+  score+=aS;
+  factors.push({name:"Appointment Type",value:aS,max:7,desc:p.dominantReason});
+  const pct = Math.min(Math.round(score),100);
+  const level = pct>=60?"HIGH":pct>=35?"MEDIUM":"LOW";
+  return {score:pct,level,factors:factors.sort((a,b)=>b.value-a.value).slice(0,5)};
+}
+
+// Build all visits (two passes: first build, then rescore with NS count)
+let ALL_VISITS = [];
+PATIENTS.forEach(p => { ALL_VISITS.push(...genVisits(p)); });
+
+// Recompute risk scores now that we have history
+PATIENTS.forEach(p => {
+  const r = scorePatient(p);
+  p.riskScore = r.score; p.riskLevel = r.level; p.riskFactors = r.factors;
+});
+ALL_VISITS.forEach(v => { v.riskScore = PATIENTS.find(p=>p.id===v.pid).riskScore; });
+
+// ════════════════════════════════════════════════════
+//  OUTREACH QUESTION TEMPLATES (per reason)
+// ════════════════════════════════════════════════════
+const QUESTIONS = {
+  "Transportation": [
+    "Do you have reliable transportation to get to your appointment, or would you like us to help arrange a ride?",
+    "Are you aware we can connect you with a free or low-cost medical transport service for this visit?",
+    "Would a telehealth option work better for you if getting here in person is difficult?",
+    "Is there a specific time of day that makes transportation easier — such as after school bus hours?",
+    "Would it help to reschedule to a day when a family member can drive you?",
+    "Have you used our partnered ride service before? We can book it for you right now.",
+  ],
+  "Mental Health": [
+    "We wanted to check in — how are you feeling leading up to your appointment?",
+    "Sometimes anxiety or low mood can make it hard to leave home. Would a phone or video visit feel more comfortable?",
+    "Is there anything we can do to make your visit feel safer or less stressful?",
+    "Would you like us to schedule a brief check-in call with your care team the morning of your appointment?",
+    "We have a peer support navigator who can accompany you to the visit — would that be helpful?",
+    "Are there any concerns about the visit itself that we can address before you arrive?",
+  ],
+  "Childcare": [
+    "Do you have childcare coverage for the time of your appointment?",
+    "We have on-site childcare available during clinic hours — would you like us to reserve a spot?",
+    "If childcare is a barrier, we can look at early morning or Saturday appointment slots. Would that work?",
+    "Would it help to shorten the visit by pre-completing your intake forms online?",
+    "Are there family members or community members who could watch your child during the appointment?",
+    "We can try to complete as much of your visit over the phone in advance to reduce your time at the clinic.",
+  ],
+  "Disability": [
+    "Do you have mobility support for getting to and around the clinic on your appointment day?",
+    "Would you like us to arrange ADA-accessible transport for your visit?",
+    "We want to make sure the clinic is fully accessible for your needs — can you let us know what accommodations would help?",
+    "Would a home visit from one of our mobile health team members be an option for this appointment?",
+    "Is your condition currently stable enough for an in-person visit, or would a telehealth check be preferable?",
+    "We can have a wheelchair and escort ready at the entrance — would you like us to arrange that?",
+  ],
+  "Language Barrier": [
+    "We have an interpreter available in your preferred language for this visit — shall we confirm that service?",
+    "Would you like us to send your appointment reminder and prep instructions in your preferred language?",
+    "Is there a family member or trusted person who could join you to help with communication during the visit?",
+    "We can conduct this visit via a video call with a certified interpreter if that is more comfortable.",
+    "Would you like us to walk through what will happen at your appointment in your preferred language right now?",
+    "Are there any specific health questions you'd like interpreted in advance so you're prepared for the visit?",
+  ],
+  "Work Conflict": [
+    "We noticed your appointment is during typical work hours — would an early morning or evening slot work better?",
+    "We have Saturday appointments available. Would that be easier for your schedule?",
+    "Can we provide a brief letter confirming your appointment for your employer?",
+    "Would a telehealth visit allow you to participate during a work break without missing time?",
+    "Is there a specific day of the week that works best given your work schedule?",
+    "If we could reduce your visit time to under 30 minutes, would you be able to attend?",
+  ],
+  "Housing Instability": [
+    "We want to make sure you're supported — is your current address and contact information still accurate?",
+    "We have a social worker on staff who can connect you with housing resources. Would that be helpful?",
+    "Is there anything going on right now that's making it harder to focus on your healthcare?",
+    "Would you like us to connect you with our community health worker who can help navigate support services?",
+    "We can offer a telehealth visit so you don't need to travel to the clinic. Would that work?",
+    "Are you connected with any community resources right now? We can help fill in any gaps.",
+  ],
+  "Cost Concern": [
+    "We want to make sure cost isn't a barrier to your care — are you aware of our sliding-scale fee program?",
+    "Would you like to speak with our financial counselor before your appointment to review your options?",
+    "As an FQHC, we're required to see all patients regardless of ability to pay — no one is turned away.",
+    "Are there specific services at this visit you're worried about the cost of? We can review them in advance.",
+    "Do you have any outstanding balances you'd like to discuss or set up a payment plan for?",
+    "We have grant-funded programs that may cover your visit at no cost — shall we check your eligibility?",
+  ],
+  "Forgot Appointment": [
+    "Just a reminder — your appointment is coming up! Can we confirm you have it on your calendar?",
+    "Would you like us to send you a text reminder the day before and the morning of your visit?",
+    "Can we confirm the best phone number and email to reach you for reminders?",
+    "Would a calendar invite sent to your email help you keep track of this appointment?",
+    "Is there a family member or caregiver we should also remind about this appointment?",
+    "Would you prefer reminder calls at a specific time of day?",
+  ],
+  "Caregiver Burden": [
+    "We know caregiving responsibilities can make it hard to prioritize your own health — we want to support you.",
+    "Is there a time when you have some relief from caregiving duties that we could schedule around?",
+    "Would a telehealth visit allow you to attend while still being near the person you're caring for?",
+    "Are you aware of respite care resources in your area? Our social worker can connect you.",
+    "Would it help to schedule this appointment during a school or program session for the person you care for?",
+    "We can try to make this visit as efficient as possible — would a focused 20-minute visit work?",
+  ],
+};
+
+// ════════════════════════════════════════════════════
+//  INTERVENTION PLAYBOOK DATA (Tab 3 table)
+// ════════════════════════════════════════════════════
+const INTERVENTIONS = [
+  {reason:"Transportation",     count:4, action:"Arrange medical transport or telehealth",  resource:"Ride-share partnership / telehealth platform",  lift:"↓38% no-show"},
+  {reason:"Mental Health",      count:4, action:"Peer navigator + telehealth option",        resource:"Behavioral health navigator, video platform",   lift:"↓29% no-show"},
+  {reason:"Work Conflict",      count:3, action:"Offer evening/Saturday slots",              resource:"Extended-hours scheduling",                     lift:"↓31% no-show"},
+  {reason:"Childcare",          count:2, action:"On-site childcare or remote visit",         resource:"Childcare room, telehealth platform",           lift:"↓27% no-show"},
+  {reason:"Disability",         count:3, action:"ADA transport + home visit option",         resource:"Mobile health unit, accessible van",            lift:"↓34% no-show"},
+  {reason:"Language Barrier",   count:2, action:"Certified interpreter + translated materials", resource:"Interpreter services, multilingual portal",  lift:"↓24% no-show"},
+  {reason:"Housing Instability",count:2, action:"CHW engagement + telehealth",               resource:"Community health worker, social services",      lift:"↓22% no-show"},
+  {reason:"Cost Concern",       count:1, action:"Financial counseling + sliding-scale review", resource:"Financial counselor, grant programs",        lift:"↓19% no-show"},
+  {reason:"Forgot Appointment", count:1, action:"Multi-channel automated reminders",         resource:"SMS/email reminder system",                    lift:"↓44% no-show"},
+  {reason:"Caregiver Burden",   count:2, action:"Flexible scheduling + respite referral",    resource:"Social work referral, telehealth",             lift:"↓21% no-show"},
+];
+
+// ════════════════════════════════════════════════════
+//  GAUGE SVG
+// ════════════════════════════════════════════════════
+function buildGauge(score, level) {
+  const color = level==="HIGH"?"#B91C1C":level==="MEDIUM"?"#D4820A":"#1E8A4C";
+  const ang = (score/100)*180;
+  const rad = (ang-180)*Math.PI/180;
+  const cx=80,cy=80,r=60;
+  const ex = cx + r*Math.cos(rad), ey = cy + r*Math.sin(rad);
+  const la = ang>180?1:0;
+  return `<svg class="gauge" viewBox="0 0 160 90">
+    <path d="M20,80 A60,60 0 0,1 140,80" fill="none" stroke="#E2DDE8" stroke-width="11" stroke-linecap="round"/>
+    <path d="M20,80 A60,60 0 ${la},1 ${ex.toFixed(1)},${ey.toFixed(1)}" fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="5" fill="${color}"/>
+    <text x="80" y="76" text-anchor="middle" font-family="Libre Baskerville,Georgia,serif" font-size="21" fill="#3D1A4E">${score}%</text>
+    <text x="20" y="91" text-anchor="middle" font-family="Source Sans 3,sans-serif" font-size="8.5" fill="#888">Low</text>
+    <text x="140" y="91" text-anchor="middle" font-family="Source Sans 3,sans-serif" font-size="8.5" fill="#888">High</text>
+  </svg>`;
+}
+
+// ════════════════════════════════════════════════════
+//  MINI BAR CHART (visit history trend)
+// ════════════════════════════════════════════════════
+function buildTrendChart(visits) {
+  const W=560,H=120,PAD={t:10,r:16,b:40,l:40};
+  const inner_w = W-PAD.l-PAD.r, inner_h = H-PAD.t-PAD.b;
+  const n = visits.length;
+  const bw = Math.min(40, inner_w/n - 6);
+  let bars = "", labels = "", xAxis = "";
+
+  visits.forEach((v,i) => {
+    const x = PAD.l + (i+0.5)*(inner_w/n) - bw/2;
+    const isNS = v.outcome === "No-Show";
+    const fill = isNS ? "#B91C1C" : "#3E8B5F";
+    const bh = isNS ? inner_h*0.75 : inner_h*0.4;
+    const by = PAD.t + inner_h - bh;
+    bars += `<rect x="${x.toFixed(1)}" y="${by.toFixed(1)}" width="${bw}" height="${bh.toFixed(1)}" rx="3" fill="${fill}" opacity="0.85"/>`;
+    const lx = (x + bw/2).toFixed(1);
+    const short = v.vdate.slice(5); // MM-DD
+    labels += `<text x="${lx}" y="${(H-PAD.b+14).toFixed(1)}" text-anchor="middle" font-family="Source Sans 3,sans-serif" font-size="9" fill="#888">${short}</text>`;
+    if (isNS && v.reason) {
+      const abbr = v.reason.split(" ")[0].slice(0,6);
+      bars += `<text x="${lx}" y="${(by-4).toFixed(1)}" text-anchor="middle" font-family="Source Sans 3,sans-serif" font-size="7.5" fill="#B91C1C">${abbr}</text>`;
+    }
+  });
+
+  // Y axis lines
+  const grid = `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${PAD.t+inner_h}" stroke="#E2DDE8" stroke-width="1"/>
+    <line x1="${PAD.l}" y1="${PAD.t+inner_h}" x2="${W-PAD.r}" y2="${PAD.t+inner_h}" stroke="#E2DDE8" stroke-width="1"/>`;
+
+  // Legend
+  const leg = `<rect x="${PAD.l}" y="${H-10}" width="10" height="8" rx="2" fill="#B91C1C" opacity=".85"/>
+    <text x="${PAD.l+13}" y="${H-3}" font-family="Source Sans 3,sans-serif" font-size="9" fill="#888">No-Show</text>
+    <rect x="${PAD.l+70}" y="${H-10}" width="10" height="8" rx="2" fill="#1E8A4C" opacity=".85"/>
+    <text x="${PAD.l+83}" y="${H-3}" font-family="Source Sans 3,sans-serif" font-size="9" fill="#888">Attended</text>`;
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${grid}${bars}${labels}${leg}</svg>`;
+}
+
+// ════════════════════════════════════════════════════
+//  POPULATE DROPDOWN
+// ════════════════════════════════════════════════════
+function populateDropdown() {
+  const sel = document.getElementById("pSel");
+  PATIENTS.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.id; o.text = `${p.name} (${p.riskLevel} risk)`;
+    sel.appendChild(o);
+  });
+  // Dataset patient filter
+  const fP = document.getElementById("fPatient");
+  PATIENTS.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.id; o.text = p.name; fP.appendChild(o);
+  });
+}
+
+let activePatient = null;
+let contactLog = [];
+
+function onPatientChange() {
+  const pid = parseInt(document.getElementById("pSel").value);
+  const btn = document.getElementById("runBtn");
+  const area = document.getElementById("pCardArea");
+  if (!pid) { area.innerHTML=""; btn.disabled=true; return; }
+  const p = PATIENTS.find(x=>x.id===pid);
+  btn.disabled = false;
+  area.innerHTML = `<div class="pcard">
+    <div class="pcard-name">${p.name}</div>
+    <div class="prow"><span class="pl">Age</span><span class="pv">${p.age} · ${p.gender==="F"?"Female":"Male"}</span></div>
+    <div class="prow"><span class="pl">Language</span><span class="pv">${p.language}</span></div>
+    <div class="prow"><span class="pl">Insurance</span><span class="pv">${p.insurance}</span></div>
+    <div class="prow"><span class="pl">Distance</span><span class="pv">${p.distance} mi</span></div>
+    <div class="prow"><span class="pl">Disability</span><span class="pv">${p.disability?"Yes":"No"}</span></div>
+    <div class="prow"><span class="pl">Behavioral Health</span><span class="pv">${p.mh?"Flagged":"No"}</span></div>
+  </div>`;
+}
+
+function runAnalysis() {
+  const pid = parseInt(document.getElementById("pSel").value);
+  if (!pid) return;
+  const p = PATIENTS.find(x=>x.id===pid);
+  activePatient = p;
+  contactLog = [];
+  const result = scorePatient(p);
+  const visits = ALL_VISITS.filter(v=>v.pid===pid);
+
+  // Reason frequency
+  const reasonCounts = {};
+  visits.filter(v=>v.outcome==="No-Show" && v.reason).forEach(v=>{
+    reasonCounts[v.reason] = (reasonCounts[v.reason]||0)+1;
+  });
+  const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]);
+  const dominant = sortedReasons[0];
+
+  const rColor = result.level==="HIGH"?"#B91C1C":result.level==="MEDIUM"?"#D4820A":"#1E8A4C";
+
+  document.getElementById("resultsArea").innerHTML = `
+    <div>
+      <!-- Top metrics -->
+      <div class="r-top">
+        <div class="r-metric gauge-card">
+          <div class="label-xs">No-Show Risk Score</div>
+          <div class="gauge-wrap">
+            ${buildGauge(result.score, result.level)}
+            <span class="badge ${result.level}" style="font-size:12px;padding:4px 14px">${result.level} RISK</span>
+          </div>
+        </div>
+        <div class="r-metric factor-card">
+          <div class="label-xs">Top Risk Factors</div>
+          <div class="fbar-list">
+            ${result.factors.map(f=>{
+              const pct=Math.round((f.value/f.max)*100);
+              const fc=pct>=70?"#B91C1C":pct>=40?"#D4820A":"#007A87";
+              return `<div class="fbar-row">
+                <div class="fbar-top">
+                  <span class="fbar-name">${f.name}</span>
+                  <span class="fbar-val" style="color:${fc}">${f.desc}</span>
+                </div>
+                <div class="fbar-bg"><div class="fbar-fill" style="width:${pct}%;background:${fc}"></div></div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Visit history trend -->
+      <div class="trend-section">
+        <div class="label-xs" style="margin-bottom:10px">Visit History Trend — ${visits.length} Appointments</div>
+        <div class="trend-canvas-wrap">${buildTrendChart(visits)}</div>
+        <div style="margin-top:12px">
+          <div class="label-xs" style="margin-bottom:6px">Identified No-Show Pattern</div>
+          <div class="reason-history">
+            ${sortedReasons.map((([r,c],i)=>`<span class="rh-chip ${i===0?"dominant":"secondary"}">${r}<span class="cnt">${c}x</span></span>`)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- Predicted reason -->
+      <div class="card">
+        <div class="card-hd" style="background:var(--plum-light)">
+          <div class="card-hd-title">Predicted No-Show Risk for Upcoming Visit</div>
+          <span class="badge plum">Analysis Complete</span>
+        </div>
+        <div class="card-bd" style="display:flex;gap:24px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div class="label-xs">Dominant Historical Barrier</div>
+            <div style="font-family:var(--font-d);font-size:18px;color:var(--plum-deep);margin-top:4px">${dominant?dominant[0]:"None identified"}</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px">Appeared in ${dominant?dominant[1]:0} of ${visits.filter(v=>v.outcome==="No-Show").length} no-show visits</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <div class="label-xs">No-Show Rate (Historical)</div>
+            <div style="font-family:var(--font-d);font-size:18px;color:${rColor};margin-top:4px">
+              ${Math.round(visits.filter(v=>v.outcome==="No-Show").length/visits.length*100)}%
+            </div>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px">${visits.filter(v=>v.outcome==="No-Show").length} no-shows / ${visits.length} total visits</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <div class="label-xs">Recommended Action</div>
+            <div style="font-size:13px;font-weight:700;color:var(--teal-dark);margin-top:6px">
+              ${result.level==="HIGH"?"🔴 Immediate outreach required":result.level==="MEDIUM"?"🟡 Proactive outreach recommended":"🟢 Standard reminder sufficient"}
+            </div>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px">Switch to Prevention tab for playbook</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  // Populate Prevention tab
+  populatePreventionTab(p, result, dominant ? dominant[0] : p.dominantReason);
+}
+
+// ════════════════════════════════════════════════════
+//  PREVENTION TAB
+// ════════════════════════════════════════════════════
+function populatePreventionTab(p, result, reason) {
+  document.getElementById("prev-no-patient").style.display = "none";
+  document.getElementById("prev-content").style.display = "block";
+  document.getElementById("prev-patient-name").textContent = p.name;
+  document.getElementById("prev-patient-meta").textContent = `${p.age} · ${p.insurance} · ${p.language} · ${p.distance} mi from clinic`;
+  const rb = document.getElementById("prev-risk-badge");
+  rb.textContent = `${result.level} RISK · ${result.score}%`;
+  rb.className = `badge ${result.level}`;
+  rb.style.cssText = "font-size:13px;padding:5px 14px";
+  document.getElementById("pb-reason-label").textContent = `Primary Barrier: ${reason}`;
+
+  // Playbook actions
+  const actions = getPlaybookActions(reason, p);
+  document.getElementById("playbookBody").innerHTML = actions.map((a,i)=>`
+    <div class="action-item ${a.type||""}" style="animation-delay:${i*.08}s">
+      <span class="a-icon">${a.icon}</span>
+      <div class="a-body">
+        <div class="a-title">${a.title}</div>
+        <div class="a-desc">${a.desc}</div>
+      </div>
+    </div>`).join("");
+
+  // Questions
+  const qs = QUESTIONS[reason] || QUESTIONS["Forgot Appointment"];
+  document.getElementById("questionsBody").innerHTML = qs.map((q,i)=>`
+    <div style="display:flex;gap:10px;padding:12px 14px;background:${i%2===0?"var(--teal-light)":"var(--plum-xlight)"};border-radius:8px;border-left:3px solid ${i%2===0?"var(--teal)":"var(--plum)"};font-size:12.5px;line-height:1.5;animation:fadeUp .3s ease both;animation-delay:${i*.07}s">
+      <span style="min-width:20px;height:20px;background:${i%2===0?"var(--teal)":"var(--plum)"};color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px">${i+1}</span>
+      <span>${q}</span>
+    </div>`).join("");
+
+  // Reset tracker
+  contactLog = [];
+  renderContactLog();
+  document.getElementById("outcomeBar").style.display = "none";
+}
+
+function getPlaybookActions(reason, p) {
+  const map = {
+    "Transportation": [
+      {icon:"🚗",title:"Book Medical Transport",desc:"Schedule a Lyft Health / Circulation ride for the appointment date.",type:"urgent"},
+      {icon:"💻",title:"Offer Telehealth Alternative",desc:"If transport cannot be arranged, switch appointment to video visit.",type:""},
+      {icon:"📍",title:"Confirm Distance & Address",desc:`Patient is ${p.distance} miles out — verify current address is accurate.`,type:"amber"},
+      {icon:"📞",title:"72-Hour Outreach Call",desc:"Contact patient 3 days prior to confirm transport arrangement.",type:""},
+    ],
+    "Mental Health": [
+      {icon:"🧑‍⚕️",title:"Assign Peer Support Navigator",desc:"Connect patient with a peer navigator for pre-visit support.",type:"urgent"},
+      {icon:"💻",title:"Offer Video Visit Option",desc:"Telehealth reduces anxiety barriers for behavioral health patients.",type:""},
+      {icon:"📞",title:"Day-Of Check-In Call",desc:"Morning-of call from care team to provide encouragement.",type:"amber"},
+      {icon:"📋",title:"Pre-Visit Intake Completion",desc:"Complete intake forms over phone to reduce in-clinic burden.",type:""},
+    ],
+    "Childcare": [
+      {icon:"👶",title:"Reserve On-Site Childcare",desc:"Book a childcare slot at the clinic for the appointment time.",type:"urgent"},
+      {icon:"📅",title:"Offer Saturday/Evening Slot",desc:"Reschedule to an extended-hours slot if preferred.",type:""},
+      {icon:"💻",title:"Telehealth for Shorter Visits",desc:"A video visit eliminates the need to travel with children.",type:"amber"},
+      {icon:"📞",title:"Confirm Childcare Plan",desc:"Call 48 hours prior to verify childcare is confirmed.",type:""},
+    ],
+    "Disability": [
+      {icon:"♿",title:"Arrange Accessible Transport",desc:"Book ADA-accessible van or medical transport service.",type:"urgent"},
+      {icon:"🏠",title:"Assess Home Visit Option",desc:"Route to mobile health unit if in-person travel is not feasible.",type:""},
+      {icon:"🏥",title:"Pre-Stage Clinic Accommodations",desc:"Notify front desk to have wheelchair and escort ready at entrance.",type:"amber"},
+      {icon:"💻",title:"Telehealth for Stable Conditions",desc:"If clinically appropriate, offer telehealth to avoid travel.",type:""},
+    ],
+    "Language Barrier": [
+      {icon:"🌐",title:"Confirm Interpreter Service",desc:`Book certified ${p.language} interpreter for the appointment.`,type:"urgent"},
+      {icon:"📄",title:"Send Materials in Preferred Language",desc:"Transmit appointment prep instructions and maps in patient's language.",type:""},
+      {icon:"📞",title:"Outreach Call with Interpreter",desc:"Use interpreter line for the 72-hour confirmation call.",type:"amber"},
+      {icon:"💻",title:"Multilingual Telehealth Option",desc:"Video visit with interpreter may reduce navigation barriers.",type:""},
+    ],
+    "Work Conflict": [
+      {icon:"📅",title:"Reschedule to Evening/Saturday",desc:"Offer next available extended-hours slot.",type:"urgent"},
+      {icon:"📄",title:"Provide Employer Absence Letter",desc:"Generate a formal letter confirming the medical appointment.",type:""},
+      {icon:"💻",title:"Offer Telehealth During Break",desc:"A 20-min video visit can be completed during a lunch break.",type:"amber"},
+      {icon:"⏱️",title:"Streamline Visit Length",desc:"Pre-complete intake to reduce in-clinic time to under 30 minutes.",type:""},
+    ],
+    "Housing Instability": [
+      {icon:"🏠",title:"Verify Contact Information",desc:"Confirm current address and best phone number before visit.",type:"urgent"},
+      {icon:"🧑‍💼",title:"Assign Community Health Worker",desc:"CHW to provide escort and connect with social services.",type:""},
+      {icon:"💻",title:"Offer Telehealth Visit",desc:"Eliminates travel barrier entirely for unstably housed patients.",type:"amber"},
+      {icon:"📋",title:"Social Services Warm Handoff",desc:"Connect with housing navigator during or after the visit.",type:""},
+    ],
+    "Cost Concern": [
+      {icon:"💰",title:"Financial Counseling Appointment",desc:"Schedule a brief pre-visit call with financial counselor.",type:"urgent"},
+      {icon:"📋",title:"Review Sliding-Scale Eligibility",desc:"Confirm patient is enrolled in appropriate fee tier.",type:""},
+      {icon:"🎁",title:"Check Grant Program Coverage",desc:"Review available grant funding that may cover this visit at $0.",type:"amber"},
+      {icon:"📞",title:"Proactive Cost Transparency Call",desc:"Inform patient of expected out-of-pocket cost before they arrive.",type:""},
+    ],
+    "Forgot Appointment": [
+      {icon:"💬",title:"Enable SMS Reminders",desc:"Enroll patient in automated text reminder series (72hr, 24hr, 2hr).",type:"urgent"},
+      {icon:"📧",title:"Send Calendar Invite",desc:"Email a calendar invite with clinic address and instructions.",type:""},
+      {icon:"📞",title:"Personal Reminder Call",desc:"Staff call 24 hours prior to confirm the patient has it on their calendar.",type:"amber"},
+      {icon:"👨‍👩‍👧",title:"Identify a Support Contact",desc:"Ask patient if there's a family member who can also receive reminders.",type:""},
+    ],
+    "Caregiver Burden": [
+      {icon:"🤝",title:"Identify Respite Window",desc:"Work with patient to find a time when they have caregiver relief.",type:"urgent"},
+      {icon:"💻",title:"Offer Telehealth Visit",desc:"Patient can attend from home while remaining near the person they care for.",type:""},
+      {icon:"📋",title:"Respite Care Referral",desc:"Connect with local respite care programs through social work.",type:"amber"},
+      {icon:"⏱️",title:"Minimize Visit Length",desc:"Pre-complete forms to reduce time away from caregiving role.",type:""},
+    ],
+  };
+  return map[reason] || map["Forgot Appointment"];
+}
+
+function logContact() {
+  const method = document.getElementById("logMethod").value;
+  const outcome = document.getElementById("logOutcome").value;
+  const note = document.getElementById("logNote").value.trim();
+  const now = new Date();
+  const ts = now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) + " · " + now.toLocaleDateString();
+  contactLog.unshift({method, outcome, note, ts});
+  document.getElementById("logNote").value = "";
+  renderContactLog();
+  if (outcome === "reached" || outcome === "scheduled") {
+    document.getElementById("outcomeBar").style.display = "flex";
+  }
+}
+
+function renderContactLog() {
+  const el = document.getElementById("contactLog");
+  if (contactLog.length === 0) {
+    el.innerHTML = `<div style="color:var(--slate);font-size:12px;text-align:center;padding:12px">No contacts logged yet.</div>`;
+    return;
+  }
+  el.innerHTML = contactLog.map(c => `
+    <div class="contact-entry">
+      <span class="ce-dot ${c.outcome}"></span>
+      <div>
+        <div class="ce-meta">${c.method} · ${c.outcome.replace("_"," ")} · ${c.ts}</div>
+        ${c.note ? `<div class="ce-note">${c.note}</div>` : ""}
+      </div>
+    </div>`).join("");
+}
+
+// ════════════════════════════════════════════════════
+//  OUTCOMES CHARTS (Tab 3) — pure canvas, no library
+// ════════════════════════════════════════════════════
+function drawBarChart() {
+  const c = document.getElementById("barChart");
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  const W=380,H=220,pad={t:20,r:20,b:50,l:50};
+  c.width=W; c.height=H;
+  const data = [
+    {label:"Not Contacted",noshow:59,show:41,color:"#B91C1C"},
+    {label:"Contacted (any)",noshow:26,show:74,color:"#1E8A4C"},
+    {label:"Contacted 72hr+",noshow:22,show:78,color:"#007A87"},
+  ];
+  const iW=W-pad.l-pad.r, iH=H-pad.t-pad.b;
+  const bw=iW/(data.length*2.5), gap=bw*0.6;
+  ctx.clearRect(0,0,W,H);
+  // grid lines
+  for (let i=0;i<=4;i++) {
+    const y=pad.t+iH-(i/4)*iH;
+    ctx.strokeStyle="#E2DDE8"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle="#888"; ctx.font="10px DM Sans,sans-serif"; ctx.textAlign="right";
+    ctx.fillText(`${i*25}%`,pad.l-6,y+3);
+  }
+  data.forEach((d,i) => {
+    const x = pad.l + i*(bw*2+gap) + gap/2;
+    // no-show bar
+    const nsH = (d.noshow/100)*iH;
+    ctx.fillStyle="#B91C1C";ctx.globalAlpha=0.8;
+    ctx.fillRect(x, pad.t+iH-nsH, bw, nsH);
+    // show bar
+    const shH = (d.show/100)*iH;
+    ctx.fillStyle="#3E8B5F";
+    ctx.fillRect(x+bw+4, pad.t+iH-shH, bw, shH);
+    ctx.globalAlpha=1;
+    // label
+    ctx.fillStyle="#444"; ctx.font="10px DM Sans,sans-serif"; ctx.textAlign="center";
+    ctx.fillText(d.label, x+bw+2, H-pad.b+16);
+    // values
+    ctx.fillStyle="#B91C1C"; ctx.font="bold 9px DM Sans,sans-serif";
+    ctx.fillText(d.noshow+"%", x+bw/2, pad.t+iH-nsH-4);
+    ctx.fillStyle="#3E8B5F";
+    ctx.fillText(d.show+"%", x+bw*1.5+4, pad.t+iH-shH-4);
+  });
+  // legend
+  ctx.fillStyle="#B91C1C"; ctx.fillRect(pad.l,H-16,10,8);
+  ctx.fillStyle="#555"; ctx.font="10px DM Sans,sans-serif"; ctx.textAlign="left";
+  ctx.fillText("No-Show",pad.l+13,H-9);
+  ctx.fillStyle="#3E8B5F"; ctx.fillRect(pad.l+75,H-16,10,8);
+  ctx.fillStyle="#555"; ctx.fillText("Attended",pad.l+88,H-9);
+}
+
+function drawDonutChart() {
+  const c = document.getElementById("donutChart");
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  const W=380,H=220; c.width=W; c.height=H;
+  const reasons = {};
+  ALL_VISITS.filter(v=>v.outcome==="No-Show"&&v.reason).forEach(v=>{
+    reasons[v.reason]=(reasons[v.reason]||0)+1;
+  });
+  const entries = Object.entries(reasons).sort((a,b)=>b[1]-a[1]);
+  const total = entries.reduce((s,[,c])=>s+c,0);
+  const colors = ["#1B3D6E","#3E8B5F","#C8921A","#2A5490","#5AAF7A","#0F2A4E","#B91C1C","#4A7FB5","#7AAF3E","#C85A1A"];
+  const cx=120,cy=H/2,OR=80,IR=48;
+  let angle=-Math.PI/2;
+  ctx.clearRect(0,0,W,H);
+  entries.forEach(([r,cnt],i) => {
+    const slice = (cnt/total)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,OR,angle,angle+slice);
+    ctx.closePath();
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.fill();
+    angle+=slice;
+  });
+  // hole
+  ctx.beginPath(); ctx.arc(cx,cy,IR,0,Math.PI*2);
+  ctx.fillStyle="#fff"; ctx.fill();
+  ctx.fillStyle="#3D1A4E"; ctx.font="bold 13px DM Serif Display,serif";
+  ctx.textAlign="center"; ctx.fillText(total,cx,cy+5);
+  ctx.fillStyle="#888"; ctx.font="9px DM Sans,sans-serif";
+  ctx.fillText("No-Shows",cx,cy+16);
+  // legend
+  const lx=220, ly=20;
+  entries.slice(0,7).forEach(([r,cnt],i) => {
+    const y=ly+i*26;
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.fillRect(lx,y,12,12);
+    ctx.fillStyle="#333"; ctx.font="11px DM Sans,sans-serif"; ctx.textAlign="left";
+    ctx.fillText(r.length>16?r.slice(0,15)+"…":r, lx+17, y+10);
+    ctx.fillStyle="#888"; ctx.font="10px DM Sans,sans-serif";
+    ctx.fillText(`${Math.round(cnt/total*100)}%`,lx+155,y+10);
+  });
+}
+
+function populateInterventionTable() {
+  const tb = document.getElementById("interventionTableBody");
+  tb.innerHTML = INTERVENTIONS.map(row => `
+    <tr>
+      <td style="font-weight:700;color:var(--plum-deep)">${row.reason}</td>
+      <td style="text-align:center">
+        <span class="badge plum">${row.count}</span>
+      </td>
+      <td style="color:var(--text-mid)">${row.action}</td>
+      <td style="color:var(--slate);font-size:12px">${row.resource}</td>
+      <td><span style="font-weight:700;color:#2D7A4A">${row.lift}</span></td>
+    </tr>`).join("");
+}
+
+// ════════════════════════════════════════════════════
+//  DATASET TABLE
+// ════════════════════════════════════════════════════
+function renderTable() {
+  const fP = parseInt(document.getElementById("fPatient").value)||0;
+  const fO = document.getElementById("fOutcome").value;
+  const fR = document.getElementById("fReason").value;
+  let rows = ALL_VISITS.filter(v => {
+    if (fP && v.pid!==fP) return false;
+    if (fO && v.outcome!==fO) return false;
+    if (fR && v.reason!==fR) return false;
+    return true;
+  });
+  // Stats
+  const ns = rows.filter(v=>v.outcome==="No-Show").length;
+  const att = rows.filter(v=>v.outcome==="Attended").length;
+  const uniqueP = new Set(rows.map(v=>v.pid)).size;
+  document.getElementById("statsStrip").innerHTML = `
+    <div class="ss-item"><div class="ss-num">${rows.length}</div><div class="ss-lbl">Total Visits</div></div>
+    <div class="ss-item"><div class="ss-num">${uniqueP}</div><div class="ss-lbl">Patients</div></div>
+    <div class="ss-item"><div class="ss-num" style="color:#B91C1C">${ns}</div><div class="ss-lbl">No-Shows</div></div>
+    <div class="ss-item"><div class="ss-num" style="color:#2D7A4A">${att}</div><div class="ss-lbl">Attended</div></div>
+    <div class="ss-item"><div class="ss-num">${rows.length?Math.round(ns/rows.length*100):0}%</div><div class="ss-lbl">No-Show Rate</div></div>`;
+
+  document.getElementById("tblBody").innerHTML = rows.map((v,i)=>`
+    <tr>
+      <td style="color:var(--slate);font-weight:600">${i+1}</td>
+      <td style="font-weight:600">${v.pname}</td>
+      <td>${v.age}</td>
+      <td>${v.vdate}</td>
+      <td style="color:var(--slate)">${v.apptType}</td>
+      <td><span class="${v.outcome==="No-Show"?"outcome-ns":"outcome-show"}">${v.outcome==="No-Show"?"✗ No-Show":"✓ Attended"}</span></td>
+      <td>${v.reason?`<span style="font-size:11.5px;font-weight:600;color:var(--plum-deep)">${v.reason}</span>`:`<span style="color:var(--slate);font-size:11px">—</span>`}</td>
+      <td>${v.distance}</td>
+      <td>${v.insurance}</td>
+      <td>${v.language}</td>
+      <td style="text-align:center">${v.leadDays}d</td>
+      <td><span class="badge ${v.riskScore>=60?"HIGH":v.riskScore>=35?"MEDIUM":"LOW"}">${v.riskScore}%</span></td>
+    </tr>`).join("");
+}
+
+// ════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ════════════════════════════════════════════════════
+function sw(name, btn) {
+  document.querySelectorAll(".pane").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".tbtn").forEach(b=>b.classList.remove("on"));
+  document.getElementById("tab-"+name).classList.add("on");
+  btn.classList.add("on");
+  if (name==="outcomes") { drawBarChart(); drawDonutChart(); populateInterventionTable(); }
+}
+
+// ════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════
+populateDropdown();
+renderTable();
+</script>
+</body>
+</html>
