@@ -276,6 +276,48 @@ table.dt tbody tr:hover{background:var(--plum-xlight)}
   .consid-grid{grid-template-columns:1fr}
   .pane{padding:20px 16px}
 }
+
+/* ── SCORE EXPLAINER & LEGEND ── */
+.explainer-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.explainer-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.exp-hd{padding:11px 16px;background:var(--plum-light);border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:8px}
+.exp-hd-title{font-family:var(--font-d);font-size:13px;color:var(--plum-deep)}
+.exp-hd-pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 8px;border-radius:10px;background:var(--plum);color:#fff;margin-left:auto}
+.exp-bd{padding:14px 16px}
+.rubric-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-soft);font-size:12px}
+.rubric-row:last-child{border-bottom:none}
+.rubric-factor{flex:1;font-weight:600;color:var(--text-mid)}
+.rubric-pts{min-width:42px;text-align:right;font-weight:700;color:var(--plum-deep);font-size:11px}
+.rubric-bar-bg{flex:2;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.rubric-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--teal-mid))}
+.rubric-tooltip{font-size:10.5px;color:var(--slate);margin-top:1px}
+
+.legend-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 16px}
+.legend-item{border-radius:8px;padding:11px 13px;border:1px solid transparent}
+.legend-item.low{background:#E4F3EB;border-color:#9ACFB0}
+.legend-item.med{background:var(--coral-light);border-color:#E8C87A}
+.legend-item.high{background:#FDECEA;border-color:#F5A9A9}
+.legend-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;margin-bottom:7px}
+.legend-badge.low{background:#E4F3EB;color:#2D7A4A;border:1px solid #9ACFB0}
+.legend-badge.med{background:var(--coral-light);color:#7A5900;border:1px solid #D4B060}
+.legend-badge.high{background:#FDECEA;color:#B91C1C;border:1px solid #F5A9A9}
+.legend-range{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.legend-meaning{font-size:11.5px;color:var(--slate);line-height:1.5;margin-bottom:6px}
+.legend-action{font-size:11px;font-weight:600;color:var(--text-mid);border-top:1px solid rgba(0,0,0,0.07);padding-top:5px;margin-top:2px}
+
+.metric-note{font-size:11px;color:var(--slate);background:var(--slate-light);border-radius:6px;padding:8px 12px;margin-top:10px;line-height:1.55;border-left:3px solid var(--teal)}
+
+/* Per-patient score breakdown */
+.breakdown-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+.breakdown-table th{text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);padding:5px 8px;border-bottom:2px solid var(--border)}
+.breakdown-table td{padding:6px 8px;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--plum-xlight)}
+.bd-pts{font-weight:700;color:var(--plum-deep);text-align:right}
+.bd-max{color:var(--slate);font-size:11px;text-align:right}
+.bd-bar{width:80px}
+.bd-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.bd-bar-fill{height:100%;border-radius:2px}
+
 </style>
 </head>
 <body>
@@ -293,6 +335,7 @@ table.dt tbody tr:hover{background:var(--plum-xlight)}
   <button class="tbtn on"  onclick="sw('analysis',this)">🎯 Risk Analysis</button>
   <button class="tbtn"     onclick="sw('prevention',this)">🛡️ Prevention Actions</button>
   <button class="tbtn"     onclick="sw('outcomes',this)">📈 Prevention Outcomes</button>
+  <button class="tbtn"     onclick="sw('rubric',this)">📐 Score Rubric & Legend</button>
   <button class="tbtn"     onclick="sw('deps',this)">🔗 Dependencies</button>
   <button class="tbtn"     onclick="sw('dataset',this)">📋 Visit History</button>
 </nav>
@@ -301,7 +344,8 @@ table.dt tbody tr:hover{background:var(--plum-xlight)}
      TAB 1 — RISK ANALYSIS
 ══════════════════════════════════════════════ -->
 <div id="tab-analysis" class="pane on">
-  <div class="a-grid">
+  
+<div class="a-grid">
     <div class="sel-wrap">
       <div class="card">
         <div class="card-hd"><div class="card-hd-title">Select Patient</div></div>
@@ -456,6 +500,97 @@ table.dt tbody tr:hover{background:var(--plum-xlight)}
     </table>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════
+     TAB: SCORE RUBRIC & LEGEND
+══════════════════════════════════════════════ -->
+<div id="tab-rubric" class="pane">
+  <div class="sec-title">How the Risk Score is Calculated</div>
+  <div class="explainer-wrap" style="margin-bottom:28px">
+    <!-- Rubric card -->
+    <div class="explainer-card">
+      <div class="exp-hd">
+        <div class="exp-hd-title">Scoring Rubric</div>
+        <div class="exp-hd-pill">Max 100 pts</div>
+      </div>
+      <div class="exp-bd">
+        <div id="rubricRows"></div>
+        <div class="metric-note" style="margin-top:12px">
+          <strong>Risk Score</strong> predicts the likelihood of a <em>future</em> no-show based on structural barriers and behavioral history.<br><br>
+          <strong>Historical No-Show Rate</strong> reflects what <em>actually happened</em> — the share of past visits the patient missed. A high rate with a lower score means current barriers are mild; a low rate with a high score signals emerging structural risk.
+        </div>
+      </div>
+    </div>
+    <!-- Legend card -->
+    <div class="explainer-card">
+      <div class="exp-hd">
+        <div class="exp-hd-title">Risk Level Legend</div>
+        <div class="exp-hd-pill">What it means</div>
+      </div>
+      <div class="legend-grid">
+        <div class="legend-item low">
+          <div class="legend-badge low">LOW</div>
+          <div class="legend-range">0 – 34 pts</div>
+          <div class="legend-meaning">Few structural barriers identified. Historical no-show rate is low.</div>
+          <div class="legend-action">→ Standard appointment reminder sufficient</div>
+        </div>
+        <div class="legend-item med">
+          <div class="legend-badge med">MEDIUM</div>
+          <div class="legend-range">35 – 59 pts</div>
+          <div class="legend-meaning">Moderate barriers present. Patient has missed appointments before.</div>
+          <div class="legend-action">→ Proactive outreach recommended 72 hrs prior</div>
+        </div>
+        <div class="legend-item high">
+          <div class="legend-badge high">HIGH</div>
+          <div class="legend-range">60 – 100 pts</div>
+          <div class="legend-meaning">Multiple barriers identified. Strong history of missed visits.</div>
+          <div class="legend-action">→ Immediate intervention — call + arrange support</div>
+        </div>
+      </div>
+      <div style="padding:0 16px 14px">
+        <div class="metric-note">
+          <strong>Note:</strong> A patient can have a HIGH historical no-show rate but a MEDIUM risk score if current barriers have recently reduced (e.g., transport arranged, insurance gained). The score reflects <em>present</em> predicted risk, not just past behavior.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">Per-Factor Guidance</div>
+  <div class="card" style="margin-bottom:28px">
+    <div class="card-bd">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:var(--plum-deep)">
+            <th style="padding:10px 14px;text-align:left;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Factor</th>
+            <th style="padding:10px 14px;text-align:right;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.5px;width:80px">Max Pts</th>
+            <th style="padding:10px 14px;text-align:left;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Why It Matters</th>
+            <th style="padding:10px 14px;text-align:left;color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:.5px">Data Source in Production</th>
+          </tr>
+        </thead>
+        <tbody id="rubricTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title">Metric Definitions</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-hd" style="background:var(--plum-light)"><div class="card-hd-title">Risk Score</div></div>
+      <div class="card-bd" style="font-size:13px;color:var(--text-mid);line-height:1.7">
+        A composite 0–100 score computed from 7 weighted factors at the time of analysis. It answers: <em>"Given what we know about this patient's barriers and history right now, how likely are they to miss their next appointment?"</em><br><br>
+        Used to <strong>triage outreach effort</strong> — who to call first, what support to arrange.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd" style="background:var(--teal-light)"><div class="card-hd-title" style="color:var(--teal-dark)">Historical No-Show Rate</div></div>
+      <div class="card-bd" style="font-size:13px;color:var(--text-mid);line-height:1.7">
+        The percentage of <em>past</em> appointments the patient did not attend. It answers: <em>"What has this patient's actual attendance behavior been?"</em><br><br>
+        Used to <strong>validate the risk score</strong> and identify whether patterns are worsening, improving, or stable over time.
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ══════════════════════════════════════════════
      TAB 4 — DEPENDENCIES
@@ -663,28 +798,64 @@ function genVisits(p) {
 // ════════════════════════════════════════════════════
 //  RISK SCORING
 // ════════════════════════════════════════════════════
+// ── SCORING RUBRIC ──────────────────────────────────────────────────
+// Factor                       Max Pts  Rationale
+// 1. Historical No-Show Rate     50     Strongest predictor — actual behavior
+// 2. Distance to Clinic          15     Transportation barrier proxy
+// 3. Insurance Status            10     Financial/access barrier
+// 4. Disability / Mobility       10     Physical access barrier
+// 5. Behavioral Health Flag       8     Attendance pattern risk factor
+// 6. Language Barrier             5     Communication/navigation friction
+// 7. Appointment Type             2     Specialist/BH visits have higher skip rates
+// TOTAL MAX                     100
+// Thresholds: LOW = 0–34 | MEDIUM = 35–59 | HIGH = 60–100
+const SCORE_RUBRIC = [
+  {factor:"Historical No-Show Rate", maxPts:50, rationale:"Strongest predictor — actual observed behavior across all prior visits"},
+  {factor:"Distance to Clinic",      maxPts:15, rationale:"Patients >10 mi away miss significantly more often (transportation barrier)"},
+  {factor:"Insurance Status",        maxPts:10, rationale:"Uninsured patients face cost anxiety; Medicaid gaps affect access"},
+  {factor:"Disability / Mobility",   maxPts:10, rationale:"Physical access barriers raise no-show risk substantially"},
+  {factor:"Behavioral Health Flag",  maxPts:8,  rationale:"Mental health conditions correlate with attendance difficulty"},
+  {factor:"Language Barrier",        maxPts:5,  rationale:"Navigation and communication friction increases missed visits"},
+  {factor:"Appointment Type",        maxPts:2,  rationale:"Behavioral health and specialist visits carry higher baseline skip rates"},
+];
+
 function scorePatient(p) {
   let score = 0; const factors = [];
-  // Prior no-shows from visit history (computed later on full history)
-  const priorNS = (ALL_VISITS||[]).filter(v=>v.pid===p.id && v.outcome==="No-Show").length;
-  const nsS = Math.min(priorNS*7,35); score+=nsS;
-  factors.push({name:"Prior No-Show History",value:nsS,max:35,desc:`${priorNS} of recent visits`});
-  const dS = p.distance>=20?20:p.distance>=10?12:p.distance>=5?6:2; score+=dS;
-  factors.push({name:"Distance to Clinic",value:dS,max:20,desc:`${p.distance} mi`});
-  const iS = p.insurance==="Uninsured"?10:p.insurance==="Medicaid"?5:2; score+=iS;
-  factors.push({name:"Insurance Status",value:iS,max:10,desc:p.insurance});
-  const disS = p.disability?10:0; score+=disS;
-  if(p.disability) factors.push({name:"Mobility/Disability",value:disS,max:10,desc:"Documented"});
-  const mhS = p.mh?10:0; score+=mhS;
-  if(p.mh) factors.push({name:"Behavioral Health Flag",value:mhS,max:10,desc:"Active"});
-  const langS = p.language==="English"?0:8; score+=langS;
-  if(langS>0) factors.push({name:"Language Barrier",value:langS,max:8,desc:p.language});
-  const aS = ["Behavioral Health","Mental Health F/U","Adolescent Health","Crisis Counseling"].some(a=>p.dominantReason==="Mental Health")||p.mh?7:3;
-  score+=aS;
-  factors.push({name:"Appointment Type",value:aS,max:7,desc:p.dominantReason});
+  const visits = (ALL_VISITS||[]).filter(v=>v.pid===p.id);
+  const totalV = visits.length;
+  const nsV = visits.filter(v=>v.outcome==="No-Show").length;
+  // Factor 1: Historical no-show RATE drives the score (max 50 pts)
+  const nsRate = totalV > 0 ? nsV / totalV : 0;
+  const nsS = Math.round(nsRate * 50);
+  score += nsS;
+  factors.push({name:"Historical No-Show Rate", value:nsS, max:50, desc:`${nsV}/${totalV} visits (${Math.round(nsRate*100)}%)`, pts:nsS});
+  // Factor 2: Distance (max 15 pts)
+  const dS = p.distance>=20?15:p.distance>=10?10:p.distance>=5?5:2;
+  score += dS;
+  factors.push({name:"Distance to Clinic", value:dS, max:15, desc:`${p.distance} mi`, pts:dS});
+  // Factor 3: Insurance (max 10 pts)
+  const iS = p.insurance==="Uninsured"?10:p.insurance==="Medicaid"?5:2;
+  score += iS;
+  factors.push({name:"Insurance Status", value:iS, max:10, desc:p.insurance, pts:iS});
+  // Factor 4: Disability (max 10 pts)
+  const disS = p.disability?10:0;
+  score += disS;
+  factors.push({name:"Disability / Mobility", value:disS, max:10, desc:p.disability?"Documented":"None", pts:disS});
+  // Factor 5: Behavioral health (max 8 pts)
+  const mhS = p.mh?8:0;
+  score += mhS;
+  factors.push({name:"Behavioral Health Flag", value:mhS, max:8, desc:p.mh?"Active":"None", pts:mhS});
+  // Factor 6: Language barrier (max 5 pts)
+  const langS = p.language==="English"?0:5;
+  score += langS;
+  factors.push({name:"Language Barrier", value:langS, max:5, desc:p.language==="English"?"None":p.language, pts:langS});
+  // Factor 7: Appointment type (max 2 pts)
+  const aS = p.mh||p.dominantReason==="Mental Health"?2:1;
+  score += aS;
+  factors.push({name:"Appointment Type", value:aS, max:2, desc:p.dominantReason, pts:aS});
   const pct = Math.min(Math.round(score),100);
   const level = pct>=60?"HIGH":pct>=35?"MEDIUM":"LOW";
-  return {score:pct,level,factors:factors.sort((a,b)=>b.value-a.value).slice(0,5)};
+  return {score:pct, level, factors, totalPts:score};
 }
 
 // Build all visits (two passes: first build, then rescore with NS count)
@@ -898,6 +1069,40 @@ function onPatientChange() {
   </div>`;
 }
 
+
+// ── SCORE BREAKDOWN (no nested template literals) ─────────────────
+function buildBreakdownHTML(p, result) {
+  var rows = '';
+  result.factors.forEach(function(f) {
+    var pct = Math.round((f.pts / f.max) * 100);
+    var barColor = pct >= 80 ? '#B91C1C' : pct >= 50 ? '#C8921A' : '#3E8B5F';
+    rows += '<tr>' +
+      '<td><span style="font-weight:600">' + f.name + '</span><br>' +
+      '<span style="font-size:11px;color:var(--slate)">' + f.desc + '</span></td>' +
+      '<td class="bd-pts">' + f.pts + '</td>' +
+      '<td class="bd-max">' + f.max + '</td>' +
+      '<td class="bd-bar"><div class="bd-bar-bg"><div class="bd-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div></td>' +
+      '</tr>';
+  });
+  var totalColor = result.level === 'HIGH' ? '#B91C1C' : result.level === 'MEDIUM' ? '#C8921A' : '#2D7A4A';
+  rows += '<tr>' +
+    '<td><strong>Total Risk Score</strong></td>' +
+    '<td class="bd-pts" style="color:' + totalColor + '">' + result.score + '</td>' +
+    '<td class="bd-max">100</td>' +
+    '<td><span class="badge ' + result.level + '" style="font-size:11px">' + result.level + '</span></td>' +
+    '</tr>';
+  var firstName = p.name.split(' ')[0];
+  return '<div class="r-metric" style="border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:0;position:relative;overflow:hidden;background:var(--white)">' +
+    '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--plum),var(--plum-mid))"></div>' +
+    '<div class="label-xs" style="margin-bottom:10px">Score Breakdown — How ' + firstName + ' — ' + result.score + ' pts</div>' +
+    '<table class="breakdown-table"><thead><tr>' +
+    '<th>Factor</th>' +
+    '<th style="text-align:right">Points Earned</th>' +
+    '<th style="text-align:right">Max Pts</th>' +
+    '<th style="width:90px">Contribution</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+
 function runAnalysis() {
   const pid = parseInt(document.getElementById("pSel").value);
   if (!pid) return;
@@ -907,7 +1112,8 @@ function runAnalysis() {
   const result = scorePatient(p);
   const visits = ALL_VISITS.filter(v=>v.pid===pid);
 
-  // Reason frequency
+
+    // Reason frequency
   const reasonCounts = {};
   visits.filter(v=>v.outcome==="No-Show" && v.reason).forEach(v=>{
     reasonCounts[v.reason] = (reasonCounts[v.reason]||0)+1;
@@ -945,6 +1151,8 @@ function runAnalysis() {
           </div>
         </div>
       </div>
+
+      <div id="scoreBreakdownPanel"></div>
 
       <!-- Visit history trend -->
       <div class="trend-section">
@@ -988,6 +1196,10 @@ function runAnalysis() {
       </div>
     </div>`;
 
+  // Populate score breakdown panel
+  var bdEl = document.getElementById('scoreBreakdownPanel');
+  if (bdEl) bdEl.innerHTML = buildBreakdownHTML(p, result);
+
   // Populate Prevention tab
   populatePreventionTab(p, result, dominant ? dominant[0] : p.dominantReason);
 }
@@ -999,31 +1211,89 @@ function populatePreventionTab(p, result, reason) {
   document.getElementById("prev-no-patient").style.display = "none";
   document.getElementById("prev-content").style.display = "block";
   document.getElementById("prev-patient-name").textContent = p.name;
-  document.getElementById("prev-patient-meta").textContent = `${p.age} · ${p.insurance} · ${p.language} · ${p.distance} mi from clinic`;
+  document.getElementById("prev-patient-meta").textContent = p.age + " · " + p.insurance + " · " + p.language + " · " + p.distance + " mi from clinic";
   const rb = document.getElementById("prev-risk-badge");
-  rb.textContent = `${result.level} RISK · ${result.score}%`;
-  rb.className = `badge ${result.level}`;
+  rb.textContent = result.level + " RISK · " + result.score + " pts";
+  rb.className = "badge " + result.level;
   rb.style.cssText = "font-size:13px;padding:5px 14px";
-  document.getElementById("pb-reason-label").textContent = `Primary Barrier: ${reason}`;
+  document.getElementById("pb-reason-label").textContent = "Primary Barrier: " + reason;
 
-  // Playbook actions
-  const actions = getPlaybookActions(reason, p);
-  document.getElementById("playbookBody").innerHTML = actions.map((a,i)=>`
-    <div class="action-item ${a.type||""}" style="animation-delay:${i*.08}s">
-      <span class="a-icon">${a.icon}</span>
-      <div class="a-body">
-        <div class="a-title">${a.title}</div>
-        <div class="a-desc">${a.desc}</div>
-      </div>
-    </div>`).join("");
+  // ── Risk-level banner at top of prevention panel ──
+  var bannerEl = document.getElementById("riskLevelBanner");
+  if (!bannerEl) {
+    bannerEl = document.createElement("div");
+    bannerEl.id = "riskLevelBanner";
+    bannerEl.style.cssText = "padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.6;border:1px solid transparent";
+    document.getElementById("prev-content").insertBefore(bannerEl, document.getElementById("prev-content").children[1]);
+  }
+  var bannerMap = {
+    HIGH: {
+      bg:"#FDECEA", border:"#F5A9A9", color:"#7A1010",
+      icon:"🔴",
+      headline:"High Risk — Immediate Action Required",
+      guidance:"This patient has a high likelihood of missing their upcoming appointment. <strong>Same-day outreach is recommended.</strong> Prioritize confirming transport, language support, or other identified barriers before the visit. All 4 intervention actions should be initiated."
+    },
+    MEDIUM: {
+      bg:"#FBF3E2", border:"#E8C87A", color:"#7A5900",
+      icon:"🟡",
+      headline:"Medium Risk — Proactive Outreach Recommended",
+      guidance:"This patient has moderate risk factors. A <strong>72-hour pre-visit outreach call or SMS</strong> is recommended to confirm attendance and offer any needed support. Focus on the top 1–2 barrier actions below."
+    },
+    LOW: {
+      bg:"#E4F3EB", border:"#9ACFB0", color:"#1A5C38",
+      icon:"🟢",
+      headline:"Low Risk — Standard Reminder Sufficient",
+      guidance:"This patient has few identified barriers and a low historical no-show rate. A <strong>standard appointment reminder</strong> (SMS or portal message) is likely sufficient. Monitor for any change in circumstances."
+    }
+  };
+  var b = bannerMap[result.level];
+  bannerEl.style.background = b.bg;
+  bannerEl.style.borderColor = b.border;
+  bannerEl.style.color = b.color;
+  bannerEl.innerHTML = "<strong>" + b.icon + " " + b.headline + "</strong><br>" + b.guidance;
 
-  // Questions
-  const qs = QUESTIONS[reason] || QUESTIONS["Forgot Appointment"];
-  document.getElementById("questionsBody").innerHTML = qs.map((q,i)=>`
-    <div style="display:flex;gap:10px;padding:12px 14px;background:${i%2===0?"var(--teal-light)":"var(--plum-xlight)"};border-radius:8px;border-left:3px solid ${i%2===0?"var(--teal)":"var(--plum)"};font-size:12.5px;line-height:1.5;animation:fadeUp .3s ease both;animation-delay:${i*.07}s">
-      <span style="min-width:20px;height:20px;background:${i%2===0?"var(--teal)":"var(--plum)"};color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px">${i+1}</span>
-      <span>${q}</span>
-    </div>`).join("");
+  // ── Playbook actions — filtered/prioritized by risk level ──
+  var allActions = getPlaybookActions(reason, p);
+  var numActions = result.level === "HIGH" ? 4 : result.level === "MEDIUM" ? 3 : 2;
+  var actions = allActions.slice(0, numActions);
+  // For LOW risk, mark all as standard (no urgent styling)
+  if (result.level === "LOW") actions = actions.map(function(a){ return Object.assign({}, a, {type:""}); });
+  // For MEDIUM risk, only first action gets urgent styling
+  if (result.level === "MEDIUM") actions = actions.map(function(a, i){ return Object.assign({}, a, {type: i===0 ? a.type : ""}); });
+
+  document.getElementById("playbookBody").innerHTML = actions.map(function(a,i){
+    return '<div class="action-item ' + (a.type||"") + '" style="animation-delay:' + (i*.08) + 's">' +
+      '<span class="a-icon">' + a.icon + '</span>' +
+      '<div class="a-body"><div class="a-title">' + a.title + '</div>' +
+      '<div class="a-desc">' + a.desc + '</div></div></div>';
+  }).join("");
+
+  // ── Add risk-level label to playbook header ──
+  var pbSub = document.getElementById("pb-reason-label");
+  if (pbSub) pbSub.textContent = "Primary Barrier: " + reason + "  ·  " + numActions + " of 4 actions activated for " + result.level + " risk";
+
+  // ── Outreach questions — scale count to risk level ──
+  var allQs = QUESTIONS[reason] || QUESTIONS["Forgot Appointment"];
+  var numQs = result.level === "HIGH" ? 6 : result.level === "MEDIUM" ? 4 : 2;
+  var qs = allQs.slice(0, numQs);
+  // Add urgency label
+  var urgencyNote = result.level === "HIGH"
+    ? '<div style="font-size:12px;font-weight:600;color:#B91C1C;margin-bottom:10px">⚠️ High risk — ask all ' + numQs + ' questions during outreach call</div>'
+    : result.level === "MEDIUM"
+    ? '<div style="font-size:12px;font-weight:600;color:#7A5900;margin-bottom:10px">📋 Medium risk — cover top ' + numQs + ' questions</div>'
+    : '<div style="font-size:12px;font-weight:600;color:#1A5C38;margin-bottom:10px">✅ Low risk — confirm with ' + numQs + ' quick questions</div>';
+
+  document.getElementById("questionsBody").innerHTML = urgencyNote +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    qs.map(function(q,i){
+      var isAlt = i%2===1;
+      return '<div style="display:flex;gap:10px;padding:12px 14px;background:' + (isAlt?"var(--plum-xlight)":"var(--teal-light)") +
+        ';border-radius:8px;border-left:3px solid ' + (isAlt?"var(--plum)":"var(--teal)") +
+        ';font-size:12.5px;line-height:1.5;animation:fadeUp .3s ease both;animation-delay:' + (i*.07) + 's">' +
+        '<span style="min-width:20px;height:20px;background:' + (isAlt?"var(--plum)":"var(--teal)") +
+        ';color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-top:1px">' + (i+1) + '</span>' +
+        '<span>' + q + '</span></div>';
+    }).join('') + '</div>';
 
   // Reset tracker
   contactLog = [];
@@ -1291,11 +1561,48 @@ function sw(name, btn) {
   if (name==="outcomes") { drawBarChart(); drawDonutChart(); populateInterventionTable(); }
 }
 
+
+// ── Render rubric rows + detail table on load ──────────────────────
+const RUBRIC_SOURCES = [
+  "EHR visit history (show/no-show outcomes)",
+  "Patient address geocoded against clinic location",
+  "Insurance enrollment status from EHR",
+  "Disability flag from patient record / intake form",
+  "Behavioral health diagnosis code in EHR",
+  "Preferred language from patient demographics",
+  "Appointment type from scheduling system",
+];
+function renderRubric() {
+  const el = document.getElementById('rubricRows');
+  if (el) {
+    el.innerHTML = SCORE_RUBRIC.map(r => {
+      const pct = Math.round((r.maxPts / 100) * 100);
+      return '<div class="rubric-row">' +
+        '<div style="flex:2"><div class="rubric-factor">' + r.factor + '</div>' +
+        '<div class="rubric-tooltip">' + r.rationale + '</div></div>' +
+        '<div class="rubric-bar-bg" style="flex:1.5"><div class="rubric-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="rubric-pts">≤ ' + r.maxPts + ' pts</div></div>';
+    }).join('');
+  }
+  const tb = document.getElementById('rubricTableBody');
+  if (tb) {
+    tb.innerHTML = SCORE_RUBRIC.map(function(r, i) {
+      return '<tr style="border-bottom:1px solid var(--border)">' +
+        '<td style="padding:10px 14px;font-weight:600;color:var(--text)">' + r.factor + '</td>' +
+        '<td style="padding:10px 14px;text-align:right;font-weight:700;color:var(--plum-deep)">' + r.maxPts + '</td>' +
+        '<td style="padding:10px 14px;color:var(--text-mid);font-size:12.5px">' + r.rationale + '</td>' +
+        '<td style="padding:10px 14px;color:var(--slate);font-size:12px">' + RUBRIC_SOURCES[i] + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+}
+
 // ════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════
 populateDropdown();
 renderTable();
+renderRubric();
 </script>
 </body>
 </html>
