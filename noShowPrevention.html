@@ -318,6 +318,49 @@ table.dt tbody tr:hover{background:var(--plum-xlight)}
 .bd-bar-bg{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
 .bd-bar-fill{height:100%;border-radius:2px}
 
+
+/* ── VOICE DICTATION ── */
+.voice-bar{
+  display:flex;align-items:center;gap:12px;
+  background:var(--white);border:1px solid var(--border);
+  border-radius:10px;padding:10px 16px;margin-bottom:20px;
+  box-shadow:var(--shadow-sm);
+}
+.mic-btn{
+  width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  background:var(--plum-light);color:var(--plum-deep);
+  transition:all .2s;flex-shrink:0;
+}
+.mic-btn:hover{background:var(--plum);color:#fff;transform:scale(1.05)}
+.mic-btn.listening{
+  background:var(--plum);color:#fff;
+  animation:micPulse 1.2s ease-in-out infinite;
+}
+.mic-btn.success{background:#3E8B5F;color:#fff}
+.mic-btn.error{background:#B91C1C;color:#fff}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(92,45,110,0.5)}
+  50%{box-shadow:0 0 0 10px rgba(92,45,110,0)}
+}
+.voice-status{
+  font-size:12.5px;color:var(--slate);flex:1;
+  display:flex;flex-direction:column;gap:2px;
+}
+.voice-hint{font-size:11px;color:#9BA8BC;font-style:italic}
+.voice-transcript{
+  font-size:12px;font-weight:600;color:var(--plum-deep);
+  background:var(--plum-xlight);border-radius:6px;
+  padding:4px 10px;margin-top:4px;display:none;
+}
+.voice-transcript.show{display:block}
+.voice-match{
+  font-size:12px;padding:4px 10px;border-radius:6px;
+  margin-top:4px;display:none;font-weight:600;
+}
+.voice-match.found{background:var(--teal-light);color:var(--teal-dark);display:block}
+.voice-match.notfound{background:#FDECEA;color:#B91C1C;display:block}
+
 </style>
 </head>
 <body>
@@ -345,6 +388,17 @@ table.dt tbody tr:hover{background:var(--plum-xlight)}
 ══════════════════════════════════════════════ -->
 <div id="tab-analysis" class="pane on">
   
+  <!-- Voice Dictation Bar -->
+  <div class="voice-bar" id="voiceBar">
+    <button class="mic-btn" id="micBtn" onclick="toggleDictation()" title="Click to speak a patient name">🎙️</button>
+    <div class="voice-status">
+      <span id="voiceStatusText">Click the mic and say a patient name to run analysis</span>
+      <span class="voice-hint">Try: "Run analysis on Maria Gonzalez" · "Show risk for Carlos Rivera" · "David Nguyen"</span>
+      <div class="voice-transcript" id="voiceTranscript"></div>
+      <div class="voice-match" id="voiceMatch"></div>
+    </div>
+  </div>
+
 <div class="a-grid">
     <div class="sel-wrap">
       <div class="card">
@@ -975,7 +1029,7 @@ const INTERVENTIONS = [
 //  GAUGE SVG
 // ════════════════════════════════════════════════════
 function buildGauge(score, level) {
-  const color = level==="HIGH"?"#B91C1C":level==="MEDIUM"?"#D4820A":"#1E8A4C";
+  const color = level==="HIGH"?"#B91C1C":level==="MEDIUM"?"#C8921A":"#3E8B5F";
   const ang = (score/100)*180;
   const rad = (ang-180)*Math.PI/180;
   const cx=80,cy=80,r=60;
@@ -1024,7 +1078,7 @@ function buildTrendChart(visits) {
   // Legend
   const leg = `<rect x="${PAD.l}" y="${H-10}" width="10" height="8" rx="2" fill="#B91C1C" opacity=".85"/>
     <text x="${PAD.l+13}" y="${H-3}" font-family="Source Sans 3,sans-serif" font-size="9" fill="#888">No-Show</text>
-    <rect x="${PAD.l+70}" y="${H-10}" width="10" height="8" rx="2" fill="#1E8A4C" opacity=".85"/>
+    <rect x="${PAD.l+70}" y="${H-10}" width="10" height="8" rx="2" fill="#3E8B5F" opacity=".85"/>
     <text x="${PAD.l+83}" y="${H-3}" font-family="Source Sans 3,sans-serif" font-size="9" fill="#888">Attended</text>`;
 
   return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${grid}${bars}${labels}${leg}</svg>`;
@@ -1111,9 +1165,7 @@ function runAnalysis() {
   contactLog = [];
   const result = scorePatient(p);
   const visits = ALL_VISITS.filter(v=>v.pid===pid);
-
-
-    // Reason frequency
+  // Reason frequency
   const reasonCounts = {};
   visits.filter(v=>v.outcome==="No-Show" && v.reason).forEach(v=>{
     reasonCounts[v.reason] = (reasonCounts[v.reason]||0)+1;
@@ -1121,7 +1173,7 @@ function runAnalysis() {
   const sortedReasons = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1]);
   const dominant = sortedReasons[0];
 
-  const rColor = result.level==="HIGH"?"#B91C1C":result.level==="MEDIUM"?"#D4820A":"#1E8A4C";
+  const rColor = result.level==="HIGH"?"#B91C1C":result.level==="MEDIUM"?"#C8921A":"#3E8B5F";
 
   document.getElementById("resultsArea").innerHTML = `
     <div>
@@ -1139,7 +1191,7 @@ function runAnalysis() {
           <div class="fbar-list">
             ${result.factors.map(f=>{
               const pct=Math.round((f.value/f.max)*100);
-              const fc=pct>=70?"#B91C1C":pct>=40?"#D4820A":"#007A87";
+              const fc=pct>=70?"#B91C1C":pct>=40?"#C8921A":"#3E8B5F";
               return `<div class="fbar-row">
                 <div class="fbar-top">
                   <span class="fbar-name">${f.name}</span>
@@ -1190,7 +1242,7 @@ function runAnalysis() {
             <div style="font-size:13px;font-weight:700;color:var(--teal-dark);margin-top:6px">
               ${result.level==="HIGH"?"🔴 Immediate outreach required":result.level==="MEDIUM"?"🟡 Proactive outreach recommended":"🟢 Standard reminder sufficient"}
             </div>
-            <div style="font-size:12px;color:var(--slate);margin-top:4px">Switch to Prevention tab for playbook</div>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px"><a href=\"#\" onclick=\"event.preventDefault();sw('prevention',document.querySelectorAll('.tbtn')[1]);\" style=\"color:var(--teal);font-weight:700\">→ Open Prevention tab</a></div>
           </div>
         </div>
       </div>
@@ -1224,7 +1276,8 @@ function populatePreventionTab(p, result, reason) {
     bannerEl = document.createElement("div");
     bannerEl.id = "riskLevelBanner";
     bannerEl.style.cssText = "padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.6;border:1px solid transparent";
-    document.getElementById("prev-content").insertBefore(bannerEl, document.getElementById("prev-content").children[1]);
+    var prevContent = document.getElementById("prev-content");
+    prevContent.insertBefore(bannerEl, prevContent.children[1] || null);
   }
   var bannerMap = {
     HIGH: {
@@ -1408,8 +1461,8 @@ function drawBarChart() {
   c.width=W; c.height=H;
   const data = [
     {label:"Not Contacted",noshow:59,show:41,color:"#B91C1C"},
-    {label:"Contacted (any)",noshow:26,show:74,color:"#1E8A4C"},
-    {label:"Contacted 72hr+",noshow:22,show:78,color:"#007A87"},
+    {label:"Contacted (any)",noshow:26,show:74,color:"#3E8B5F"},
+    {label:"Contacted 72hr+",noshow:22,show:78,color:"#3E8B5F"},
   ];
   const iW=W-pad.l-pad.r, iH=H-pad.t-pad.b;
   const bw=iW/(data.length*2.5), gap=bw*0.6;
@@ -1603,6 +1656,199 @@ function renderRubric() {
 populateDropdown();
 renderTable();
 renderRubric();
+
+// ════════════════════════════════════════════════════
+//  VOICE DICTATION — Chrome Web Speech API
+// ════════════════════════════════════════════════════
+var recognition = null;
+var isListening = false;
+
+function initSpeech() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('voiceBar').innerHTML =
+      '<span style="font-size:12px;color:var(--slate)">⚠️ Voice dictation requires Chrome. Not supported in this browser.</span>';
+    return false;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 5;
+
+  recognition.onstart = function() {
+    isListening = true;
+    setMicState('listening', 'Listening… speak a patient name');
+  };
+
+  recognition.onresult = function(e) {
+    var interim = '', final = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    var display = final || interim;
+    var transcriptEl = document.getElementById('voiceTranscript');
+    transcriptEl.textContent = '“' + display + '”';
+    transcriptEl.classList.add('show');
+
+    if (final) {
+      var matched = matchPatientFromSpeech(final, e.results[0]);
+      if (matched) {
+        setMicState('success', 'Found: ' + matched.name);
+        showVoiceMatch(matched.name, true);
+        // Select patient, switch to analysis tab, and run
+        var sel = document.getElementById('pSel');
+        sel.value = matched.id;
+        onPatientChange();
+        // Ensure we're on the Analysis tab
+        var analysisBtn = document.querySelector('.tbtn');
+        if (analysisBtn) sw('analysis', analysisBtn);
+        setTimeout(function() { runAnalysis(); }, 400);
+      } else {
+        setMicState('error', 'No patient matched — try again');
+        showVoiceMatch(extractName(final), false);
+        setTimeout(function() { resetMicState(); }, 3000);
+      }
+    }
+  };
+
+  recognition.onerror = function(e) {
+    var msg = e.error === 'not-allowed'
+      ? 'Microphone access denied — allow mic in browser settings'
+      : e.error === 'no-speech'
+      ? 'No speech detected — try again'
+      : 'Error: ' + e.error;
+    setMicState('error', msg);
+    setTimeout(resetMicState, 3000);
+    isListening = false;
+  };
+
+  recognition.onend = function() {
+    isListening = false;
+    if (document.getElementById('micBtn').classList.contains('listening')) {
+      resetMicState();
+    }
+  };
+  return true;
+}
+
+function toggleDictation() {
+  if (isListening) {
+    recognition.stop();
+    resetMicState();
+    return;
+  }
+  if (!recognition && !initSpeech()) return;
+  document.getElementById('voiceTranscript').classList.remove('show');
+  document.getElementById('voiceMatch').classList.remove('found','notfound');
+  document.getElementById('voiceMatch').style.display = 'none';
+  recognition.start();
+}
+
+// ── Patient name matching from transcript ──────────────────────────
+function matchPatientFromSpeech(transcript, resultObj) {
+  var text = transcript.toLowerCase().trim();
+
+  // Collect all alternatives from speech results
+  var candidates = [text];
+  if (resultObj) {
+    for (var i = 0; i < resultObj.length; i++) {
+      candidates.push(resultObj[i].transcript.toLowerCase().trim());
+    }
+  }
+
+  // Score each patient against each candidate transcript
+  var bestMatch = null, bestScore = 0;
+
+  PATIENTS.forEach(function(p) {
+    var fullName = p.name.toLowerCase();
+    var parts = fullName.split(' ');
+    var firstName = parts[0];
+    var lastName = parts[parts.length - 1];
+
+    candidates.forEach(function(cand) {
+      var score = 0;
+
+      // Exact full name
+      if (cand.includes(fullName)) score = 100;
+      // Both first and last name present
+      else if (cand.includes(firstName) && cand.includes(lastName)) score = 90;
+      // Last name exact
+      else if (cand.includes(lastName)) score = 70;
+      // First name exact
+      else if (cand.includes(firstName)) score = 50;
+      // Fuzzy: last name with 1 char difference (handles slight mispronunciation)
+      else if (fuzzyMatch(cand, lastName, 1)) score = 60;
+      // Fuzzy: first name with 1 char difference
+      else if (fuzzyMatch(cand, firstName, 1)) score = 40;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = p;
+      }
+    });
+  });
+
+  // Require minimum confidence
+  return bestScore >= 40 ? bestMatch : null;
+}
+
+// Simple edit-distance fuzzy match (checks if word is within maxEdits of target)
+function fuzzyMatch(text, target, maxEdits) {
+  var words = text.split(/\s+/);
+  for (var i = 0; i < words.length; i++) {
+    if (editDistance(words[i], target) <= maxEdits) return true;
+  }
+  return false;
+}
+
+function editDistance(a, b) {
+  var m = a.length, n = b.length;
+  var dp = [];
+  for (var i = 0; i <= m; i++) {
+    dp[i] = [i];
+    for (var j = 1; j <= n; j++) {
+      dp[i][j] = i === 0 ? j
+        : j === 0 ? i
+        : a[i-1] === b[j-1] ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function extractName(text) {
+  // Strip common command words, return likely name portion
+  var stripped = text
+    .replace(/run analysis on|show risk for|analyze|check|patient|what is|can you|please|the risk for|for/gi, '')
+    .trim();
+  return stripped || text;
+}
+
+// ── UI state helpers ───────────────────────────────────────────────
+function setMicState(state, statusText) {
+  var btn = document.getElementById('micBtn');
+  var st = document.getElementById('voiceStatusText');
+  btn.className = 'mic-btn ' + state;
+  btn.textContent = state === 'listening' ? '⏹️' : state === 'success' ? '✅' : state === 'error' ? '❌' : '🎙️';
+  if (statusText) st.textContent = statusText;
+}
+
+function resetMicState() {
+  isListening = false;
+  setMicState('', 'Click the mic and say a patient name to run analysis');
+}
+
+function showVoiceMatch(name, found) {
+  var el = document.getElementById('voiceMatch');
+  el.className = 'voice-match ' + (found ? 'found' : 'notfound');
+  el.textContent = found
+    ? '✓ Matched: ' + name + ' — running analysis…'
+    : '✗ No match found for "' + name + '" — try first or last name';
+}
+
 </script>
 </body>
 </html>
