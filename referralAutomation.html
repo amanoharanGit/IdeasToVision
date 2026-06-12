@@ -271,6 +271,76 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
   .kpi-grid{grid-template-columns:1fr 1fr;}
   .db-row{grid-template-columns:1fr;}
 }
+
+/* ── SYMPTOM DETAILS TABS ── */
+.symptom-tabs-wrap{background:#fff;border:1.5px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:14px;}
+.sym-tab-nav{display:flex;background:var(--s2);border-bottom:1px solid var(--border);overflow-x:auto;}
+.sym-tab{flex:1;padding:10px 12px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;color:var(--t2);white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;min-width:120px;}
+.sym-tab:hover{color:var(--blue);background:rgba(0,94,184,.04);}
+.sym-tab.active{color:var(--navy);border-bottom-color:var(--blue);font-weight:600;background:#fff;}
+.sym-panel{display:none;padding:16px;}
+.sym-panel.active{display:block;animation:fi .2s ease;}
+.sym-grid{display:flex;flex-direction:column;gap:12px;}
+.sym-field{display:flex;flex-direction:column;gap:5px;}
+.sym-field.full{width:100%;}
+
+/* COMPLETION ROWS */
+.sym-prog-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--t2);padding:3px 0;}
+.sym-prog-check{font-size:13px;}
+
+/* TRIAGE REASONING BREAKDOWN */
+.triage-reasoning-grid{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.tr-row{display:flex;align-items:flex-start;gap:10px;background:var(--s2);border-radius:8px;padding:9px 12px;}
+.tr-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.tr-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:2px;}
+.tr-val{font-size:12px;color:var(--text);font-weight:500;}
+.tr-weight{font-size:10px;color:var(--t3);margin-top:1px;}
+.conf-bar{height:5px;border-radius:3px;background:var(--border);margin-top:4px;}
+.conf-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.triage-panel{display:none;margin-top:10px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);animation:fi .3s ease;}
+.triage-panel.visible{display:block;}
+.triage-panel.tp-urgent{border-color:#F5B7B1;}
+.triage-panel.tp-soon{border-color:#FFD099;}
+.triage-panel.tp-routine{border-color:#7FD8B8;}
+.triage-panel.tp-refer{border-color:#C5A8E8;}
+.triage-panel.tp-loading{border-color:var(--bot-bd);}
+.tp-hdr{padding:9px 14px;display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.tp-urgent .tp-hdr{background:#FFF0EF;color:var(--red);}
+.tp-soon .tp-hdr{background:#FFF8F0;color:var(--amber);}
+.tp-routine .tp-hdr{background:var(--ok-bg);color:var(--green);}
+.tp-refer .tp-hdr{background:#EDE7F6;color:var(--purple);}
+.tp-loading .tp-hdr{background:var(--bot-bg);color:var(--blue);}
+.tp-body{padding:12px 14px;background:#fff;font-size:12px;color:var(--t2);line-height:1.6;}
+.tp-condition{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.tp-timeframe{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px;}
+.tp-urgent .tp-timeframe{background:#FAD7D3;color:var(--red);}
+.tp-soon .tp-timeframe{background:#FEF3D0;color:#9A6A00;}
+.tp-routine .tp-timeframe{background:#D0F5E8;color:#1A7A4A;}
+.tp-refer .tp-timeframe{background:#EAD6FC;color:var(--purple);}
+.tp-confidence{font-size:10.5px;color:var(--t3);margin-top:6px;}
+.tp-note{font-size:11px;color:var(--t2);background:var(--s2);border-radius:6px;padding:7px 10px;margin-top:8px;line-height:1.5;}
+.triage-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,94,184,.3);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── TRIAGE REFERENCE TAB (hidden — internal only) ── */
+.triage-ref-wrap{padding:24px 28px 60px;}
+.triage-ref-wrap h2{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.triage-ref-wrap .sub{font-size:12.5px;color:var(--t2);margin-bottom:20px;}
+.triage-search{width:100%;max-width:360px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;margin-bottom:16px;}
+.triage-search:focus{outline:none;border-color:var(--blue);}
+.triage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;}
+.triage-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 13px;}
+.triage-item.cat-urgent{border-left:3px solid var(--red);}
+.triage-item.cat-soon{border-left:3px solid var(--amber);}
+.triage-item.cat-routine{border-left:3px solid var(--teal);}
+.triage-item.cat-refer{border-left:3px solid var(--purple);}
+.ti-condition{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ti-timeframe{font-size:11px;color:var(--t2);}
+.ti-badge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:9.5px;font-weight:700;margin-top:3px;}
+.tb-urgent{background:#FAD7D3;color:var(--red);}
+.tb-soon{background:#FEF3D0;color:#9A6A00;}
+.tb-routine{background:#D0F5E8;color:#1A7A4A;}
+.tb-refer{background:#EAD6FC;color:var(--purple);}
 </style>
 </head>
 <body>
@@ -293,6 +363,9 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
   <button class="tn-btn" onclick="showView('workflow')">🔄 Approval Workflow</button>
   <div class="tn-sep"></div>
   <button class="tn-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+  <!-- Hidden triage tab - internal reference only, access via URL param ?triage=1 -->
+  <div class="tn-sep" id="triage-tab-sep" style="display:none;"></div>
+  <button class="tn-btn" id="triage-tab-btn" onclick="showView('triage')" style="display:none;">🏥 Triage Reference</button>
 </nav>
 
 <!-- ════════════════════════════════════════════════
@@ -330,6 +403,12 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
     <div class="step-nav-item" onclick="showStep(2)" id="sni2"><div class="sni-num">3</div><div class="sni-label">🤖 Automation Bot</div></div>
     <div class="step-nav-item" onclick="showStep(3)" id="sni3"><div class="sni-num">4</div><div class="sni-label">📎 Media Upload</div></div>
     <div class="step-nav-item" onclick="showStep(4)" id="sni4"><div class="sni-num">5</div><div class="sni-label">✅ Status Write-back</div></div>
+    <div class="sb-divider"></div>
+    <span class="sb-label" style="color:var(--amber);">🔒 Internal Only</span>
+    <div class="step-nav-item" onclick="showStep(5)" id="sni5" style="border-left-color:var(--amber);">
+      <div class="sni-num" style="background:var(--amber);border-color:var(--amber);color:#fff;">🧠</div>
+      <div class="sni-label" style="color:var(--amber);">AI Triage Result</div>
+    </div>
   </div>
 
   <!-- MAIN -->
@@ -415,9 +494,102 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
             <div><label class="fl">Extension / Direct Line <span style="font-weight:400;font-style:italic;opacity:.7">(if applicable)</span></label><input class="fi ok" id="f-refext" placeholder="e.g. ext. 204" value=""></div>
             <div><label class="fl">Referral Type *</label><select class="fi ok sel" id="f-reftype"><option>Consultation</option><option>Follow-up</option></select></div>
             <div><label class="fl">Urgency *</label><select class="fi ok sel" id="f-urgency"><option>Routine (within 30 days)</option><option>Urgent (within 72 hrs)</option></select></div>
-            <div class="fgf"><label class="fl">Primary Reason for Referral *</label><input class="fi ok" id="f-reason" value="Persistent atopic dermatitis, unresponsive to topical steroids"></div>
-            <div class="fgf"><label class="fl">Clinical Notes</label><textarea class="fi ok" id="f-notes" rows="3" style="resize:none;">Patient has history of seasonal allergies. Current regimen: hydrocortisone 2.5% — minimal improvement over 6 weeks. Requesting specialist evaluation for potential dupilumab candidacy.</textarea></div>
-          </div>
+            </div>
+
+          <!-- ══ SYMPTOM DETAILS — Tabbed Section ══ -->
+          <div class="slabel" style="margin-top:4px;">Symptom Details</div>
+          <div class="symptom-tabs-wrap">
+            <!-- TAB NAV -->
+            <div class="sym-tab-nav">
+              <button class="sym-tab active" onclick="symTab(0,this)">🩺 Onset &amp; Location</button>
+              <button class="sym-tab" onclick="symTab(1,this)">💊 Prior Treatment</button>
+              <button class="sym-tab" onclick="symTab(2,this)">🔬 Diagnosis &amp; Tests</button>
+              <button class="sym-tab" onclick="symTab(3,this)">⚡ Urgency</button>
+            </div>
+
+            <!-- TAB 0: ONSET & LOCATION -->
+            <div class="sym-panel active" id="symp0">
+              <div class="sym-grid">
+                <div class="sym-field full">
+                  <label class="fl">What is the onset symptom? *</label>
+                  <input class="fi ok" id="f-onset" placeholder="e.g. Red, scaly patches on arms; persistent itching" value="">
+                </div>
+                <div class="sym-field full">
+                  <label class="fl">Where on the body was this symptom observed? *</label>
+                  <input class="fi ok" id="f-location" placeholder="e.g. Bilateral forearms, behind knees, neck" value="">
+                </div>
+                <div class="sym-field full">
+                  <label class="fl">Provide details of the onset symptom *</label>
+                  <textarea class="fi ok" id="f-onset-detail" rows="3" placeholder="Describe onset timing, progression, severity, any triggers observed…" style="resize:none;"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 1: PRIOR TREATMENT -->
+            <div class="sym-panel" id="symp1">
+              <div class="sym-grid">
+                <div class="sym-field full">
+                  <label class="fl">Prior Treatments &amp; Response</label>
+                  <textarea class="fi ok" id="f-treatments" rows="3" placeholder="List any medications, topicals, or therapies tried and patient response to each…" style="resize:none;"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: DIAGNOSIS & TESTS -->
+            <div class="sym-panel" id="symp2">
+              <div class="sym-grid">
+                <div class="sym-field full">
+                  <label class="fl">Suspected Diagnosis</label>
+                  <input class="fi ok" id="f-suspected-dx" placeholder="e.g. Atopic dermatitis, Psoriasis, Contact dermatitis" value="">
+                </div>
+                <div class="sym-field full">
+                  <label class="fl">Prior Tests &amp; Biopsies</label>
+                  <textarea class="fi ok" id="f-tests" rows="2" placeholder="List any prior skin tests, patch tests, biopsies, or lab results…" style="resize:none;"></textarea>
+                </div>
+                <div class="sym-field full">
+                  <label class="fl">Prior Tests &amp; Biopsies Attachments? *</label>
+                  <div style="font-size:10px;color:var(--t3);margin-bottom:5px;">If Yes, please ensure relevant attachments are uploaded</div>
+                  <select class="fi ok sel" id="f-tests-attachments">
+                    <option value="">— Select —</option>
+                    <option value="yes">Yes — attachments included</option>
+                    <option value="no">No — no attachments</option>
+                    <option value="pending">Pending — will follow up</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 3: URGENCY -->
+            <div class="sym-panel" id="symp3">
+              <div class="sym-grid">
+                <div class="sym-field full">
+                  <label class="fl">Urgency *</label>
+                  <select class="fi ok sel" id="f-urgency">
+                    <option value="">— Select urgency level —</option>
+                    <option value="routine">Routine — within 30 days</option>
+                    <option value="urgent">Urgent — within 72 hours</option>
+                    <option value="emergent">Emergent — refer to ED</option>
+                  </select>
+                </div>
+                <div class="sym-field full">
+                  <label class="fl">Additional Clinical Notes</label>
+                  <textarea class="fi ok" id="f-notes" rows="4" placeholder="Any additional context, patient history, co-morbidities, or information relevant to this referral…" style="resize:none;"></textarea>
+                </div>
+                <!-- COMPLETION INDICATOR -->
+                <div class="sym-field full">
+                  <div id="sym-completion-bar" style="background:var(--s2);border-radius:8px;padding:10px 13px;">
+                    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:6px;">Symptom Details Completion</div>
+                    <div id="sym-progress-rows"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- end symptom-tabs-wrap -->
+
+          <!-- Hidden field kept for backward compat with scenario data -->
+          <input type="hidden" id="f-reason" value="">
+
 
           <div class="slabel">Attachments</div>
           <div id="attachments-list"></div>
@@ -685,6 +857,84 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
       <div class="card" id="s5-fields-card"><!-- JS --></div>
       <div class="card" id="s5-table-card"><!-- JS --></div>
     </div>
+
+    <!-- ── STEP 6: AI TRIAGE RESULT (INTERNAL ONLY) ── -->
+    <div id="step5" style="display:none;">
+      <div class="sh">
+        <div class="sh-icon" style="background:#FFF8F0;">🧠</div>
+        <div>
+          <h2>AI Triage Result</h2>
+          <p style="color:var(--amber);font-weight:600;font-size:11.5px;">🔒 Internal use only — not visible to external form submitters</p>
+        </div>
+      </div>
+
+      <!-- INTERNAL NOTICE -->
+      <div style="background:#FFF8F0;border:1.5px solid #FFD099;border-radius:10px;padding:13px 16px;margin-bottom:16px;font-size:12.5px;color:#7A4800;line-height:1.65;">
+        <strong style="display:block;margin-bottom:4px;">What this is:</strong>
+        When a referral is submitted, the AI engine analyses the <strong>Reason for Referral</strong> and <strong>Clinical Notes</strong> fields against the CHOP Dermatology Triage Matrix. The result — matched condition, suggested timeframe, urgency category, and confidence — is stored as dedicated columns in the SharePoint list. This data is used by the coordinator during review and passed to the automation bot when updating the Epic referral shell.
+      </div>
+
+      <!-- LIVE TRIAGE PANEL — populated by JS from scenario data -->
+      <div class="card">
+        <div class="ch">
+          <span class="ct" id="triage-card-title">🧠 AI Triage Analysis — REF-0081: Rodriguez, Emma</span>
+          <span class="tag t-amber" style="font-size:10px;">Internal Only</span>
+        </div>
+        <div style="padding:16px;">
+          <div id="triage-panel" class="triage-panel visible" style="margin-top:0;">
+            <div class="tp-hdr" id="triage-hdr">
+              <div class="triage-spinner"></div>
+              <span id="triage-hdr-text">Running triage analysis…</span>
+            </div>
+            <div class="tp-body" id="triage-body">
+              <span style="color:var(--t3);font-size:12px;">Analysing clinical text against triage matrix…</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SP COLUMN MAPPING -->
+      <div class="card">
+        <div class="ch">
+          <span class="ct">SharePoint Columns — Triage Result Storage</span>
+          <span class="tag" style="background:#D0F5F2;color:#0A7A73;font-size:10px;">Written on Submit</span>
+        </div>
+        <div style="padding:16px;">
+          <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;">These columns are added to the <code style="font-family:'DM Mono',monospace;font-size:11px;">ReferralTracker</code> SharePoint list. They are populated automatically when the form is submitted — the submitter never sees them. The coordinator sees them in the list view, and the automation bot reads them when building the Epic referral shell.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+            <div class="ef mapped"><div class="ef-label">TriageCondition</div><div class="ef-val" id="sp-condition" style="font-size:11px;">Atopic Dermatitis, chronic</div></div>
+            <div class="ef mapped"><div class="ef-label">TriageTimeframe</div><div class="ef-val" id="sp-timeframe">2-4 months</div></div>
+            <div class="ef mapped"><div class="ef-label">TriageUrgency</div><div class="ef-val" id="sp-urgency">ROUTINE</div></div>
+            <div class="ef mapped"><div class="ef-label">TriageConfidence</div><div class="ef-val" id="sp-confidence">Medium</div></div>
+            <div class="ef mapped" style="grid-column:1/-1;"><div class="ef-label">TriageReasoning</div><div class="ef-val" id="sp-reasoning" style="font-size:11px;white-space:normal;line-height:1.4;">Matched on key terms: atopic dermatitis, chronic, topical steroids</div></div>
+            <div class="ef mapped"><div class="ef-label">TriageRunAt</div><div class="ef-val" id="sp-runat" style="font-size:11px;">—</div></div>
+            <div class="ef mapped"><div class="ef-label">TriageSource</div><div class="ef-val" id="sp-source">AI (Local Match)</div></div>
+            <div class="ef mapped"><div class="ef-label">TriageReviewedBy</div><div class="ef-val" style="color:var(--t3);">Pending coordinator</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--t3);background:var(--s2);border-radius:7px;padding:9px 12px;line-height:1.6;">
+            <strong style="color:var(--navy);">How these flow downstream:</strong><br>
+            1. <strong>TriageTimeframe</strong> is used by the coordinator to set appointment urgency during the approval step<br>
+            2. <strong>TriageCondition</strong> is passed to the automation bot and written into the Epic referral shell's Diagnosis/Reason field if no ICD-10 is provided<br>
+            3. <strong>TriageUrgency</strong> triggers different notification templates — URGENT referrals send an immediate alert to the on-call coordinator; ROUTINE follow standard queue<br>
+            4. <strong>TriageConfidence = Low</strong> automatically flags the record for coordinator review before the bot proceeds
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION ROUTING -->
+      <div class="card">
+        <div class="ch"><span class="ct">Notification Routing — Based on Triage Urgency</span></div>
+        <div style="padding:16px;">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="si show s-ok"><div class="si-icon ic-g">✅</div><div><div class="si-title">ROUTINE — Standard queue notification</div><div class="si-detail">Email to referral coordinator inbox · Appears in tracking list · Processed in order received · Standard SLA applies</div></div><span class="si-badge bk-ok">ROUTINE</span></div>
+            <div class="si show s-warn"><div class="si-icon ic-a">⚠️</div><div><div class="si-title">SOON — Priority flag on list item</div><div class="si-detail">Email + Teams notification to coordinator · Record flagged in list view · Suggested processing within 24–48 hrs</div></div><span class="si-badge bk-warn">SOON</span></div>
+            <div class="si show s-err"><div class="si-icon ic-r">🚨</div><div><div class="si-title">URGENT — Immediate on-call alert</div><div class="si-detail">Phone / pager notification to on-call physician · Coordinator alerted immediately · Bot may be bypassed — physician reviews directly</div></div><span class="si-badge bk-err">URGENT</span></div>
+            <div class="si show" style="border-color:#C5A8E8;background:#EDE7F6;"><div class="si-icon" style="background:#EAD6FC;">↪️</div><div><div class="si-title">REFER ELSEWHERE — Coordinator outreach to referring provider</div><div class="si-detail">Coordinator contacts referring provider to redirect · Record held · No Epic actions taken until redirected or overridden</div></div><span class="si-badge bk-new">REFER</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end step5 -->
 
   </div><!-- end main-content -->
 </div><!-- end process-wrap -->
@@ -1066,7 +1316,15 @@ const SC = {
     refprov:'Dr. Sarah Kim, MD',refspec:'Pediatric Primary Care',refprac:'Pediatric Associates of NJ',refphone:'(856) 555-0210',
     reftype:'Consultation',urgency:'Routine (within 30 days)',
     reason:'Persistent atopic dermatitis, unresponsive to topical steroids',
-    notes:'Patient has history of seasonal allergies. Current regimen: hydrocortisone 2.5% — minimal improvement over 6 weeks. Requesting specialist evaluation for potential dupilumab candidacy.',
+    notes:'Patient has history of seasonal allergies. No systemic symptoms. Requesting specialist evaluation for potential dupilumab candidacy.',
+    onset:'Red, scaly, intensely itchy patches on bilateral arms and behind knees',
+    location:'Bilateral forearms, antecubital fossae, posterior knee creases',
+    onsetDetail:'Onset at age 2. Chronic relapsing course. Worsens in winter and with sweat. Current flare for past 8 weeks with significant sleep disruption.',
+    treatments:'Hydrocortisone 2.5% cream x 6 weeks — minimal improvement. Cetirizine 5mg daily — partial relief of itch. Emollients applied BID.',
+    suspectedDx:'Atopic dermatitis, moderate-severe. Rule out contact sensitization.',
+    tests:'None performed. No biopsy.',
+    testsAttachments:'no',
+    urgencyVal:'routine',
     insOk:true,
     refId:'REF-0081', epicShell:'RS-2025-04-1184', shellAction:'Updated',
     shellActionTag:'<span class="tag t-amber">Updated</span>',
@@ -1156,7 +1414,15 @@ const SC = {
     refprov:'Dr. Thomas Park, MD',refspec:'Pediatric Primary Care',refprac:'Camden Pediatric Group',refphone:'(856) 555-0398',
     reftype:'Consultation',urgency:'Urgent (within 72 hrs)',
     reason:'Severe eczema with suspected secondary infection',
-    notes:'Patient presenting with widespread eczema lesions. Topical treatment ineffective. Two prior ER visits in past 3 months. MRN unknown to referring practice.',
+    notes:'Two prior ER visits in past 3 months. MRN unknown to referring practice. Pediatrician concerned about systemic spread.',
+    onset:'Widespread weeping, crusted eczema lesions with yellow discharge',
+    location:'Trunk, bilateral arms and legs, periorbital region',
+    onsetDetail:'Acute worsening over past 2 weeks. Lesions now weeping with yellow crust suggesting secondary bacterial infection. Febrile yesterday (38.4°C), afebrile today.',
+    treatments:'OTC hydrocortisone — no improvement. Oral antihistamine — no effect. One ER visit resulted in short oral antibiotic course with temporary improvement then relapse.',
+    suspectedDx:'Severe atopic dermatitis with secondary impetiginization. R/O eczema herpeticum.',
+    tests:'Wound culture from ER — grew Staph aureus (MSSA). CBC unremarkable.',
+    testsAttachments:'yes',
+    urgencyVal:'urgent',
     insOk:true,
     refId:'REF-0082',epicShell:'RS-2025-04-1185',shellAction:'Created',
     attachments:[
@@ -1243,7 +1509,15 @@ const SC = {
     refprov:'Dr. Rita Patel, MD',refspec:'Internal Medicine',refprac:'Edison Pediatric Partners',refphone:'(732) 555-0140',
     reftype:'Consultation',urgency:'Routine (within 30 days)',
     reason:'Chronic urticaria with suspected allergic component',
-    notes:'Patient has recurring hives over 8-week period, primarily nocturnal. Cetirizine 10mg with partial relief only. Requesting specialist evaluation.',
+    notes:'Recurring hives over 8-week period, primarily nocturnal. Cetirizine 10mg with partial relief only.',
+    onset:'Raised, red, itchy welts appearing mostly at night',
+    location:'Abdomen, thighs, and upper arms. Occasional facial involvement.',
+    onsetDetail:'First episode 8 weeks ago. No identifiable trigger identified. Episodes last 4-6 hours, resolve without trace. No angioedema. No fever.',
+    treatments:'Cetirizine 10mg daily — partial relief, hives still recurring 3-4x/week.',
+    suspectedDx:'Chronic spontaneous urticaria. R/O physical urticaria, autoimmune etiology.',
+    tests:'IgE panel pending. CBC normal. No biopsy.',
+    testsAttachments:'pending',
+    urgencyVal:'routine',
     insOk:true,
     refId:'REF-0083',epicShell:'—',shellAction:'Blocked',
     attachments:[
@@ -1318,11 +1592,14 @@ function showView(v){
 // ════════════════════════════════════════════════
 let currentStep = 0;
 function showStep(i){
-  for(let j=0;j<5;j++){
-    document.getElementById('step'+j).style.display = j===i?'block':'none';
-    document.getElementById('sni'+j).classList.toggle('active',j===i);
+  for(let j=0;j<6;j++){
+    const el = document.getElementById('step'+j);
+    if(el) el.style.display = j===i?'block':'none';
+    const ni = document.getElementById('sni'+j);
+    if(ni) ni.classList.toggle('active',j===i);
   }
   currentStep = i;
+  if(i===5) renderTriageStep();
 }
 
 // ════════════════════════════════════════════════
@@ -1341,14 +1618,22 @@ function selectScenario(idx){
   const fmap = {fname:'f-fname',dob:'f-dob',mrn:'f-mrn',addr:'f-addr',
     phone:'f-phone',memberid:'f-memberid',groupnum:'f-groupnum',
     refprov:'f-refprov',refspec:'f-refspec',refprac:'f-refprac',
-    refphone:'f-refphone',reason:'f-reason'};
+    refphone:'f-refphone',reason:'f-reason',
+    onset:'f-onset',location:'f-location',onsetDetail:'f-onset-detail',
+    treatments:'f-treatments',suspectedDx:'f-suspected-dx',tests:'f-tests'};
   Object.entries(fmap).forEach(([k,id])=>{
     const el = document.getElementById(id);
     if(el && sc[k]!==undefined) el.value = sc[k];
   });
-  document.getElementById('f-notes').value = sc.notes;
+  document.getElementById('f-notes').value = sc.notes || '';
+  // symptom dropdowns
+  const taEl = document.getElementById('f-tests-attachments');
+  if(taEl) taEl.value = sc.testsAttachments || '';
+  const urgEl = document.getElementById('f-urgency');
+  if(urgEl) urgEl.value = sc.urgencyVal || '';
   const gd = document.getElementById('f-guardian');
   if(gd) gd.value = sc.guardian || '';
+  updateSymCompletion();
 
   const insEl = document.getElementById('f-ins');
   for(let o of insEl.options) o.selected = (o.value===sc.ins);
@@ -1370,6 +1655,7 @@ function selectScenario(idx){
 
   // re-render dynamic step sections if already visible
   renderStepContent();
+  if(currentStep===5) renderTriageStep();
 }
 
 function renderAttachments(atts){
@@ -1742,10 +2028,593 @@ function runSubmit(){
 }
 
 // ════════════════════════════════════════════════
-// INIT
+// SYMPTOM TABS
 // ════════════════════════════════════════════════
+function symTab(idx, btn){
+  document.querySelectorAll('.sym-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  document.querySelectorAll('.sym-tab').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  updateSymCompletion();
+}
+
+const SYM_FIELDS = [
+  {id:'f-onset',       label:'Onset symptom',         required:true},
+  {id:'f-location',    label:'Location observed',      required:true},
+  {id:'f-onset-detail',label:'Onset details',          required:true},
+  {id:'f-treatments',  label:'Prior treatments',       required:false},
+  {id:'f-suspected-dx',label:'Suspected diagnosis',    required:false},
+  {id:'f-tests',       label:'Prior tests / biopsies', required:false},
+  {id:'f-tests-attachments',label:'Test attachments',  required:true},
+  {id:'f-urgency',     label:'Urgency',                required:true},
+];
+
+function updateSymCompletion(){
+  const rows = document.getElementById('sym-progress-rows');
+  if(!rows) return;
+  rows.innerHTML = SYM_FIELDS.map(f=>{
+    const el = document.getElementById(f.id);
+    const filled = el && el.value && el.value.trim().length > 0;
+    const icon = filled ? '✅' : (f.required ? '⭕' : '○');
+    const color = filled ? 'var(--teal)' : (f.required ? 'var(--red)' : 'var(--t3)');
+    return `<div class="sym-prog-row">
+      <span style="color:${color};">${icon} ${f.label}${f.required?' *':''}</span>
+      <span style="font-size:10px;color:${color};font-weight:600;">${filled?'Filled':'Empty'}</span>
+    </div>`;
+  }).join('');
+}
+
+// Wire live completion update
+document.addEventListener('input', e=>{
+  if(SYM_FIELDS.some(f=>f.id===e.target?.id)) updateSymCompletion();
+});
+
+// ════════════════════════════════════════════════
+// ENHANCED TRIAGE REASONING BREAKDOWN
+// ════════════════════════════════════════════════
+function buildTriageReasoningHtml(condition, timeframe, confidence, reasoning, sc){
+  const cat = triageCategory(timeframe);
+  const cfg = catCfg(cat);
+  const confPct = confidence==='high'?92:confidence==='medium'?64:31;
+  const confColor = confidence==='high'?'var(--green)':confidence==='medium'?'var(--amber)':'var(--red)';
+
+  // Score contributing signals from all symptom fields
+  const signals = [];
+  if(sc.onset)       signals.push({icon:'🩺', label:'Onset Symptom',       val:sc.onset,        weight:'Primary signal'});
+  if(sc.location)    signals.push({icon:'📍', label:'Location',             val:sc.location,     weight:'Supporting signal'});
+  if(sc.onsetDetail) signals.push({icon:'📋', label:'Onset Details',        val:sc.onsetDetail.substring(0,80)+(sc.onsetDetail.length>80?'…':''), weight:'Contextual'});
+  if(sc.treatments)  signals.push({icon:'💊', label:'Prior Treatments',     val:sc.treatments.substring(0,80)+(sc.treatments.length>80?'…':''),  weight:'Contextual'});
+  if(sc.suspectedDx) signals.push({icon:'🔬', label:'Suspected Diagnosis',  val:sc.suspectedDx,  weight:'Strong signal'});
+  if(sc.urgencyVal && sc.urgencyVal!=='routine') signals.push({icon:'⚡', label:'Urgency Flag', val:sc.urgencyVal.toUpperCase(), weight:'Urgency modifier'});
+
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);">${condition}</div>
+        <div style="display:inline-flex;align-items:center;gap:5px;margin-top:4px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:${cat==='urgent'?'#FAD7D3':cat==='soon'?'#FEF3D0':cat==='refer'?'#EAD6FC':'#D0F5E8'};color:${cat==='urgent'?'var(--red)':cat==='soon'?'#9A6A00':cat==='refer'?'var(--purple)':'#1A7A4A'};">${cfg.icon} ${timeframe}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:var(--t3);margin-bottom:3px;">Match confidence</div>
+        <div style="font-size:20px;font-weight:700;color:${confColor};">${confPct}%</div>
+        <div class="conf-bar" style="width:80px;margin-left:auto;"><div class="conf-fill" style="width:${confPct}%;background:${confColor};"></div></div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:7px;">Signals that contributed to this match</div>
+    <div class="triage-reasoning-grid">
+      ${signals.map(s=>`
+        <div class="tr-row">
+          <div class="tr-icon">${s.icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="tr-label">${s.label}</div>
+            <div class="tr-val">${s.val}</div>
+          </div>
+          <div style="font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--s2);color:var(--t2);white-space:nowrap;align-self:flex-start;flex-shrink:0;">${s.weight}</div>
+        </div>`).join('')}
+    </div>
+
+    <div style="margin-top:12px;background:var(--s2);border-radius:8px;padding:10px 13px;font-size:11.5px;color:var(--t2);line-height:1.6;">
+      <strong style="color:var(--navy);">AI reasoning:</strong> ${reasoning}
+      <br><span style="font-size:10px;color:var(--t3);">Match method: ${(typeof AZURE_AI_ENDPOINT!=='undefined'&&AZURE_AI_ENDPOINT)?'Azure OpenAI (GPT-4o)':'Local keyword scoring against 224-entry triage matrix'} · Internal use only</span>
+    </div>
+  `;
+}
+
+// Patch showTriageResult to use enhanced reasoning when in internal step
+const _origShowTriageResult = showTriageResult;
+showTriageResult = function(condition, timeframe, confidence, reasoning, warning, noMatch){
+  _origShowTriageResult(condition, timeframe, confidence, reasoning, warning, noMatch);
+  // If internal triage tab is visible, also update SP columns and reasoning body
+  if(currentStep===5){
+    updateSpColsFromResult(condition, timeframe, confidence, reasoning);
+    const sc = SC[currentSc];
+    const body = document.getElementById('triage-body');
+    if(body && !noMatch){
+      body.innerHTML = buildTriageReasoningHtml(condition, timeframe, confidence, reasoning, sc);
+    }
+  }
+};
+
+// Patch runLocalTriageAndStore to pass sc context
+const _origRunLocalTriageAndStore = runLocalTriageAndStore;
+runLocalTriageAndStore = function(text){
+  const sc = SC[currentSc];
+  // Enrich text with all symptom fields for better matching
+  const enriched = [sc.onset||'', sc.location||'', sc.onsetDetail||'', sc.treatments||'', sc.suspectedDx||'', text].join(' ');
+  const t = enriched.toLowerCase();
+  let best=null, bestScore=0;
+  for(const [cond,time] of TRIAGE_DATA){
+    const words=cond.toLowerCase().replace(/[()\/\-<>]/g,' ').split(/\s+/).filter(w=>w.length>3);
+    let score=0;
+    for(const w of words){ if(t.includes(w)) score+=w.length>6?3:1; }
+    if(t.includes(cond.toLowerCase())) score+=10;
+    if(sc.urgencyVal==='urgent'&&time.toLowerCase().includes('week')) score+=3;
+    if(sc.urgencyVal==='emergent'&&(time.toLowerCase().includes('ed')||time.toLowerCase().includes('physician on call'))) score+=8;
+    if(score>bestScore){bestScore=score;best=[cond,time];}
+  }
+  if(!best||bestScore<2){
+    showTriageResult('No strong match found','Please review manually','low','Symptom details did not match a triage condition with sufficient confidence. Review manually.',null,true);
+    updateSpColsFromResult('No strong match found','Please review manually','low','Review recommended');
+    return;
+  }
+  const conf=bestScore>=10?'high':bestScore>=4?'medium':'low';
+  const reasoning=`Matched on key terms from onset symptoms (${sc.onset?.split(' ').slice(0,4).join(' ')||'provided'}) and suspected diagnosis (${sc.suspectedDx||'not provided'}). Urgency: ${sc.urgencyVal||'routine'}. Confidence boosted by ${bestScore} keyword overlap points.`;
+  showTriageResult(best[0],best[1],conf,reasoning,null);
+  updateSpColsFromResult(best[0],best[1],conf,reasoning);
+};
+</script>
+
+<!-- ════════════════════════════════════════════════
+     VIEW: TRIAGE REFERENCE (hidden — internal use)
+════════════════════════════════════════════════ -->
+<div class="view" id="view-triage">
+<div class="triage-ref-wrap">
+  <h2>🏥 Triage Reference Matrix</h2>
+  <div class="sub">Internal reference only — not visible to external form submitters. Conditions and recommended appointment timeframes from the CHOP Dermatology Triage Mapping document.</div>
+  <input class="triage-search" type="text" placeholder="Search conditions (e.g. eczema, acne, rash, hemangioma…)" oninput="filterTriage(this.value)" id="triage-search-input">
+  <div style="font-size:11px;color:var(--t3);margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap;">
+    <span><span style="display:inline-block;width:10px;height:10px;background:#FAD7D3;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--red);"></span>Urgent / ED</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#FEF3D0;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--amber);"></span>Seen soon (days–weeks)</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#D0F5E8;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--teal);"></span>Routine (1–6 months)</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#EAD6FC;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--purple);"></span>Refer elsewhere</span>
+  </div>
+  <div class="triage-grid" id="triage-grid"></div>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// TRIAGE DATA — 224 entries from CHOP Triage mapping
+// ════════════════════════════════════════════════
+const TRIAGE_DATA = [
+  ["Abscess — not on treatment","Refer to ED (physician on call)"],
+  ["Abscess — on treatment","1-2 months"],
+  ["Acanthosis nigricans","6 months"],
+  ["Accessory nipple","6 months"],
+  ["Acne, infantile / neonatal / toddler","1-2 months"],
+  ["Acne keloidalis nuchae","2-3 months"],
+  ["Acne, mild-moderate, multiple topicals","4 months"],
+  ["Acne, severe (cystic, scarring, oral medication)","1-2 months"],
+  ["Acne, no prior prescription or single topical only","6 months"],
+  ["Acropustolosis of infancy","2-3 months"],
+  ["Acute skin eruption in immunocompromised patient (1-3 weeks), afebrile","1-2 weeks"],
+  ["Albinism < 1 year of age","3-6 weeks"],
+  ["Albinism > 1 year of age","2-4 months"],
+  ["Allergic contact dermatitis","2-4 months"],
+  ["Alopecia, widespread or rapidly progressing","1-2 months"],
+  ["Alopecia, long standing or other hair disorder","2-4 months"],
+  ["Alopecia, scarring (dissecting cellulitis, folliculitis decalvans)","2-3 months — hair specialist"],
+  ["Angiofibroma (single / non TS patient)","6 months"],
+  ["Angiofibromas (TS patient)","4-6 months"],
+  ["Aplasia Cutis Congenita < 2 months of age","1-2 weeks"],
+  ["Aplasia Cutis Congenita > 2 months of age","2-4 months"],
+  ["Animal Bites","Refer to plastics"],
+  ["Aquagenic wrinkling of palms","4 months"],
+  ["Atopic dermatitis, infected","2-3 months"],
+  ["Atopic dermatitis, severe or < 6 months","1-2 months"],
+  ["Atopic dermatitis, chronic and > 6 months","2-4 months"],
+  ["Atopic dermatitis, mild or only emollients/hydrocortisone used","4 months"],
+  ["Autoimmune disease (r/o lupus, connective tissue disease), acute or flaring","3-6 weeks"],
+  ["Bug bites / papular urticaria / insect bites with blisters","6 months"],
+  ["Bullous pemphigoid","1-2 weeks"],
+  ["Burns","Refer to plastics"],
+  ["Café au lait — single/large, NOT r/o NF","6 months"],
+  ["Café au lait macules (r/o NF, TS, genodermatosis)","1-2 months"],
+  ["Capillary Malformation facial < 6 months of age","1-2 weeks"],
+  ["Capillary Malformation widespread < 1 year / facial 6mo-1yr","3-6 weeks"],
+  ["Capillary Malformation widespread > 1 year of age","2-4 months"],
+  ["Capillary Malformation localized > 1 year of age","6 months"],
+  ["CARP (confluent and reticulated papillomatosis)","6 months"],
+  ["Cellulitis — not on treatment","Refer to ED (physician on call)"],
+  ["Cellulitis — on treatment","1-2 months"],
+  ["Cheilitis","6 months"],
+  ["Congenital melanocytic nevus (small-medium)","6 months"],
+  ["Congenital melanocytic nevus (large, < 6 months)","PLG (Dr. Jen)"],
+  ["Congenital melanocytic nevus (large, 6 months–1 year)","1-2 months"],
+  ["Congenital melanocytic nevus (large, over 1 year)","4-6 months"],
+  ["Connective tissue disease (r/o, acute or flaring)","3-6 weeks"],
+  ["Cutaneous T Cell Lymphoma (CTCL)","4-6 weeks"],
+  ["Cutaneous larva migrans","1 month"],
+  ["Cutis marmorata telangiectatica congenita (CMTC) < 1 year","3-6 weeks"],
+  ["Cutis marmorata telangiectatica congenita (CMTC) > 1 year","2-4 months"],
+  ["Changing mole","1-2 months"],
+  ["Cyst","4 months"],
+  ["Dandruff, > 6 months","4-6 months"],
+  ["Dermal Melanocytosis","6 months"],
+  ["Dermatitis (diaper) < 4 months of age","1-2 months"],
+  ["Dermatitis (diaper) > 4 months of age","2-4 months"],
+  ["Dermatitis (perioral/periorificial)","2-3 months"],
+  ["Dermatitis (allergic/contact)","2-4 months"],
+  ["Dermatitis Herpetiformis","1-2 months"],
+  ["Dermatofibroma","6 months"],
+  ["Dermatographism","2-4 months"],
+  ["Dermatomyositis","3-6 weeks"],
+  ["Dermoid cyst < 1 year of age","2-4 months"],
+  ["Echthyma","2-3 months"],
+  ["Eczema Herpeticum","Physician on call — refer to ED"],
+  ["Eczema (infected)","2-3 months"],
+  ["ED referral (URGENT)","1-3 days, physician on call"],
+  ["Enterovirus, diagnosed","3-6 weeks"],
+  ["Epidermal nevus","4 months"],
+  ["Epidermolysis Bullosa (0-6 wks, EB suspected)","Email referral to Julie W / Julie A / Valerie B"],
+  ["Erythema Annulare Centrifugum","3-4 months"],
+  ["Erythema multiforme","1-2 weeks"],
+  ["Erythema nodosum","1-2 months"],
+  ["Folliculitis","3-4 months"],
+  ["Fungal infection (scalp)","3-4 months"],
+  ["Fungal infection (nail, skin)","4 months"],
+  ["Genetic disorder r/o: café au lait, NF, TS, genodermatosis","1-2 months"],
+  ["Genital warts vs molluscum > 5 years of age","2-3 months"],
+  ["Genital warts < 5 years of age","3-6 weeks"],
+  ["Genital warts > 12 years of age","2-3 months"],
+  ["Giannotti Crosti","4 months"],
+  ["Graft vs Host Disease (GVHD)","2-4 weeks"],
+  ["Granuloma","2-4 months"],
+  ["Granuloma annulare","2-4 months"],
+  ["Head lice","2-3 months"],
+  ["Hemangioma (ulcerated)","1 week"],
+  ["Hemangioma < 6 months of age (non-ulcerated)","1-2 weeks"],
+  ["Hemangioma 6-12 months of age (non-ulcerated)","1-2 months"],
+  ["Hemangioma 6-12 months (on lip)","3-4 weeks"],
+  ["Hemangioma > 12 months of age","2-4 months"],
+  ["Hereditary hemorrhagic telangiectasia (HHT)","3-4 months"],
+  ["Herpes Zoster","1 week"],
+  ["Herpes simplex virus (HSV — recurrent)","2-3 months"],
+  ["Hidradenitis (non draining)","3-4 months"],
+  ["Hidradenitis (open wounds)","1-2 months"],
+  ["Hirsutism","6 months"],
+  ["Hives / urticaria","3-6 weeks"],
+  ["Hypohidrosis","1-2 months"],
+  ["Hypopigmentation","6 months"],
+  ["Hyperhidrosis","4 months"],
+  ["Hyperpigmentation","6 months"],
+  ["Ichthyosis < 6 months","1-2 weeks"],
+  ["Ichthyosis vulgaris","6 months"],
+  ["Ichthyosis (all other types) over 6 months","2-3 months"],
+  ["ID reaction","2-3 months"],
+  ["Impetigo","2-3 months"],
+  ["Incontinentia pigmenti","1-2 weeks"],
+  ["Infantile umbilical granuloma","1-2 weeks"],
+  ["Infection (undiagnosed, acute)","1-2 weeks"],
+  ["Intertrigo","4 months"],
+  ["Juvenile dermatomyositis (JDM)","3-6 weeks"],
+  ["Juvenile plantar dermatosis","6 months"],
+  ["Juvenile xanthogranuloma (JXG)","2-3 months"],
+  ["Keloid","6 months"],
+  ["Keratosis pilaris","6 months"],
+  ["Kerion, untreated","3-6 weeks"],
+  ["Kerion, on treatment","3-4 months"],
+  ["Langerhans Cell Histiocytosis","Physician on call"],
+  ["Lichen nitidus","6 months"],
+  ["Lichen planus","1-2 months"],
+  ["Lichen sclerosus","1-2 months"],
+  ["Lichen simplex","5-6 months"],
+  ["Lichen spinulosis","5-6 months"],
+  ["Lichen striatus","5-6 months"],
+  ["Linear IgA disease","1-2 weeks"],
+  ["Lipoma","6 months"],
+  ["Lupus (r/o connective tissue disease), acute or flaring","3-6 weeks"],
+  ["Lupus (Neonatal)","1 week"],
+  ["Lymphatic/Venous malformation, skin limited","2-3 months"],
+  ["Lymphomatoid papulosis","1-2 months"],
+  ["Mastocytosis or urticaria pigmentosa < 2 years of age","1-2 months"],
+  ["Mastocytoma, urticaria pigmentosa > 2 years of age","4-6 months"],
+  ["Metal patch testing for surgery","2-4 months"],
+  ["Melanoma (suspected)","1-2 weeks"],
+  ["Melasma","6 months"],
+  ["Milia","6 months"],
+  ["Mole / skin check","6 months"],
+  ["Mole — changing or re-excision","1-2 months"],
+  ["Mole, enlarging","4-6 months"],
+  ["Molluscum in immunocompromised patient","2-4 months"],
+  ["Molluscum","Wart clinic"],
+  ["Morphea, new onset, rapidly progressing","3-6 weeks"],
+  ["Morphea, long standing, stable","3-4 months"],
+  ["Mucocele","4 months"],
+  ["Mucosal blistering","Physician on call — refer to ED"],
+  ["Mycobacterial infection","3-6 weeks"],
+  ["Mycoplasma-induced rash and mucositis (MIRM/RIME)","Physician on call — refer to ED"],
+  ["Mycosis fungoides","1-2 months"],
+  ["Nail disorder — falling off, growing inward/deviated","3-4 months"],
+  ["Nail — pigmented lesion","1-2 months"],
+  ["Neurofibroma","4-6 months"],
+  ["Nevus (epidermal)","4 months"],
+  ["Nevus comedonicus","6 months"],
+  ["Nevus sebaceous, changing","2-4 months"],
+  ["Nevus sebaceous, unchanged","4-6 months"],
+  ["Nevus simplex < 6 months of age","1-2 weeks"],
+  ["Nevus simplex 6-12 months of age","3-6 weeks"],
+  ["Nevus simplex > 1 year of age","2-4 months"],
+  ["Nevus spilus","6 months"],
+  ["Nodule (rapidly growing)","3-6 weeks"],
+  ["Orofacial granulomatosis","2-3 months"],
+  ["Palmoplantar keratoderma","2-3 months"],
+  ["Panniculitis","6-8 weeks"],
+  ["Parapsoriasis","1-2 months"],
+  ["Paronychia","1-2 months"],
+  ["Pemphigus","1-2 weeks"],
+  ["Pernio","1-2 months"],
+  ["Photodermatitis (sun)","4-6 months"],
+  ["Phytophotodermatitis","4 months"],
+  ["Pigmentary mosaicism","6 months"],
+  ["Pigmented purpuric dermatosis","2-3 months"],
+  ["Pilomatricoma","4 months"],
+  ["Pityriasis alba","6 months"],
+  ["Pityriasis lichenoides chronica","1-2 months"],
+  ["Pityriasis rosea","3-4 months"],
+  ["Pityriasis rubra pilaris (PRP)","2-3 months"],
+  ["PLEVA","6-8 weeks"],
+  ["Poison ivy","1-2 months"],
+  ["Polymorphous light eruption (PMLE)","2-3 months"],
+  ["Port wine stain (facial < 6 months)","1-2 weeks"],
+  ["Port wine stain widespread < 1 year / facial 6mo-1yr","3-6 weeks"],
+  ["Port wine stain widespread > 1 year of age","3-4 months"],
+  ["Port wine stain localized > 1 year of age","6 months"],
+  ["Pruritus","3-4 months"],
+  ["Psoriasis — related to anti-TNF drug","1-2 months"],
+  ["Psoriasis","2-4 months"],
+  ["Prurigo nodularis","4 months"],
+  ["Pyoderma gangrenosum","1-2 weeks"],
+  ["Pyogenic granuloma (bleeding)","1-2 weeks"],
+  ["Pyogenic granuloma (not bleeding)","2-4 weeks"],
+  ["Rash (blistering — bullous pemphigoid, pemphigus, linear IgA)","1-2 weeks"],
+  ["Rash (COVID)","1-2 weeks"],
+  ["Rash (drug rash — SJS/TEN, DRESS)","Physician on call — refer to ED"],
+  ["Rash + fever","Physician on call — refer to ED"],
+  ["Rash NOS","2-3 months"],
+  ["Rash (new onset in patient on anti-epileptic)","Physician on call — refer to ED"],
+  ["Rosacea","6 months"],
+  ["Scabies","2-3 months"],
+  ["Scar","5-6 months"],
+  ["Seborrheic dermatitis < 6 months of age","2-4 months"],
+  ["Seborrheic dermatitis > 6 months of age","4-6 months"],
+  ["Skin / mole check","6 months"],
+  ["Skin tag","6 months"],
+  ["Spider angioma","6 months"],
+  ["Staph Scalded Skin Syndrome (new)","Physician on call"],
+  ["Striae","6 months"],
+  ["Subcutaneous fat necrosis","1-2 weeks"],
+  ["Terra firma forme / retention hyperkeratosis","6 months"],
+  ["Tinea capitis","3-4 months"],
+  ["Tinea versicolor","4 months"],
+  ["Urticaria pigmentosa < 2 years of age","1-2 months"],
+  ["Urticaria (chronic)","3-4 months"],
+  ["Urticaria / hives","3-6 weeks"],
+  ["Vasculitis (Henoch-Schönlein purpura/HSP)","3-6 weeks"],
+  ["Venous/lymphatic malformation, skin limited","2-3 months"],
+  ["Viral Exanthem","3-6 weeks"],
+  ["Vitiligo","3-4 months"],
+  ["Warts in immunocompromised patient","2-4 months"],
+  ["Warts — less than age 1 year","5-6 months"],
+  ["Warts — over age 1 year","Wart clinic"],
+  ["Xerosis","6 months"]
+];
+
+// ── CATEGORY HELPERS ──
+function triageCategory(t){
+  const tl = t.toLowerCase();
+  if(tl.includes('refer to ed')||tl.includes('physician on call')||tl.includes('1-3 days')||tl.includes('1 week')||tl.includes('1-2 weeks')) return 'urgent';
+  if(tl.includes('week')||tl.includes('6-8 weeks')||tl.includes('3-6 weeks')||tl.includes('4-6 weeks')||tl.includes('2-4 weeks')||tl.includes('3-4 weeks')) return 'soon';
+  if(tl.includes('refer to plastics')||tl.includes('wart clinic')||tl.includes('plg')||tl.includes('email referral')||tl.includes('allergy')) return 'refer';
+  return 'routine';
+}
+function catCfg(cat){
+  return {
+    urgent: {icon:'🚨',label:'Urgent / Refer to ED',   cls:'tp-urgent', badge:'tb-urgent', bt:'URGENT'},
+    soon:   {icon:'⚠️',label:'Seen Soon',             cls:'tp-soon',   badge:'tb-soon',   bt:'SOON'},
+    routine:{icon:'✅',label:'Routine Scheduling',    cls:'tp-routine',badge:'tb-routine', bt:'ROUTINE'},
+    refer:  {icon:'↪️',label:'Refer Elsewhere',       cls:'tp-refer',  badge:'tb-refer',  bt:'REFER'},
+  }[cat] || {icon:'✅',label:'Routine',cls:'tp-routine',badge:'tb-routine',bt:'ROUTINE'};
+}
+
+// ── TRIAGE REFERENCE GRID ──
+function renderTriageGrid(filter=''){
+  const grid = document.getElementById('triage-grid');
+  if(!grid) return;
+  const q = filter.toLowerCase();
+  const items = TRIAGE_DATA.filter(([c])=>!q||c.toLowerCase().includes(q));
+  grid.innerHTML = items.map(([cond,time])=>{
+    const cat=triageCategory(time); const cfg=catCfg(cat);
+    return `<div class="triage-item cat-${cat}">
+      <div class="ti-condition">${cond}</div>
+      <div class="ti-timeframe">${time}</div>
+      <span class="ti-badge ${cfg.badge}">${cfg.bt}</span>
+    </div>`;
+  }).join('') || `<div style="color:var(--t3);font-size:13px;padding:20px 0;">No conditions match "${filter}"</div>`;
+}
+function filterTriage(q){ renderTriageGrid(q); }
+
+// ── AI TRIAGE (inline on form) ──
+let triageTimer=null;
+let AZURE_AI_ENDPOINT=null; // set to Azure OpenAI endpoint when deploying
+
+function scheduleTriage(){
+  clearTimeout(triageTimer);
+  triageTimer=setTimeout(runTriage,900);
+}
+
+function runTriage(){
+  const reason=(document.getElementById('f-reason')?.value||'').trim();
+  const notes=(document.getElementById('f-notes')?.value||'').trim();
+  const combined=[reason,notes].filter(Boolean).join(' ');
+  if(combined.length<8){hideTriage();return;}
+  showTriageLoading();
+  document.getElementById('triage-hint').style.display='block';
+  if(AZURE_AI_ENDPOINT){ runAzureAiTriage(combined); }
+  else{ setTimeout(()=>runLocalTriage(combined),700); }
+}
+
+async function runAzureAiTriage(text){
+  try{
+    const ctx=TRIAGE_DATA.map(([c,t])=>`${c}: ${t}`).join('\n');
+    const prompt=`You are a pediatric dermatology triage assistant. Given the clinical text, find the single best matching condition from the triage list below and return ONLY valid JSON (no markdown) with: condition, timeframe, confidence (high/medium/low), reasoning (one sentence), warning (string or null).\n\nTriage list:\n${ctx}\n\nClinical text: "${text}"`;
+    const resp=await fetch(AZURE_AI_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','api-key':window.AZURE_AI_KEY||''},
+      body:JSON.stringify({messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0})
+    });
+    const data=await resp.json();
+    const raw=data.choices?.[0]?.message?.content||'{}';
+    const r=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    showTriageResult(r.condition,r.timeframe,r.confidence,r.reasoning,r.warning);
+  }catch(e){
+    console.warn('Azure AI fallback:',e);
+    runLocalTriage((document.getElementById('f-reason')?.value||'')+' '+(document.getElementById('f-notes')?.value||''));
+  }
+}
+
+function runLocalTriage(text){
+  const t=text.toLowerCase();
+  let best=null,bestScore=0;
+  for(const [cond,time] of TRIAGE_DATA){
+    const words=cond.toLowerCase().replace(/[()\/\-<>]/g,' ').split(/\s+/).filter(w=>w.length>3);
+    let score=0;
+    for(const w of words){ if(t.includes(w)) score+=w.length>6?3:1; }
+    if(t.includes(cond.toLowerCase())) score+=10;
+    if((t.includes('urgent')||t.includes('fever')||t.includes('blister'))&&time.toLowerCase().includes('week')) score+=2;
+    if(score>bestScore){bestScore=score;best=[cond,time];}
+  }
+  if(!best||bestScore<2){
+    showTriageResult('No strong match found','Please review manually','low','The text did not match a triage condition with sufficient confidence. Review the triage matrix.',null,true);
+    return;
+  }
+  const conf=bestScore>=10?'high':bestScore>=4?'medium':'low';
+  showTriageResult(best[0],best[1],conf,'Matched based on key clinical terms in the reason and notes.',null);
+}
+
+function showTriageLoading(){
+  const p=document.getElementById('triage-panel'),h=document.getElementById('triage-hdr'),b=document.getElementById('triage-body');
+  p.className='triage-panel visible tp-loading';
+  h.innerHTML='<div class="triage-spinner"></div> <span>Analysing clinical text…</span>';
+  b.innerHTML='<span style="color:var(--t3);font-size:12px;">Matching against triage matrix…</span>';
+}
+
+function showTriageResult(condition,timeframe,confidence,reasoning,warning,noMatch){
+  const p=document.getElementById('triage-panel'),h=document.getElementById('triage-hdr'),b=document.getElementById('triage-body');
+  const cat=noMatch?'routine':triageCategory(timeframe);
+  const cfg=catCfg(cat);
+  p.className=`triage-panel visible ${cfg.cls}`;
+  h.innerHTML=`<span>${cfg.icon}</span><span>AI Triage Suggestion — ${cfg.label}</span>`;
+  const cc=confidence==='high'?'var(--green)':confidence==='medium'?'var(--amber)':'var(--red)';
+  const cl=confidence==='high'?'● High confidence':confidence==='medium'?'● Medium confidence':'● Low confidence — review recommended';
+  b.innerHTML=`<div class="tp-condition">${condition}</div>
+    <div class="tp-timeframe">${cfg.icon} Suggested timeframe: <strong>${timeframe}</strong></div>
+    ${warning?`<div style="background:#FFF0EF;border-radius:6px;padding:7px 10px;font-size:11.5px;color:var(--red);font-weight:600;margin-bottom:6px;">⚠ ${warning}</div>`:''}
+    <div class="tp-confidence" style="color:${cc};">${cl}</div>
+    <div class="tp-note">💬 ${reasoning}<br><span style="font-size:10px;color:var(--t3);">AI-generated triage suggestion for internal reference only. Final scheduling decisions remain with the clinical team.</span></div>`;
+}
+
+function hideTriage(){
+  const p=document.getElementById('triage-panel');
+  if(p) p.className='triage-panel';
+  const h=document.getElementById('triage-hint');
+  if(h) h.style.display='none';
+}
+
+// ── INTERNAL TRIAGE TAB RENDER ──
+function renderTriageStep(){
+  const sc = SC[currentSc];
+  const d  = (typeof DRAFT_STAGE1 !== 'undefined') ? DRAFT_STAGE1[currentSc] : {refId: sc.refId || 'REF-0081'};
+
+  // Update card title
+  const title = document.getElementById('triage-card-title');
+  if(title) title.textContent = `🧠 AI Triage Analysis — ${sc.refId||d.refId}: ${sc.fname}`;
+
+  // Run triage against this scenario's reason + notes
+  const combined = [sc.reason||'', sc.notes||''].join(' ');
+  showTriageLoading();
+
+  if(typeof AZURE_AI_ENDPOINT !== 'undefined' && AZURE_AI_ENDPOINT){
+    runAzureAiTriage(combined);
+  } else {
+    setTimeout(()=>{
+      runLocalTriageAndStore(combined);
+    }, 700);
+  }
+}
+
+function runLocalTriageAndStore(text){
+  const t = text.toLowerCase();
+  let best=null, bestScore=0;
+  for(const [cond,time] of TRIAGE_DATA){
+    const words = cond.toLowerCase().replace(/[()\/\-<>]/g,' ').split(/\s+/).filter(w=>w.length>3);
+    let score=0;
+    for(const w of words){ if(t.includes(w)) score+=w.length>6?3:1; }
+    if(t.includes(cond.toLowerCase())) score+=10;
+    if((t.includes('fever')||t.includes('blister')||t.includes('urgent'))&&time.toLowerCase().includes('week')) score+=2;
+    if(score>bestScore){bestScore=score;best=[cond,time];}
+  }
+  if(!best||bestScore<2){
+    showTriageResult('No strong match found','Please review manually','low','Clinical text did not match a triage condition with sufficient confidence.',null,true);
+    updateSpColsFromResult('No strong match found','Please review manually','low','Review recommended — no high-confidence match');
+    return;
+  }
+  const conf = bestScore>=10?'high':bestScore>=4?'medium':'low';
+  showTriageResult(best[0],best[1],conf,'Matched based on key clinical terms in reason and notes.',null);
+  updateSpColsFromResult(best[0],best[1],conf,'Matched based on key clinical terms in reason and notes.');
+}
+
+function updateSpColsFromResult(condition, timeframe, confidence, reasoning){
+  const cat = triageCategory(timeframe);
+  const urgMap = {urgent:'URGENT',soon:'SOON',routine:'ROUTINE',refer:'REFER ELSEWHERE'};
+  const el = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  el('sp-condition', condition);
+  el('sp-timeframe', timeframe);
+  el('sp-urgency',   urgMap[cat]||'ROUTINE');
+  el('sp-confidence',confidence.charAt(0).toUpperCase()+confidence.slice(1));
+  el('sp-reasoning', reasoning);
+  const now = new Date();
+  el('sp-runat', now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+' · '+now.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}));
+  const srcEl = document.getElementById('sp-source');
+  if(srcEl) srcEl.textContent = (typeof AZURE_AI_ENDPOINT!=='undefined'&&AZURE_AI_ENDPOINT)?'AI (Azure OpenAI)':'AI (Local Match)';
+}
+
+// ── EXTEND renderStepContent to also refresh triage if on step 5 ──
+const _svOrig=showView;
+showView=function(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tn-btn').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('view-'+v);
+  if(el) el.classList.add('active');
+  if(v==='process'||v==='workflow'||v==='dashboard'){
+    const idx={process:0,workflow:1,dashboard:2}[v];
+    document.querySelectorAll('.tn-btn')[idx]?.classList.add('active');
+  }
+  if(v==='triage'){
+    document.getElementById('triage-tab-btn')?.classList.add('active');
+    renderTriageGrid();
+  }
+};
+
+// ── Show triage tab only if URL has ?triage=1 ──
+(function(){
+  if(window.location.search.includes('triage=1')||window.location.hash.includes('triage')){
+    document.getElementById('triage-tab-btn').style.display='';
+    document.getElementById('triage-tab-sep').style.display='';
+  }
+})();
+
+// ── INIT ──
 selectScenario(0);
 showStep(0);
-</script>
+setTimeout(()=>updateSymCompletion(), 400);</script>
 </body>
 </html>
