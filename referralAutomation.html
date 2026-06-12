@@ -493,11 +493,63 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
             </div>
             <div><label class="fl">Extension / Direct Line <span style="font-weight:400;font-style:italic;opacity:.7">(if applicable)</span></label><input class="fi ok" id="f-refext" placeholder="e.g. ext. 204" value=""></div>
             <div><label class="fl">Referral Type *</label><select class="fi ok sel" id="f-reftype"><option>Consultation</option><option>Follow-up</option></select></div>
-            <div><label class="fl">Urgency *</label><select class="fi ok sel" id="f-urgency"><option>Routine (within 30 days)</option><option>Urgent (within 72 hrs)</option></select></div>
             </div>
 
-          <!-- ══ SYMPTOM DETAILS — Tabbed Section ══ -->
-          <div class="slabel" style="margin-top:4px;">Symptom Details</div>
+          <!-- ══ PRIMARY SYMPTOM SELECTOR ══ -->
+          <div class="slabel" style="margin-top:4px;">Primary Symptom</div>
+          <div style="margin-bottom:14px;">
+            <label class="fl">Identify Primary Symptom *</label>
+            <select class="fi ok sel" id="f-primary-symptom" onchange="onSymptomSelect(this.value)" style="max-width:100%;">
+              <option value="">— Select the primary symptom —</option>
+              <option value="Acne">Acne</option>
+              <option value="Alopecia Areata">Alopecia Areata</option>
+              <option value="Angioma/Spider Angioma">Angioma / Spider Angioma</option>
+              <option value="Atopic Dermatitis/Eczema">Atopic Dermatitis / Eczema</option>
+              <option value="Birthmark">Birthmark</option>
+              <option value="Dermatitis">Dermatitis</option>
+              <option value="Excessive Hair">Excessive Hair</option>
+              <option value="Excessive Sweating/Hyperhidrosis">Excessive Sweating / Hyperhidrosis</option>
+              <option value="Hair Loss">Hair Loss</option>
+              <option value="Hemangiomas">Hemangiomas</option>
+              <option value="Hidradenitis">Hidradenitis</option>
+              <option value="Hirsutism">Hirsutism</option>
+              <option value="Hypertrichosis">Hypertrichosis</option>
+              <option value="Moles">Moles</option>
+              <option value="Molluscum Contagiosum">Molluscum Contagiosum</option>
+              <option value="Nail Condition">Nail Condition</option>
+              <option value="Nevus/Nevi">Nevus / Nevi</option>
+              <option value="Pilonidal Cyst">Pilonidal Cyst</option>
+              <option value="Port Wine Stain">Port Wine Stain</option>
+              <option value="Psoriasis">Psoriasis</option>
+              <option value="Rash">Rash</option>
+              <option value="Telangiectasia">Telangiectasia</option>
+              <option value="Tinea Capitis/Ringworm">Tinea Capitis / Ringworm</option>
+              <option value="Vitiligo/White Spots">Vitiligo / White Spots</option>
+              <option value="Warts">Warts</option>
+              <option value="Epidermolysis Bullosa">Epidermolysis Bullosa</option>
+              <option value="Polycystic Ovarian Syndrome (PCOS)">Polycystic Ovarian Syndrome (PCOS)</option>
+              <option value="Allergy/Derm Clinic">Allergy / Derm Clinic</option>
+              <option value="Severe Blistering">Severe Blistering</option>
+              <option value="High Fever">High Fever</option>
+              <option value="Hemangioma (less than 1 year of age)">Hemangioma (less than 1 year of age)</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <!-- "Other" free text — revealed only when Other is selected -->
+            <div id="symptom-other-wrap" style="display:none;margin-top:10px;">
+              <label class="fl">Please describe the symptom *</label>
+              <input class="fi ok" id="f-symptom-other" placeholder="Describe the primary symptom in your own words…" value="">
+            </div>
+
+            <!-- Prompt shown before selection -->
+            <div id="symptom-prompt" style="margin-top:10px;padding:11px 14px;background:var(--s2);border-radius:8px;border:1px dashed var(--border);font-size:12px;color:var(--t3);text-align:center;">
+              👆 Select a primary symptom above to reveal the detailed symptom questions below
+            </div>
+          </div>
+
+          <!-- ══ SYMPTOM DETAILS — revealed after primary symptom selected ══ -->
+          <div id="symptom-details-reveal" style="display:none;">
+          <div class="slabel">Symptom Details</div>
           <div class="symptom-tabs-wrap">
             <!-- TAB NAV -->
             <div class="sym-tab-nav">
@@ -589,6 +641,8 @@ header{background:var(--navy);padding:14px 30px;display:flex;align-items:center;
 
           <!-- Hidden field kept for backward compat with scenario data -->
           <input type="hidden" id="f-reason" value="">
+
+          </div><!-- end symptom-details-reveal -->
 
 
           <div class="slabel">Attachments</div>
@@ -1315,6 +1369,7 @@ const SC = {
     groupnum:'GRP-8821-NJ',interp:true,lang:'Spanish',
     refprov:'Dr. Sarah Kim, MD',refspec:'Pediatric Primary Care',refprac:'Pediatric Associates of NJ',refphone:'(856) 555-0210',
     reftype:'Consultation',urgency:'Routine (within 30 days)',
+    primarySymptom:'Atopic Dermatitis/Eczema',
     reason:'Persistent atopic dermatitis, unresponsive to topical steroids',
     notes:'Patient has history of seasonal allergies. No systemic symptoms. Requesting specialist evaluation for potential dupilumab candidacy.',
     onset:'Red, scaly, intensely itchy patches on bilateral arms and behind knees',
@@ -1413,6 +1468,7 @@ const SC = {
     groupnum:'GRP-4420-NJ',interp:false,lang:'',
     refprov:'Dr. Thomas Park, MD',refspec:'Pediatric Primary Care',refprac:'Camden Pediatric Group',refphone:'(856) 555-0398',
     reftype:'Consultation',urgency:'Urgent (within 72 hrs)',
+    primarySymptom:'Atopic Dermatitis/Eczema',
     reason:'Severe eczema with suspected secondary infection',
     notes:'Two prior ER visits in past 3 months. MRN unknown to referring practice. Pediatrician concerned about systemic spread.',
     onset:'Widespread weeping, crusted eczema lesions with yellow discharge',
@@ -1508,6 +1564,7 @@ const SC = {
     groupnum:'GRP-0033-NJ',interp:false,lang:'',
     refprov:'Dr. Rita Patel, MD',refspec:'Internal Medicine',refprac:'Edison Pediatric Partners',refphone:'(732) 555-0140',
     reftype:'Consultation',urgency:'Routine (within 30 days)',
+    primarySymptom:'Rash',
     reason:'Chronic urticaria with suspected allergic component',
     notes:'Recurring hives over 8-week period, primarily nocturnal. Cetirizine 10mg with partial relief only.',
     onset:'Raised, red, itchy welts appearing mostly at night',
@@ -1626,7 +1683,12 @@ function selectScenario(idx){
     if(el && sc[k]!==undefined) el.value = sc[k];
   });
   document.getElementById('f-notes').value = sc.notes || '';
-  // symptom dropdowns
+  // primary symptom dropdown + reveal
+  const psEl = document.getElementById('f-primary-symptom');
+  if(psEl){
+    psEl.value = sc.primarySymptom || '';
+    onSymptomSelect(sc.primarySymptom || '');
+  }
   const taEl = document.getElementById('f-tests-attachments');
   if(taEl) taEl.value = sc.testsAttachments || '';
   const urgEl = document.getElementById('f-urgency');
@@ -2028,8 +2090,47 @@ function runSubmit(){
 }
 
 // ════════════════════════════════════════════════
-// SYMPTOM TABS
+// PRIMARY SYMPTOM SELECTOR
 // ════════════════════════════════════════════════
+function onSymptomSelect(val){
+  const otherWrap  = document.getElementById('symptom-other-wrap');
+  const prompt     = document.getElementById('symptom-prompt');
+  const reveal     = document.getElementById('symptom-details-reveal');
+
+  if(!val){
+    // Nothing selected — hide details, show prompt
+    otherWrap.style.display  = 'none';
+    prompt.style.display     = 'block';
+    reveal.style.display     = 'none';
+    return;
+  }
+
+  // Hide prompt, reveal detail tabs
+  prompt.style.display  = 'none';
+  reveal.style.display  = 'block';
+  reveal.style.animation = 'fi .35s ease';
+
+  // Show/hide Other free-text
+  otherWrap.style.display = (val === 'Other') ? 'block' : 'none';
+  if(val !== 'Other'){
+    const oth = document.getElementById('f-symptom-other');
+    if(oth) oth.value = '';
+  }
+
+  // Pre-fill onset field with symptom name as a starting hint if empty
+  const onsetEl = document.getElementById('f-onset');
+  if(onsetEl && !onsetEl.value){
+    onsetEl.value = val;
+    onsetEl.dispatchEvent(new Event('input'));
+  }
+
+  updateSymCompletion();
+  // Scroll to tabs smoothly
+  setTimeout(()=>{
+    const tabs = document.querySelector('.symptom-tabs-wrap');
+    if(tabs) tabs.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 150);
+}
 function symTab(idx, btn){
   document.querySelectorAll('.sym-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
   document.querySelectorAll('.sym-tab').forEach((b,i)=>b.classList.toggle('active',i===idx));
@@ -2037,14 +2138,15 @@ function symTab(idx, btn){
 }
 
 const SYM_FIELDS = [
-  {id:'f-onset',       label:'Onset symptom',         required:true},
-  {id:'f-location',    label:'Location observed',      required:true},
-  {id:'f-onset-detail',label:'Onset details',          required:true},
-  {id:'f-treatments',  label:'Prior treatments',       required:false},
-  {id:'f-suspected-dx',label:'Suspected diagnosis',    required:false},
-  {id:'f-tests',       label:'Prior tests / biopsies', required:false},
-  {id:'f-tests-attachments',label:'Test attachments',  required:true},
-  {id:'f-urgency',     label:'Urgency',                required:true},
+  {id:'f-primary-symptom', label:'Primary symptom',        required:true},
+  {id:'f-onset',           label:'Onset symptom',          required:true},
+  {id:'f-location',        label:'Location observed',      required:true},
+  {id:'f-onset-detail',    label:'Onset details',          required:true},
+  {id:'f-treatments',      label:'Prior treatments',       required:false},
+  {id:'f-suspected-dx',    label:'Suspected diagnosis',    required:false},
+  {id:'f-tests',           label:'Prior tests / biopsies', required:false},
+  {id:'f-tests-attachments',label:'Test attachments',      required:true},
+  {id:'f-urgency',         label:'Urgency',                required:true},
 ];
 
 function updateSymCompletion(){
@@ -2078,6 +2180,7 @@ function buildTriageReasoningHtml(condition, timeframe, confidence, reasoning, s
 
   // Score contributing signals from all symptom fields
   const signals = [];
+  if(sc.primarySymptom) signals.push({icon:'🎯', label:'Primary Symptom Selected', val:sc.primarySymptom, weight:'Strongest signal'});
   if(sc.onset)       signals.push({icon:'🩺', label:'Onset Symptom',       val:sc.onset,        weight:'Primary signal'});
   if(sc.location)    signals.push({icon:'📍', label:'Location',             val:sc.location,     weight:'Supporting signal'});
   if(sc.onsetDetail) signals.push({icon:'📋', label:'Onset Details',        val:sc.onsetDetail.substring(0,80)+(sc.onsetDetail.length>80?'…':''), weight:'Contextual'});
@@ -2118,27 +2221,14 @@ function buildTriageReasoningHtml(condition, timeframe, confidence, reasoning, s
   `;
 }
 
-// Patch showTriageResult to use enhanced reasoning when in internal step
-const _origShowTriageResult = showTriageResult;
-showTriageResult = function(condition, timeframe, confidence, reasoning, warning, noMatch){
-  _origShowTriageResult(condition, timeframe, confidence, reasoning, warning, noMatch);
-  // If internal triage tab is visible, also update SP columns and reasoning body
-  if(currentStep===5){
-    updateSpColsFromResult(condition, timeframe, confidence, reasoning);
-    const sc = SC[currentSc];
-    const body = document.getElementById('triage-body');
-    if(body && !noMatch){
-      body.innerHTML = buildTriageReasoningHtml(condition, timeframe, confidence, reasoning, sc);
-    }
-  }
-};
+// showTriageResult enhanced — handles both form panel and internal triage tab
 
 // Patch runLocalTriageAndStore to pass sc context
 const _origRunLocalTriageAndStore = runLocalTriageAndStore;
 runLocalTriageAndStore = function(text){
   const sc = SC[currentSc];
   // Enrich text with all symptom fields for better matching
-  const enriched = [sc.onset||'', sc.location||'', sc.onsetDetail||'', sc.treatments||'', sc.suspectedDx||'', text].join(' ');
+  const enriched = [sc.primarySymptom||'', sc.onset||'', sc.location||'', sc.onsetDetail||'', sc.treatments||'', sc.suspectedDx||'', text].join(' ');
   const t = enriched.toLowerCase();
   let best=null, bestScore=0;
   for(const [cond,time] of TRIAGE_DATA){
@@ -2160,27 +2250,8 @@ runLocalTriageAndStore = function(text){
   showTriageResult(best[0],best[1],conf,reasoning,null);
   updateSpColsFromResult(best[0],best[1],conf,reasoning);
 };
-</script>
 
-<!-- ════════════════════════════════════════════════
-     VIEW: TRIAGE REFERENCE (hidden — internal use)
-════════════════════════════════════════════════ -->
-<div class="view" id="view-triage">
-<div class="triage-ref-wrap">
-  <h2>🏥 Triage Reference Matrix</h2>
-  <div class="sub">Internal reference only — not visible to external form submitters. Conditions and recommended appointment timeframes from the CHOP Dermatology Triage Mapping document.</div>
-  <input class="triage-search" type="text" placeholder="Search conditions (e.g. eczema, acne, rash, hemangioma…)" oninput="filterTriage(this.value)" id="triage-search-input">
-  <div style="font-size:11px;color:var(--t3);margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap;">
-    <span><span style="display:inline-block;width:10px;height:10px;background:#FAD7D3;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--red);"></span>Urgent / ED</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#FEF3D0;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--amber);"></span>Seen soon (days–weeks)</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#D0F5E8;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--teal);"></span>Routine (1–6 months)</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#EAD6FC;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--purple);"></span>Refer elsewhere</span>
-  </div>
-  <div class="triage-grid" id="triage-grid"></div>
-</div>
-</div>
 
-<script>
 // ════════════════════════════════════════════════
 // TRIAGE DATA — 224 entries from CHOP Triage mapping
 // ════════════════════════════════════════════════
@@ -2509,17 +2580,27 @@ function showTriageLoading(){
 
 function showTriageResult(condition,timeframe,confidence,reasoning,warning,noMatch){
   const p=document.getElementById('triage-panel'),h=document.getElementById('triage-hdr'),b=document.getElementById('triage-body');
+  if(!p||!h||!b) return;
   const cat=noMatch?'routine':triageCategory(timeframe);
   const cfg=catCfg(cat);
   p.className=`triage-panel visible ${cfg.cls}`;
   h.innerHTML=`<span>${cfg.icon}</span><span>AI Triage Suggestion — ${cfg.label}</span>`;
   const cc=confidence==='high'?'var(--green)':confidence==='medium'?'var(--amber)':'var(--red)';
   const cl=confidence==='high'?'● High confidence':confidence==='medium'?'● Medium confidence':'● Low confidence — review recommended';
-  b.innerHTML=`<div class="tp-condition">${condition}</div>
-    <div class="tp-timeframe">${cfg.icon} Suggested timeframe: <strong>${timeframe}</strong></div>
-    ${warning?`<div style="background:#FFF0EF;border-radius:6px;padding:7px 10px;font-size:11.5px;color:var(--red);font-weight:600;margin-bottom:6px;">⚠ ${warning}</div>`:''}
-    <div class="tp-confidence" style="color:${cc};">${cl}</div>
-    <div class="tp-note">💬 ${reasoning}<br><span style="font-size:10px;color:var(--t3);">AI-generated triage suggestion for internal reference only. Final scheduling decisions remain with the clinical team.</span></div>`;
+
+  // If internal triage step is active — show full reasoning breakdown
+  if(currentStep===5 && !noMatch && typeof buildTriageReasoningHtml==='function'){
+    const sc=SC[currentSc];
+    b.innerHTML = buildTriageReasoningHtml(condition, timeframe, confidence, reasoning, sc);
+    if(typeof updateSpColsFromResult==='function') updateSpColsFromResult(condition, timeframe, confidence, reasoning);
+  } else {
+    b.innerHTML=`<div class="tp-condition">${condition}</div>
+      <div class="tp-timeframe">${cfg.icon} Suggested timeframe: <strong>${timeframe}</strong></div>
+      ${warning?`<div style="background:#FFF0EF;border-radius:6px;padding:7px 10px;font-size:11.5px;color:var(--red);font-weight:600;margin-bottom:6px;">⚠ ${warning}</div>`:''}
+      <div class="tp-confidence" style="color:${cc};">${cl}</div>
+      <div class="tp-note">💬 ${reasoning}<br><span style="font-size:10px;color:var(--t3);">AI-generated triage suggestion for internal reference only. Final scheduling decisions remain with the clinical team.</span></div>`;
+    if(currentStep===5 && typeof updateSpColsFromResult==='function') updateSpColsFromResult(condition, timeframe, confidence, reasoning);
+  }
 }
 
 function hideTriage(){
@@ -2615,6 +2696,28 @@ showView=function(v){
 // ── INIT ──
 selectScenario(0);
 showStep(0);
-setTimeout(()=>updateSymCompletion(), 400);</script>
+setTimeout(()=>updateSymCompletion(), 400);
+
+</script>
+
+<!-- ════════════════════════════════════════════════
+     VIEW: TRIAGE REFERENCE (hidden — internal use)
+════════════════════════════════════════════════ -->
+<div class="view" id="view-triage">
+<div class="triage-ref-wrap">
+  <h2>🏥 Triage Reference Matrix</h2>
+  <div class="sub">Internal reference only — not visible to external form submitters. Conditions and recommended appointment timeframes from the CHOP Dermatology Triage Mapping document.</div>
+  <input class="triage-search" type="text" placeholder="Search conditions (e.g. eczema, acne, rash, hemangioma…)" oninput="filterTriage(this.value)" id="triage-search-input">
+  <div style="font-size:11px;color:var(--t3);margin-bottom:12px;display:flex;gap:14px;flex-wrap:wrap;">
+    <span><span style="display:inline-block;width:10px;height:10px;background:#FAD7D3;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--red);"></span>Urgent / ED</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#FEF3D0;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--amber);"></span>Seen soon (days–weeks)</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#D0F5E8;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--teal);"></span>Routine (1–6 months)</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#EAD6FC;border-radius:2px;margin-right:4px;vertical-align:middle;border-left:3px solid var(--purple);"></span>Refer elsewhere</span>
+  </div>
+  <div class="triage-grid" id="triage-grid"></div>
+</div>
+</div>
+
+
 </body>
 </html>
