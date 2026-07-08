@@ -1,0 +1,1536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Referral Transcription — End-to-End Automation Walkthrough</title>
+<style>
+  /* ============================================================
+     Referral Transcription — End-to-End Automation Walkthrough
+     Animated walkthrough. Self-contained. No external assets.
+     ============================================================ */
+
+  :root{
+    /* Deep-blue brand palette */
+    --navy:      #002B5C;
+    --blue:      #0061AF;
+    --blue-lt:   #2a86d6;
+    --cyan:      #00A0C6;
+    --scan:      #22c8ec;
+    --ink:       #0f2740;
+    --muted:     #5c7186;
+    --line:      #d9e4ef;
+    --line-2:    #c3d4e4;
+    --canvas:    #e9f0f7;
+    --panel:     #ffffff;
+    --panel-2:   #f4f8fc;
+    --green:     #1f9d57;
+    --green-bg:  #e6f6ec;
+    --amber:     #d98a00;
+    --amber-bg:  #fbf1dc;
+    --red:       #d64d3f;
+    --red-bg:    #fbe9e7;
+
+    --display: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "Cascadia Code", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+    --shadow-1: 0 1px 2px rgba(15,39,64,.08), 0 6px 18px rgba(15,39,64,.08);
+    --shadow-2: 0 10px 40px rgba(0,43,92,.22);
+    --radius: 12px;
+    --chrome: 232px;   /* header+caption+controls+footnote budget */
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; min-height:100%; }
+  body{
+    font-family:var(--display);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #eaf4fb 0%, transparent 60%),
+      linear-gradient(180deg, #f2f7fb 0%, #e6eef6 100%);
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+    padding:10px; min-height:100vh;
+  }
+
+  /* ---------------- Player shell ---------------- */
+  .player{
+    width:min(1120px, 100%);
+    background:var(--panel);
+    border:1px solid var(--line-2);
+    border-radius:18px;
+    box-shadow:var(--shadow-2);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+
+  /* ---------------- Brand bar ---------------- */
+  .brandbar{
+    display:flex; align-items:center; gap:16px;
+    padding:11px 18px;
+    background:linear-gradient(90deg, var(--navy), #063a76 60%, #0061AF);
+    color:#fff;
+  }
+  .logo{ display:flex; align-items:center; gap:10px; }
+  .logo .mark{ width:30px; height:30px; display:block; }
+  .logo .word{ font-weight:700; font-size:19px; letter-spacing:.2px; }
+  .logo .word b{ font-weight:800; }
+  .logo .word span{ font-weight:400; opacity:.92; }
+  .brand-div{ width:1px; height:26px; background:rgba(255,255,255,.28); }
+  .brand-title{ font-size:13.5px; font-weight:600; opacity:.96; line-height:1.2; }
+  .brand-title small{ display:block; font-weight:400; font-size:11px; opacity:.7; letter-spacing:.3px; text-transform:uppercase; }
+
+  .phases{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+  .phase{
+    display:flex; align-items:center; gap:7px;
+    font-size:11px; font-weight:600; letter-spacing:.6px;
+    padding:6px 11px; border-radius:999px;
+    color:rgba(255,255,255,.6);
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    transition:.4s;
+  }
+  .phase i{ width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.6; }
+  .phase.active{
+    color:#fff; background:rgba(255,255,255,.16);
+    border-color:rgba(255,255,255,.5);
+    box-shadow:0 0 0 3px rgba(34,200,236,.25);
+  }
+  .phase.active i{ background:var(--scan); opacity:1; box-shadow:0 0 8px var(--scan); }
+  .phase-arrow{ color:rgba(255,255,255,.35); font-size:12px; }
+
+  /* ---------------- Stage ---------------- */
+  .stage-wrap{ position:relative; background:var(--canvas); }
+  .stage{
+    position:relative;
+    aspect-ratio:16/9;
+    width:100%;
+    overflow:hidden;
+  }
+  .scene{
+    position:absolute; inset:0;
+    padding:18px 30px;
+    display:flex; flex-direction:column;
+    opacity:0; visibility:hidden;
+    transition:opacity .5s ease;
+  }
+  .scene.is-active{ opacity:1; visibility:visible; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:9px;
+    font-size:11px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase;
+    color:var(--blue);
+  }
+  .eyebrow .step{
+    background:var(--navy); color:#fff; border-radius:6px;
+    padding:3px 8px; letter-spacing:.5px; font-size:10.5px;
+  }
+  .eyebrow .tick{ width:22px; height:1px; background:var(--line-2); }
+  .scene h2{
+    margin:6px 0 0; font-size:23px; font-weight:800; letter-spacing:-.3px; color:var(--navy);
+    line-height:1.12;
+  }
+  .scene .body{ flex:1; min-height:0; margin-top:12px; position:relative; }
+
+  /* ==== animation base: children hold until scene is active ==== */
+  .anim{ animation-duration:.7s; animation-fill-mode:both; animation-play-state:paused; }
+  .scene.is-active .anim{ animation-play-state:running; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;} }
+  @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+  @keyframes popIn{ from{opacity:0; transform:scale(.9);} to{opacity:1; transform:none;} }
+  @keyframes slideR{ from{opacity:0; transform:translateX(-22px);} to{opacity:1; transform:none;} }
+  @keyframes growW{ from{ width:0; } }
+  @keyframes lift{
+    0%{ opacity:0; transform:translate(-40px,10px) scale(.96); }
+    100%{ opacity:1; transform:none; }
+  }
+
+  .reduced .anim{ animation:none !important; opacity:1 !important; transform:none !important; width:auto; }
+  .reduced .scan-beam{ display:none !important; }
+
+  /* ============================================================
+     SCENE 0 — Overview pipeline
+     ============================================================ */
+  .pipeline{ display:flex; align-items:stretch; gap:0; height:100%; }
+  .pl-station{
+    flex:1; position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; padding:18px;
+    border-radius:16px; margin:6px;
+    background:var(--panel); border:1px solid var(--line);
+    transition:.5s;
+  }
+  .pl-station .num{
+    font-size:12px; font-weight:800; letter-spacing:2px; color:var(--muted);
+  }
+  .pl-ico{
+    width:64px; height:64px; border-radius:16px;
+    display:grid; place-items:center; color:#fff;
+    background:linear-gradient(160deg,#7c93a8,#5c7186);
+    box-shadow:var(--shadow-1);
+  }
+  .pl-station h3{ margin:0; font-size:19px; font-weight:800; color:var(--navy); }
+  .pl-station p{ margin:0; font-size:12.5px; color:var(--muted); text-align:center; line-height:1.4; max-width:220px; }
+  .pl-station.dim{ opacity:.5; filter:saturate(.5); }
+  .pl-station.focus{
+    transform:scale(1.05);
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px rgba(0,97,175,.18), var(--shadow-2);
+  }
+  .pl-station.focus .pl-ico{ background:linear-gradient(160deg,var(--blue),var(--cyan)); }
+  .pl-connector{ display:flex; align-items:center; color:var(--line-2); font-size:22px; padding:0 2px; }
+  .pl-badge{
+    position:absolute; top:-11px;
+    background:var(--navy); color:#fff; font-size:10px; font-weight:700; letter-spacing:1px;
+    padding:4px 10px; border-radius:999px; text-transform:uppercase;
+  }
+
+  /* ============================================================
+     Generic split layout
+     ============================================================ */
+  .split{ display:grid; grid-template-columns:1fr 1fr; gap:22px; height:100%; }
+  .split.wide-r{ grid-template-columns:0.9fr 1.1fr; }
+  .col{ display:flex; flex-direction:column; min-height:0; }
+
+  /* ---- Fax document render ---- */
+  .doc-frame{
+    position:relative; flex:1; min-height:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fax{
+    position:relative;
+    width:290px; background:#fff;
+    border:1px solid var(--line-2); border-radius:6px;
+    box-shadow:var(--shadow-2);
+    padding:16px 16px 18px;
+    font-size:9px; color:#33475b;
+  }
+  .fax .fax-hdr{
+    border-bottom:1.5px solid var(--navy); padding-bottom:6px; margin-bottom:8px;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:8px;
+  }
+  .fax .fax-hdr .l{ font-weight:700; color:var(--navy); font-size:9.5px; line-height:1.3; }
+  .fax .fax-hdr .r{ text-align:right; color:var(--muted); font-size:7.5px; line-height:1.4; }
+  .fax .confidential{
+    background:var(--navy); color:#fff; text-align:center; font-weight:800;
+    letter-spacing:1.5px; font-size:8px; padding:4px; border-radius:3px; margin-bottom:9px;
+  }
+  .fax .frow{ display:flex; justify-content:space-between; padding:3px 4px; border-radius:3px; margin-bottom:2px; position:relative; }
+  .fax .frow .k{ color:var(--muted); }
+  .fax .frow .v{ font-weight:700; color:var(--ink); }
+  .fax .frow.hl{ background:rgba(34,200,236,.16); outline:1px solid rgba(0,160,198,.4); }
+  .fax .stamp{
+    position:absolute; right:12px; bottom:10px;
+    border:2px solid var(--red); color:var(--red);
+    font-weight:800; font-size:8px; letter-spacing:1px; padding:3px 7px; border-radius:4px;
+    transform:rotate(-8deg); opacity:.85;
+  }
+  /* page stack behind */
+  .fax::before, .fax::after{
+    content:""; position:absolute; inset:0; border:1px solid var(--line-2); border-radius:6px;
+    background:#fff; z-index:-1;
+  }
+  .fax::before{ transform:translate(7px,7px); }
+  .fax::after{ transform:translate(13px,13px); opacity:.6; }
+
+  /* scan beam */
+  .scan-beam{
+    position:absolute; left:-2%; right:-2%; height:26px; z-index:5;
+    background:linear-gradient(180deg, transparent, rgba(34,200,236,.55), transparent);
+    border-top:1px solid rgba(34,200,236,.9); border-bottom:1px solid rgba(34,200,236,.9);
+    box-shadow:0 0 22px rgba(34,200,236,.6);
+    top:0; opacity:0;
+  }
+  @keyframes sweep{
+    0%{ top:-4%; opacity:0; }
+    8%{ opacity:1; }
+    92%{ opacity:1; }
+    100%{ top:100%; opacity:0; }
+  }
+
+  /* ---- Skill (markdown) instruction card ---- */
+  .skillcard{
+    background:#0c1e33; color:#d7e6f5; border-radius:12px; padding:16px 16px 14px;
+    font-family:var(--mono); font-size:11px; box-shadow:var(--shadow-2); position:relative;
+    border:1px solid #14304d; overflow:hidden;
+  }
+  .skillcard .fname{
+    display:flex; align-items:center; gap:8px; color:#8fb6d8; font-size:11px; margin-bottom:10px;
+    padding-bottom:9px; border-bottom:1px solid #1c3a5a;
+  }
+  .skillcard .fname .dot{ width:9px;height:9px;border-radius:50%; }
+  .skillcard .role{ color:#7fe3ff; }
+  .skillcard .line{ margin:5px 0; line-height:1.45; }
+  .skillcard .rule{ color:#cfe0f0; }
+  .skillcard .rule b{ color:#ffd479; font-weight:700; }
+  .skillcard .cmt{ color:#5f83a3; }
+
+  .rulechips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .chip{
+    font-size:11px; font-weight:600; color:var(--navy);
+    background:var(--panel); border:1px solid var(--line-2); border-radius:999px;
+    padding:6px 11px; display:inline-flex; align-items:center; gap:6px;
+    box-shadow:var(--shadow-1);
+  }
+  .chip .cc{ width:6px;height:6px;border-radius:50%; background:var(--cyan); }
+
+  /* ---- Extraction field panel ---- */
+  .panel-hd{
+    display:flex; align-items:center; gap:9px; font-size:12px; font-weight:700; color:var(--navy);
+    margin-bottom:10px;
+  }
+  .panel-hd .pill{
+    margin-left:auto; font-size:10px; font-weight:700; color:#fff; background:var(--blue);
+    padding:3px 9px; border-radius:999px; letter-spacing:.5px;
+  }
+  .fieldlist{ display:flex; flex-direction:column; gap:7px; overflow:auto; padding-right:4px; }
+  .field{
+    background:var(--panel); border:1px solid var(--line); border-radius:9px;
+    padding:8px 11px; box-shadow:var(--shadow-1);
+    display:grid; grid-template-columns:1fr auto; gap:2px 12px; align-items:center;
+  }
+  .field .fk{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; grid-column:1; }
+  .field .fv{ font-size:13px; font-weight:700; color:var(--ink); grid-column:1; font-family:var(--mono); }
+  .field .conf{ grid-column:2; grid-row:1 / span 2; display:flex; flex-direction:column; align-items:flex-end; gap:4px; min-width:78px; }
+  .conf .cval{ font-size:11px; font-weight:800; }
+  .conf .bar{ width:74px; height:5px; border-radius:3px; background:var(--line); overflow:hidden; }
+  .conf .bar i{ display:block; height:100%; border-radius:3px; }
+  .c-hi{ color:var(--green); } .c-hi i{ background:var(--green); }
+  .c-mid{ color:var(--amber); } .c-mid i{ background:var(--amber); }
+
+  /* ---- Power Automate cloud flow (image 1) ---- */
+  .paflow{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; height:100%; }
+  .pa-card{
+    width:340px; background:#fff; border:1px solid var(--line-2); border-radius:8px;
+    box-shadow:var(--shadow-1); padding:13px 14px; display:flex; align-items:center; gap:12px;
+    position:relative; overflow:hidden;
+  }
+  .pa-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; }
+  .pa-card.c-trig::before{ background:#0067b8; }
+  .pa-card.c-ai::before{ background:#3b8fe0; }
+  .pa-card.c-json::before{ background:#8a63d2; }
+  .pa-ico{ width:34px; height:34px; border-radius:7px; display:grid; place-items:center; color:#fff; font-size:16px; flex-shrink:0; }
+  .pa-ico.i-trig{ background:#0067b8; }
+  .pa-ico.i-ai{ background:linear-gradient(135deg,#3b8fe0,#5fa8ea); }
+  .pa-ico.i-json{ background:#8a63d2; }
+  .pa-card .t{ font-weight:700; font-size:14px; color:#1b1b1b; }
+  .pa-card .s{ font-size:11px; color:var(--muted); }
+  .pa-conn{ width:2px; height:26px; background:var(--line-2); position:relative; }
+  .pa-conn .plus{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:20px; height:20px; border-radius:50%; background:#fff; border:1.5px solid var(--line-2);
+    display:grid; place-items:center; font-size:13px; color:var(--muted); font-weight:700;
+  }
+  .pulse-dot{
+    position:absolute; left:50%; top:0; transform:translateX(-50%);
+    width:9px; height:9px; border-radius:50%; background:var(--cyan);
+    box-shadow:0 0 12px var(--cyan); opacity:0;
+  }
+
+  /* ---- PAD subflow (image 2) ---- */
+  .pad{
+    background:#fff; border:1px solid var(--line-2); border-radius:10px; box-shadow:var(--shadow-1);
+    padding:6px; height:100%; display:flex; flex-direction:column; gap:6px; overflow:hidden;
+  }
+  .pad-tabs{ display:flex; align-items:center; gap:6px; padding:6px 8px 8px; border-bottom:1px solid var(--line); font-size:11px; color:var(--muted); }
+  .pad-tabs .tab.on{ color:var(--navy); font-weight:700; border-bottom:2px solid var(--blue); padding-bottom:6px; margin-bottom:-9px; }
+  .pad-step{
+    display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border-radius:8px;
+    background:var(--panel-2); border:1px solid var(--line);
+  }
+  .pad-step .n{ font-size:11px; color:var(--muted); font-weight:700; width:14px; text-align:right; padding-top:1px; }
+  .pad-step .ico{ width:20px; height:20px; border-radius:5px; background:#e6eef8; color:var(--blue); display:grid; place-items:center; font-size:11px; flex-shrink:0; }
+  .pad-step .txt{ font-size:11.5px; color:var(--ink); line-height:1.35; }
+  .pad-step .txt b{ color:var(--navy); }
+  .pad-step.loop{ background:#e8f7fb; border-color:#bfe6f0; }
+  .tok{ background:#eaf1fb; border:1px solid #cfe0f5; color:var(--blue); border-radius:999px; padding:1px 7px; font-size:10.5px; font-weight:600; white-space:nowrap; }
+  .pad-indent{ margin-left:26px; display:flex; flex-direction:column; gap:6px; }
+
+  /* ---- Page classification thumbnails ---- */
+  .pagerow{ display:flex; gap:12px; align-items:stretch; justify-content:center; height:100%; flex-wrap:wrap; align-content:center; }
+  .pthumb{
+    width:118px; background:#fff; border:1px solid var(--line-2); border-radius:8px; box-shadow:var(--shadow-1);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .pthumb .pg{
+    height:74px; background:
+      repeating-linear-gradient(180deg,#eef3f8 0 6px, #fff 6px 13px);
+    position:relative; display:grid; place-items:center;
+    color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.5px;
+    border-bottom:1px solid var(--line);
+  }
+  .pthumb .pg .pn{ position:absolute; top:5px; left:7px; font-size:10px; color:var(--navy); font-weight:800; }
+  .pthumb .tag{ padding:8px 9px; display:flex; flex-direction:column; gap:4px; }
+  .pthumb .ttype{ font-size:11px; font-weight:800; }
+  .pthumb .tconf{ font-size:9.5px; color:var(--muted); display:flex; align-items:center; gap:5px; }
+  .pthumb .tbar{ flex:1; height:4px; border-radius:2px; background:var(--line); overflow:hidden; }
+  .pthumb .tbar i{ display:block; height:100%; border-radius:2px; }
+  .t-preauth{ color:#0061AF; } .t-preauth .tbar i{ background:#0061AF; }
+  .t-medrec{ color:#7a5bd0; } .t-medrec .tbar i{ background:#7a5bd0; }
+  .t-cover{ color:#7c8a99; } .t-cover .tbar i{ background:#7c8a99; }
+  .pthumb .ttop{ height:5px; }
+  .pt-preauth .ttop{ background:#0061AF; }
+  .pt-medrec .ttop{ background:#7a5bd0; }
+  .pt-cover .ttop{ background:#c3d4e4; }
+
+  /* ---- Composite verdict ---- */
+  .verdict-wrap{ display:grid; grid-template-columns:1.15fr 1fr; gap:22px; height:100%; align-content:center; }
+  .segments{ display:flex; flex-direction:column; gap:10px; }
+  .segment{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:11px;
+    background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow-1);
+  }
+  .segment .sbar{ width:5px; align-self:stretch; border-radius:4px; }
+  .segment .sinfo{ flex:1; }
+  .segment .stype{ font-weight:800; font-size:14px; color:var(--navy); }
+  .segment .spages{ font-size:11px; color:var(--muted); }
+  .segment .becode{
+    font-family:var(--mono); font-size:11px; font-weight:700; color:#fff; padding:4px 9px; border-radius:6px;
+  }
+  .seg-preauth .sbar{ background:#0061AF; } .seg-preauth .becode{ background:#0061AF; }
+  .seg-medrec .sbar{ background:#7a5bd0; } .seg-medrec .becode{ background:#7a5bd0; }
+  .seg-cover .sbar{ background:#c3d4e4; } .seg-cover .becode{ background:#8fa3b5; }
+
+  .verdict-card{
+    background:linear-gradient(160deg,var(--navy),#0a4a8f);
+    color:#fff; border-radius:14px; padding:20px; box-shadow:var(--shadow-2);
+    display:flex; flex-direction:column; gap:12px; justify-content:center;
+  }
+  .verdict-card .flag{
+    align-self:flex-start; background:var(--amber); color:#3a2600; font-weight:800; font-size:11px;
+    padding:5px 11px; border-radius:999px; letter-spacing:.5px;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .verdict-card .vlabel{ font-size:11px; letter-spacing:1.5px; text-transform:uppercase; opacity:.7; }
+  .verdict-card .vmain{ font-size:24px; font-weight:800; line-height:1.1; }
+  .verdict-card .vsub{ font-size:13px; opacity:.9; line-height:1.4; }
+  .verdict-card .route{
+    margin-top:2px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+    border-radius:9px; padding:10px 12px; font-size:13px; display:flex; align-items:center; gap:9px;
+  }
+  .verdict-card .route b{ color:var(--scan); }
+
+  /* ---- JSON output ---- */
+  .json-wrap{ display:grid; grid-template-columns:1.25fr .85fr; gap:22px; height:100%; }
+  .jsonbox{
+    background:#0c1e33; color:#cfe3f5; border-radius:12px; padding:16px 18px; box-shadow:var(--shadow-2);
+    font-family:var(--mono); font-size:11.5px; line-height:1.55; overflow:auto; border:1px solid #14304d;
+  }
+  .jsonbox .jk{ color:#7fd0ff; } .jsonbox .js{ color:#b9e6a8; } .jsonbox .jn{ color:#ffd479; }
+  .jsonbox .jb{ color:#5f83a3; }
+  .out-side{ display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .out-metric{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:var(--shadow-1);
+  }
+  .out-metric .big{ font-size:40px; font-weight:800; color:var(--green); line-height:1; }
+  .out-metric .lbl{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .shield{
+    display:flex; align-items:center; gap:11px; background:var(--green-bg); border:1px solid #bfe6cd;
+    border-radius:12px; padding:13px 15px;
+  }
+  .shield .si{ width:34px; height:34px; border-radius:9px; background:var(--green); color:#fff; display:grid; place-items:center; flex-shrink:0; }
+  .shield .st{ font-size:12.5px; font-weight:700; color:#12683a; }
+  .shield .st span{ display:block; font-weight:500; color:#2e7d52; font-size:11px; }
+
+  /* ---- Handoff ---- */
+  .handoff{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; height:100%; }
+  .ho-row{ display:flex; align-items:center; gap:16px; }
+  .ho-box{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-1);
+    padding:16px 20px; text-align:center; width:180px;
+  }
+  .ho-box .hi{ width:46px; height:46px; border-radius:12px; display:grid; place-items:center; margin:0 auto 8px; color:#fff; }
+  .ho-box h4{ margin:0 0 3px; font-size:14px; color:var(--navy); font-weight:800; }
+  .ho-box p{ margin:0; font-size:11px; color:var(--muted); line-height:1.35; }
+  .ho-box.done{ border-color:var(--green); box-shadow:0 0 0 3px rgba(31,157,87,.16), var(--shadow-1); }
+  .ho-box.done .hi{ background:var(--green); }
+  .ho-box.next .hi{ background:linear-gradient(160deg,var(--blue),var(--cyan)); }
+  .ho-arrow{ font-size:26px; color:var(--blue); }
+  .ho-tasks{ display:flex; gap:10px; }
+  .ho-task{ font-size:11px; color:var(--muted); background:var(--panel-2); border:1px solid var(--line); border-radius:999px; padding:6px 12px; display:flex; align-items:center; gap:6px; }
+  .ho-summary{ text-align:center; font-size:15px; color:var(--navy); font-weight:700; max-width:640px; line-height:1.4; }
+  .ho-summary b{ color:var(--blue); }
+
+  /* ---------------- Caption + controls ---------------- */
+  .caption{
+    background:var(--navy); color:#eaf2fb;
+    padding:11px 22px; min-height:54px; display:flex; align-items:center; gap:16px;
+  }
+  .caption .cap-step{
+    flex-shrink:0; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--scan);
+    background:rgba(34,200,236,.12); border:1px solid rgba(34,200,236,.3);
+    border-radius:8px; padding:8px 11px; letter-spacing:.5px;
+  }
+  .caption .cap-text{ font-size:13.5px; line-height:1.4; opacity:.96; }
+  .caption .cap-text b{ color:#fff; font-weight:700; }
+
+  .controls{
+    display:flex; align-items:center; gap:14px;
+    padding:9px 18px; background:#08213f; border-top:1px solid rgba(255,255,255,.06);
+  }
+  .btn{
+    width:36px; height:36px; border-radius:9px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08); color:#fff; cursor:pointer; display:grid; place-items:center;
+    transition:.15s; flex-shrink:0;
+  }
+  .btn:hover{ background:rgba(255,255,255,.18); }
+  .btn:focus-visible{ outline:2px solid var(--scan); outline-offset:2px; }
+  .btn.play{ width:40px; height:40px; background:var(--blue); border-color:var(--blue); }
+  .btn.play:hover{ background:var(--blue-lt); }
+  .btn svg{ width:17px; height:17px; fill:currentColor; }
+
+  .timeline{ flex:1; display:flex; flex-direction:column; gap:8px; }
+  .track{ position:relative; height:6px; background:rgba(255,255,255,.14); border-radius:3px; overflow:hidden; }
+  .track .fill{ position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,var(--blue),var(--scan)); border-radius:3px; }
+  .dots{ display:flex; gap:5px; }
+  .dot{
+    flex:1; height:22px; border:none; background:transparent; cursor:pointer; position:relative; padding:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dot .d{ width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,.16); transition:.2s; }
+  .dot:hover .d{ background:rgba(255,255,255,.4); }
+  .dot.done .d{ background:rgba(34,200,236,.55); }
+  .dot.active .d{ background:var(--scan); box-shadow:0 0 8px var(--scan); }
+  .dot .tip{
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%) translateY(4px);
+    background:#0c2038; color:#cfe3f5; font-size:10.5px; white-space:nowrap; padding:5px 9px; border-radius:6px;
+    border:1px solid rgba(255,255,255,.15); opacity:0; pointer-events:none; transition:.15s;
+  }
+  .dot:hover .tip{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .clock{ font-family:var(--mono); font-size:12px; color:rgba(255,255,255,.7); flex-shrink:0; min-width:74px; text-align:right; }
+
+  .footnote{
+    padding:6px 18px; font-size:10px; color:var(--muted); background:var(--panel);
+    display:flex; justify-content:space-between; align-items:center; gap:12px; border-top:1px solid var(--line);
+  }
+  .footnote span b{ color:var(--navy); }
+
+  /* ============================================================
+     RAW ACT — literal artifact pipeline
+     ============================================================ */
+  .rawchain{ display:flex; align-items:center; justify-content:center; height:100%; position:relative; padding:0 6px; }
+  .rtrack{ position:absolute; left:7%; right:7%; top:50%; height:3px; background:var(--line-2); border-radius:2px; z-index:1; }
+  .rpacket{ position:absolute; top:50%; left:8%; width:14px; height:14px; border-radius:50%; background:var(--scan); box-shadow:0 0 16px var(--scan); transform:translate(-50%,-50%); z-index:6; }
+  @keyframes travel{ 0%{ left:8%; opacity:0 } 6%{ opacity:1 } 94%{ opacity:1 } 100%{ left:92%; opacity:0 } }
+  .reduced .rpacket{ display:none; }
+
+  .rnode{ position:relative; z-index:2; flex:1; max-width:186px; margin:0 3px; background:var(--panel); border:1px solid var(--line-2); border-radius:13px; box-shadow:var(--shadow-1); padding:15px 12px; text-align:center; }
+  .rnode .ri{ width:46px; height:46px; border-radius:12px; margin:0 auto 9px; display:grid; place-items:center; color:#fff; }
+  .rnode h4{ margin:0 0 3px; font-size:13px; color:var(--navy); font-weight:800; line-height:1.15; }
+  .rnode p{ margin:0; font-size:10.5px; color:var(--muted); line-height:1.3; }
+  .rnode .rtag{ margin-top:9px; font-family:var(--mono); font-size:9.5px; color:var(--blue); background:#eef4fb; border:1px solid #d7e6f5; border-radius:6px; padding:3px 7px; display:inline-block; }
+  .r-doc .ri{ background:linear-gradient(160deg,#5c7186,#3d566d); }
+  .r-ext .ri{ background:linear-gradient(160deg,#0061AF,#2a86d6); }
+  .r-json .ri{ background:linear-gradient(160deg,#1f9d57,#3bb873); font-family:var(--mono); font-weight:800; font-size:17px; }
+  .r-cls .ri{ background:linear-gradient(160deg,#7a5bd0,#9b7ee0); }
+  .r-json2 .ri{ background:linear-gradient(160deg,#0a4a8f,#0061AF); font-family:var(--mono); font-weight:800; font-size:17px; }
+  .r-json2{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,97,175,.15), var(--shadow-1); }
+  .rarrow{ z-index:2; color:var(--blue); font-size:19px; flex:0 0 auto; padding:0 2px; }
+
+  /* IDE-style JSON file */
+  .filewrap{ display:grid; grid-template-columns:1.45fr .7fr; gap:20px; height:100%; min-height:0; }
+  .idefile{ background:#0b1b2e; border:1px solid #163251; border-radius:12px; box-shadow:var(--shadow-2); display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+  .ide-bar{ display:flex; align-items:center; gap:9px; padding:9px 13px; background:#0e2136; border-bottom:1px solid #163251; }
+  .ide-bar .dot3{ display:flex; gap:5px; }
+  .ide-bar .dot3 span{ width:9px; height:9px; border-radius:50%; }
+  .ide-bar .fn{ font-family:var(--mono); font-size:11.5px; color:#9fc3e4; }
+  .ide-bar .fn b{ color:#eaf4ff; }
+  .ide-bar .status{ margin-left:auto; font-family:var(--mono); font-size:10px; padding:3px 9px; border-radius:6px; }
+  .status.writing{ color:#ffd479; background:rgba(255,212,121,.12); border:1px solid rgba(255,212,121,.3); }
+  .status.expanding{ color:#8fe6b0; background:rgba(143,230,176,.12); border:1px solid rgba(143,230,176,.3); }
+  .ide-body{ padding:12px 14px; font-family:var(--mono); font-size:11.5px; line-height:1.55; color:#cfe3f5; overflow:auto; flex:1; min-height:0; }
+  .jline{ display:flex; align-items:center; }
+  .jline .gut{ flex:0 0 13px; color:#5fd08a; font-weight:700; text-align:center; }
+  .jline .code{ white-space:pre; }
+  .jk{ color:#7fd0ff; } .js{ color:#b9e6a8; } .jn{ color:#ffd479; } .jb{ color:#5f83a3; }
+  .code.folded{ color:#5f83a3; font-style:italic; }
+  .jconf{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; padding-left:10px; }
+  .jconf .cb{ width:34px; height:5px; border-radius:3px; background:rgba(255,255,255,.12); overflow:hidden; }
+  .jconf .cb i{ display:block; height:100%; }
+  .jc-hi{ color:#5fd08a; } .jc-hi .cb i{ background:#5fd08a; }
+  .jc-mid{ color:#f0c14b; } .jc-mid .cb i{ background:#f0c14b; }
+
+  .rail{ display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .rail .rcard{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:15px; box-shadow:var(--shadow-1); }
+  .rail .rbig{ font-size:34px; font-weight:800; color:var(--navy); line-height:1; }
+  .rail .rbig.green{ color:var(--green); }
+  .rail .rlbl{ font-size:11.5px; color:var(--muted); margin-top:4px; }
+  .rail .rnote{ font-size:11.5px; color:var(--muted); line-height:1.5; }
+  .rail .rnote b{ color:var(--navy); }
+  .diffrow{ display:flex; align-items:center; gap:9px; }
+  .diffrow .b1{ background:#eef2f6; color:var(--muted); border:1px solid var(--line); border-radius:7px; padding:6px 10px; font-family:var(--mono); font-size:11px; }
+  .diffrow .b2{ background:var(--green-bg); color:#12683a; border:1px solid #bfe6cd; border-radius:7px; padding:6px 10px; font-family:var(--mono); font-size:11px; font-weight:700; }
+  .diffrow .arw{ color:var(--blue); font-size:16px; }
+  .dot.sep{ margin-left:12px; }
+  .dot.sep::before{ content:""; position:absolute; left:-7px; top:2px; bottom:2px; width:1px; background:rgba(255,255,255,.2); }
+
+  /* ============================================================
+     FIND (Phase 1) + INTERACT (Phase 3) — app windows & flows
+     ============================================================ */
+  .appwin{ background:#fff; border:1px solid var(--line-2); border-radius:11px; box-shadow:var(--shadow-2); overflow:hidden; display:flex; flex-direction:column; height:100%; min-height:0; }
+  .titlebar{ display:flex; align-items:center; gap:10px; padding:9px 13px; background:linear-gradient(90deg,var(--navy),#0a4a8f); color:#fff; font-size:12.5px; font-weight:700; }
+  .titlebar .wdots{ display:flex; gap:5px; }
+  .titlebar .wdots span{ width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.32); }
+  .titlebar .wname b{ font-weight:800; } .titlebar .wname span{ font-weight:400; opacity:.82; }
+  .titlebar .wbot{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; background:rgba(34,200,236,.22); border:1px solid rgba(34,200,236,.5); padding:3px 9px; border-radius:999px; }
+  .wtoolbar{ display:flex; align-items:center; gap:9px; padding:8px 13px; background:var(--panel-2); border-bottom:1px solid var(--line); }
+  .wtoolbar .search{ flex:1; background:#fff; border:1px solid var(--line-2); border-radius:7px; padding:6px 10px; display:flex; align-items:center; gap:7px; color:var(--muted); font-size:11.5px; }
+  .wbody{ padding:12px 14px; overflow:auto; flex:1; min-height:0; }
+
+  .qtable{ width:100%; border-collapse:collapse; font-size:11.5px; }
+  .qtable th{ text-align:left; color:var(--muted); font-weight:700; font-size:9.5px; text-transform:uppercase; letter-spacing:.6px; padding:6px 9px; border-bottom:1.5px solid var(--line-2); }
+  .qtable td{ padding:9px; border-bottom:1px solid var(--line); color:var(--ink); vertical-align:middle; }
+  .qrow.dim{ opacity:.42; }
+  .qrow.target td{ background:rgba(34,200,236,.12); font-weight:600; }
+  .qrow.target td:first-child{ box-shadow:inset 3px 0 0 var(--cyan); }
+  .badge-new{ background:var(--green); color:#fff; font-size:9px; font-weight:800; padding:2px 7px; border-radius:4px; letter-spacing:.5px; }
+  .badge-read{ color:var(--muted); font-size:9.5px; font-weight:700; }
+  .seltag{ display:inline-flex; align-items:center; gap:5px; background:var(--cyan); color:#04303c; font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:5px; }
+
+  .retrieve{ display:flex; align-items:center; justify-content:center; gap:12px; height:100%; }
+  .rv-node{ background:var(--panel); border:1px solid var(--line-2); border-radius:12px; box-shadow:var(--shadow-1); padding:16px 14px; text-align:center; width:196px; }
+  .rv-node .ic{ width:46px; height:46px; border-radius:12px; margin:0 auto 9px; display:grid; place-items:center; color:#fff; }
+  .rv-node h4{ margin:0 0 3px; font-size:13.5px; color:var(--navy); font-weight:800; }
+  .rv-node p{ margin:0; font-size:11px; color:var(--muted); line-height:1.35; }
+  .rv-node .path{ margin-top:10px; font-family:var(--mono); font-size:9.5px; color:var(--blue); background:#eef4fb; border:1px solid #d7e6f5; border-radius:6px; padding:4px 7px; word-break:break-all; }
+  .rv-arrow{ color:var(--blue); font-size:20px; }
+
+  .gatewrap{ display:grid; grid-template-columns:1fr 1fr; gap:22px; height:100%; align-content:center; }
+  .checklist{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:6px 16px; box-shadow:var(--shadow-1); }
+  .checklist .ci{ display:flex; align-items:center; gap:11px; padding:11px 0; border-bottom:1px dashed var(--line); font-size:13px; color:var(--ink); }
+  .checklist .ci:last-child{ border-bottom:none; }
+  .checklist .ci .ck{ width:23px; height:23px; border-radius:50%; background:var(--green); color:#fff; display:grid; place-items:center; flex-shrink:0; }
+  .checklist .ci .cx{ margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--green); font-weight:700; }
+  .branch{ display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .gate{ background:linear-gradient(160deg,var(--navy),#0a4a8f); color:#fff; border-radius:12px; padding:15px 16px; text-align:center; box-shadow:var(--shadow-2); }
+  .gate .q{ font-size:15px; font-weight:800; } .gate .sub{ font-size:11px; opacity:.82; margin-top:3px; }
+  .outcome{ display:flex; align-items:center; gap:11px; padding:12px 14px; border-radius:11px; border:1px solid var(--line); background:var(--panel); box-shadow:var(--shadow-1); }
+  .outcome .oi{ width:30px; height:30px; border-radius:8px; display:grid; place-items:center; color:#fff; flex-shrink:0; font-weight:800; }
+  .outcome .ot{ font-size:13px; font-weight:800; color:var(--navy); } .outcome .os{ font-size:10.5px; color:var(--muted); }
+  .outcome.yes{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,97,175,.14), var(--shadow-1); } .outcome.yes .oi{ background:linear-gradient(160deg,var(--blue),var(--cyan)); }
+  .outcome.no{ opacity:.5; } .outcome.no .oi{ background:#8fa3b5; }
+
+  .epicwrap{ display:grid; grid-template-columns:1fr 1fr; gap:22px; height:100%; }
+  .fromtag{ font-size:10.5px; color:var(--blue); font-family:var(--mono); margin-bottom:12px; display:inline-flex; align-items:center; gap:6px; background:#eef4fb; border:1px solid #d7e6f5; padding:4px 9px; border-radius:6px; }
+  .form-line{ display:flex; gap:10px; margin-bottom:9px; }
+  .inp{ flex:1; background:var(--panel-2); border:1px solid var(--line-2); border-radius:8px; padding:8px 11px; }
+  .inp .lbl{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; display:block; margin-bottom:2px; }
+  .inp .val{ font-weight:700; color:var(--ink); font-family:var(--mono); font-size:13px; }
+  .matchcol{ display:flex; flex-direction:column; gap:12px; justify-content:center; }
+  .matched-chip{ font-size:11.5px; font-weight:700; color:#12683a; display:inline-flex; align-items:center; gap:7px; }
+  .matched-chip .mc{ width:18px; height:18px; border-radius:50%; background:var(--green); color:#fff; display:grid; place-items:center; }
+  .matchcard{ border:1px solid #bfe6cd; background:var(--green-bg); border-radius:12px; padding:14px; display:flex; align-items:center; gap:13px; }
+  .matchcard .av{ width:44px; height:44px; border-radius:50%; background:var(--navy); color:#fff; display:grid; place-items:center; font-weight:800; font-size:15px; }
+  .matchcard .mi{ flex:1; } .matchcard .mname{ font-weight:800; color:var(--navy); font-size:15px; } .matchcard .mmeta{ font-size:11px; color:#2e7d52; margin-top:2px; }
+  .matchcard .mok{ background:var(--green); color:#fff; font-size:10px; font-weight:800; padding:5px 10px; border-radius:999px; white-space:nowrap; }
+
+  .uploadwrap{ display:grid; grid-template-columns:1fr 1fr; gap:22px; height:100%; align-content:center; }
+  .docchip{ background:var(--panel); border:1px solid var(--line-2); border-radius:12px; box-shadow:var(--shadow-1); padding:15px; display:flex; align-items:flex-start; gap:13px; }
+  .docchip .dz{ width:42px; height:52px; border-radius:6px; background:linear-gradient(160deg,#e8f0f8,#d7e6f5); border:1px solid var(--line-2); display:grid; place-items:center; color:var(--blue); font-size:8.5px; font-weight:800; flex-shrink:0; }
+  .docchip .dn{ font-weight:800; color:var(--navy); font-size:13px; } .docchip .ds{ font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .metatags{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+  .mtag{ font-size:10px; font-weight:700; color:var(--muted); background:var(--panel-2); border:1px solid var(--line-2); border-radius:6px; padding:3px 8px; }
+  .mtag b{ color:var(--blue); }
+  .progwrap{ display:flex; flex-direction:column; gap:11px; justify-content:center; }
+  .progwrap .plabel{ font-size:12px; color:var(--muted); font-weight:600; }
+  .progbar{ height:9px; border-radius:5px; background:var(--line); overflow:hidden; }
+  .progbar i{ display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--cyan)); border-radius:5px; }
+  @keyframes fillbar{ from{ width:0 } to{ width:100% } }
+  .reduced .progbar i{ width:100%; }
+  .filed{ display:flex; align-items:center; gap:11px; background:var(--green-bg); border:1px solid #bfe6cd; border-radius:11px; padding:13px 15px; }
+  .filed .fk{ width:34px; height:34px; border-radius:9px; background:var(--green); color:#fff; display:grid; place-items:center; flex-shrink:0; }
+  .filed .ft{ font-size:13px; font-weight:800; color:#12683a; } .filed .ft span{ display:block; font-weight:500; font-size:11px; color:#2e7d52; }
+
+  .finale{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; height:100%; }
+  .fin-pipe{ display:flex; align-items:center; }
+  .fin-st{ display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 18px; border-radius:14px; background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow-1); width:156px; text-align:center; }
+  .fin-st .fc{ width:46px; height:46px; border-radius:12px; display:grid; place-items:center; color:#fff; }
+  .fin-st h4{ margin:0; font-size:14px; color:var(--navy); font-weight:800; } .fin-st p{ margin:0; font-size:10.5px; color:var(--muted); }
+  .fin-st .done-badge{ font-size:9px; font-weight:800; color:var(--green); background:var(--green-bg); border:1px solid #bfe6cd; border-radius:999px; padding:2px 9px; letter-spacing:.6px; }
+  .fin-arrow{ color:var(--green); font-size:22px; padding:0 8px; }
+  .fin-sum{ text-align:center; font-size:15px; color:var(--navy); font-weight:700; max-width:700px; line-height:1.5; }
+  .fin-sum b{ color:var(--blue); }
+
+  @media (min-width:721px){
+    body{ height:100vh; overflow:hidden; padding:10px; }
+    .player{ width:min(1180px, calc(100vw - 20px), calc((100vh - 20px - var(--chrome)) * 16 / 9)); }
+  }
+
+  @media (max-width:720px){
+    .gatewrap, .epicwrap, .uploadwrap{ grid-template-columns:1fr; overflow:auto; }
+    .retrieve, .fin-pipe{ flex-direction:column; }
+    .fin-arrow{ transform:rotate(90deg); }
+  }
+
+  @media (max-width:720px){
+    .filewrap{ grid-template-columns:1fr; }
+    .rawchain{ flex-wrap:wrap; height:auto; align-content:center; gap:8px; }
+    .rawchain .rtrack, .rawchain .rpacket{ display:none; }
+    .rnode{ max-width:none; flex:1 1 42%; }
+    body{ padding:8px; height:auto; overflow:auto; }
+    .phases{ display:none; }
+    .scene{ padding:18px; }
+    .scene h2{ font-size:19px; }
+    .split, .split.wide-r, .verdict-wrap, .json-wrap{ grid-template-columns:1fr; gap:12px; overflow:auto; }
+    .caption .cap-text{ font-size:12.5px; }
+    .clock{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="player" id="player">
+
+  <!-- ================= BRAND BAR ================= -->
+  <div class="brandbar">
+    <div class="logo">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <g stroke="#ffffff" stroke-width="2.6" fill="none" stroke-linecap="round"><path d="M11 20h7"/><path d="M18 20c5 0 4-8 9-8"/><path d="M18 20c5 0 4 8 9 8"/></g>
+        <circle cx="10" cy="20" r="4" fill="#ffffff"/>
+        <circle cx="29" cy="12" r="4" fill="#7fd6ee"/>
+        <circle cx="29" cy="28" r="4" fill="#7fd6ee"/>
+      </svg>
+      <div class="word"><b>Referral</b><span>Flow</span></div>
+    </div>
+    <div class="brand-div"></div>
+    <div class="brand-title">Referral Transcription — Automation
+      <small>End-to-end walkthrough · Find · Process · Interact</small>
+    </div>
+    <div class="phases">
+      <div class="phase" data-phase="find"><i></i>Find</div>
+      <span class="phase-arrow">›</span>
+      <div class="phase active" data-phase="process"><i></i>Process</div>
+      <span class="phase-arrow">›</span>
+      <div class="phase" data-phase="interact"><i></i>Interact</div>
+    </div>
+  </div>
+
+  <!-- ================= STAGE ================= -->
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+
+      <!-- SCENE 0 — OVERVIEW -->
+      <section class="scene" data-scene="0">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Overview</span><span class="tick"></span> One fax, three phases</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">From the RightFax queue to the patient's chart</h2>
+        <div class="body">
+          <div class="pipeline">
+            <div class="pl-station anim" style="animation-name:popIn; animation-delay:.25s">
+              <span class="num">PHASE 1</span>
+              <div class="pl-ico" style="background:linear-gradient(160deg,#0a4a8f,#0061AF)">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              </div>
+              <h3>Find</h3>
+              <p>Automation navigates RightFax to locate the inbound fax.</p>
+            </div>
+            <div class="pl-connector anim" style="animation-name:fadeIn; animation-delay:.5s">→</div>
+            <div class="pl-station focus anim" style="animation-name:popIn; animation-delay:.4s">
+              <span class="num">PHASE 2</span>
+              <div class="pl-ico">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 4 4 .5-3 3 .8 4L12 12.8 8.2 14.5 9 10.5 6 7.5 10 7z"/></svg>
+              </div>
+              <h3>Process</h3>
+              <p>An AI agent reads the fax, extracts every field, and classifies the document.</p>
+            </div>
+            <div class="pl-connector anim" style="animation-name:fadeIn; animation-delay:.65s">→</div>
+            <div class="pl-station anim" style="animation-name:popIn; animation-delay:.55s">
+              <span class="num">PHASE 3</span>
+              <div class="pl-ico" style="background:linear-gradient(160deg,#0061AF,#00A0C6)">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2.5"/></svg>
+              </div>
+              <h3>Interact</h3>
+              <p>Automation finds the patient in Epic and files the document in Media Manager.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE FIND-1 — NAVIGATE RIGHTFAX -->
+      <section class="scene" data-scene="f1">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 1.1</span><span class="tick"></span> Phase 1 · Find</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">Automation scans the RightFax queue</h2>
+        <div class="body">
+          <div class="appwin anim" style="animation-name:fadeUp; animation-delay:.25s">
+            <div class="titlebar">
+              <span class="wdots"><span></span><span></span><span></span></span>
+              <span class="wname"><b>RightFax</b><span> — Inbound Queue</span></span>
+              <span class="wbot"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="8" width="14" height="10" rx="2"/><rect x="11" y="3" width="2" height="4"/><circle cx="12" cy="3" r="1.6"/></svg> Unattended bot</span>
+            </div>
+            <div class="wtoolbar">
+              <span class="search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg> status: new · received: today</span>
+            </div>
+            <div class="wbody">
+              <table class="qtable">
+                <thead><tr><th>Status</th><th>From</th><th>Pages</th><th>Received</th><th>Subject</th></tr></thead>
+                <tbody>
+                  <tr class="qrow dim anim" style="animation-name:fadeUp; animation-delay:.5s"><td><span class="badge-read">Read</span></td><td>Metro Diagnostics</td><td>3</td><td>8:02 AM</td><td>Lab results</td></tr>
+                  <tr class="qrow target anim" style="animation-name:fadeUp; animation-delay:.75s"><td><span class="badge-new">NEW</span></td><td>Riverbend Urgent Care &amp; Wellness</td><td>7</td><td>8:28 AM</td><td>Medical Records — CONFIDENTIAL &nbsp;<span class="seltag anim" style="animation-name:popIn; animation-delay:1.7s">✓ selected</span></td></tr>
+                  <tr class="qrow dim anim" style="animation-name:fadeUp; animation-delay:1s"><td><span class="badge-read">Read</span></td><td>CardioCare Associates</td><td>2</td><td>8:41 AM</td><td>Follow-up note</td></tr>
+                  <tr class="qrow dim anim" style="animation-name:fadeUp; animation-delay:1.25s"><td><span class="badge-new">NEW</span></td><td>Riverside Clinic</td><td>5</td><td>8:55 AM</td><td>Specialist referral</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE FIND-2 — RETRIEVE -->
+      <section class="scene" data-scene="f2">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 1.2</span><span class="tick"></span> Phase 1 · Find</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">The fax is pulled into the processing folder</h2>
+        <div class="body">
+          <div class="retrieve">
+            <div class="rv-node anim" style="animation-name:popIn; animation-delay:.3s">
+              <div class="ic" style="background:linear-gradient(160deg,#0a4a8f,#0061AF)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+              <h4>RightFax</h4><p>Target fax exported as PDF</p>
+              <span class="path">RIVERA_J_20260430.pdf</span>
+            </div>
+            <div class="rv-arrow anim" style="animation-name:fadeIn; animation-delay:.65s">→</div>
+            <div class="rv-node anim" style="animation-name:popIn; animation-delay:.85s">
+              <div class="ic" style="background:linear-gradient(160deg,#0061AF,#2a86d6)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg></div>
+              <h4>7-page PDF</h4><p>Full fax document</p>
+              <span class="path">7 pages · Jordan Rivera</span>
+            </div>
+            <div class="rv-arrow anim" style="animation-name:fadeIn; animation-delay:1.2s">→</div>
+            <div class="rv-node anim" style="animation-name:popIn; animation-delay:1.4s">
+              <div class="ic" style="background:linear-gradient(160deg,#0061AF,#00A0C6)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+              <h4>Inbound_Faxes</h4><p>Monitored folder — triggers Phase 2</p>
+              <span class="path">F:\Fax_Classification\Inbound_Faxes</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 1 — THE FAX -->
+      <section class="scene" data-scene="1">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.1</span><span class="tick"></span> The raw input</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">A 7-page fax lands, unread</h2>
+        <div class="body">
+          <div class="split">
+            <div class="col" style="justify-content:center">
+              <div class="doc-frame">
+                <div class="fax anim" style="animation-name:popIn; animation-delay:.2s">
+                  <div class="fax-hdr">
+                    <div class="l">Riverbend Urgent Care<br>& Wellness Center, LLC</div>
+                    <div class="r">04-30-2026 8:28 AM ET<br>Fax (555) 010-7425<br>To (555) 010-1111<br>pg 1 of 7</div>
+                  </div>
+                  <div class="confidential">MEDICAL RECORDS — CONFIDENTIAL</div>
+                  <div class="frow"><span class="k">Patient</span><span class="v">RIVERA, JORDAN</span></div>
+                  <div class="frow"><span class="k">DOB</span><span class="v">09/14/1996</span></div>
+                  <div class="frow"><span class="k">Date range</span><span class="v">01/01 – 04/30/2026</span></div>
+                  <div class="frow"><span class="k">To</span><span class="v">Regional Medical — Scheduling</span></div>
+                  <div class="frow"><span class="k">Service</span><span class="v">Chest CT · 71250</span></div>
+                  <div class="stamp anim" style="animation-name:popIn; animation-delay:1.1s">UNREAD</div>
+                </div>
+              </div>
+            </div>
+            <div class="col" style="justify-content:center; gap:12px">
+              <div class="chip anim" style="animation-name:slideR; animation-delay:.6s"><span class="cc"></span>7 pages — mixed content in one transmission</div>
+              <div class="chip anim" style="animation-name:slideR; animation-delay:.8s"><span class="cc"></span>Patient records + a prior-auth approval + a cover sheet</div>
+              <div class="chip anim" style="animation-name:slideR; animation-delay:1s"><span class="cc"></span>Noisy, inconsistent layout — typical inbound fax</div>
+              <div class="chip anim" style="animation-name:slideR; animation-delay:1.2s"><span class="cc"></span>No structure a system can act on — yet</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 2 — COLLECT FILES (PAD) -->
+      <section class="scene" data-scene="2">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.2</span><span class="tick"></span> Gather the work</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">Desktop automation collects every fax</h2>
+        <div class="body">
+          <div class="split wide-r">
+            <div class="col" style="justify-content:center; gap:12px">
+              <div class="chip anim" style="animation-name:slideR; animation-delay:.5s"><span class="cc"></span>Watches the <b style="margin-left:4px">Inbound&nbsp;Faxes</b>&nbsp;folder</div>
+              <div class="chip anim" style="animation-name:slideR; animation-delay:.7s"><span class="cc"></span>Picks up every <b style="margin-left:4px">*.pdf</b></div>
+              <div class="chip anim" style="animation-name:slideR; animation-delay:.9s"><span class="cc"></span>Builds a referral work list</div>
+              <div class="chip anim" style="animation-name:slideR; animation-delay:1.1s"><span class="cc"></span>Runs hands-free, on a schedule</div>
+            </div>
+            <div class="col" style="justify-content:center">
+              <div class="pad anim" style="animation-name:popIn; animation-delay:.25s">
+                <div class="pad-tabs"><span class="tab">Main</span><span class="tab on">Get_Files</span><span style="margin-left:auto; color:#b7c6d4">Subflows (3)</span></div>
+                <div class="pad-step"><span class="n">1</span><span class="ico">▤</span><span class="txt"><b>Get files in folder</b> — retrieve files in <b>Inbound_Faxes</b> matching <span class="tok">*.pdf</span> → <span class="tok">faxFiles</span></span></div>
+                <div class="pad-step"><span class="n">2</span><span class="ico">+</span><span class="txt"><b>Create new list</b> → store to <span class="tok">ReferralList</span></span></div>
+                <div class="pad-step loop"><span class="n">3</span><span class="ico">↻</span><span class="txt"><b>For each</b> <span class="tok">f</span> in <span class="tok">faxFiles</span></span></div>
+                <div class="pad-indent">
+                  <div class="pad-step"><span class="n">4</span><span class="ico">{x}</span><span class="txt"><b>Set variable</b> — <span class="tok">currentPath</span> = <span class="tok">f</span></span></div>
+                  <div class="pad-step"><span class="n">5</span><span class="ico">≡+</span><span class="txt"><b>Add item to list</b> — <span class="tok">currentPath</span> → <span class="tok">ReferralList</span></span></div>
+                </div>
+                <div class="pad-step" style="background:#eef6ee; border-color:#cfe6cf"><span class="n">6</span><span class="ico" style="background:#dcefdc; color:#2e8b4f">⚑</span><span class="txt"><b>End</b></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 3 — TRIGGER AI FLOW -->
+      <section class="scene" data-scene="3">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.3</span><span class="tick"></span> The trigger</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">A Power Automate flow fires the AI prompt</h2>
+        <div class="body">
+          <div class="paflow">
+            <div class="pa-card c-trig anim" style="animation-name:fadeUp; animation-delay:.3s">
+              <div class="pa-ico i-trig">▶</div>
+              <div><div class="t">Manually trigger a flow</div><div class="s">Kicks off processing for a fax in the list</div></div>
+            </div>
+            <div class="pa-conn anim" style="animation-name:fadeIn; animation-delay:.55s"><span class="plus">+</span><span class="pulse-dot anim" style="animation-name:dropPulse; animation-delay:1s; animation-duration:1.4s"></span></div>
+            <div class="pa-card c-ai anim" style="animation-name:fadeUp; animation-delay:.6s">
+              <div class="pa-ico i-ai">✦</div>
+              <div><div class="t">Run a prompt</div><div class="s">Sends the fax to the document-intelligence agent</div></div>
+            </div>
+            <div class="pa-conn anim" style="animation-name:fadeIn; animation-delay:.8s"><span class="plus">+</span><span class="pulse-dot anim" style="animation-name:dropPulse; animation-delay:1.5s; animation-duration:1.4s"></span></div>
+            <div class="pa-card c-json anim" style="animation-name:fadeUp; animation-delay:.85s">
+              <div class="pa-ico i-json">{ }</div>
+              <div><div class="t">Parse JSON</div><div class="s">Turns the agent's answer into structured fields</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 4 — AGENT READS, DIRECTED BY SKILL -->
+      <section class="scene" data-scene="4">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.4</span><span class="tick"></span> Reading with intent</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">The agent reads — directed by a custom skill</h2>
+        <div class="body">
+          <div class="split">
+            <div class="col" style="justify-content:center">
+              <div class="doc-frame">
+                <div class="fax anim" style="animation-name:popIn; animation-delay:.2s">
+                  <div class="fax-hdr"><div class="l">Riverbend Urgent Care</div><div class="r">pg 1 of 7</div></div>
+                  <div class="confidential">MEDICAL RECORDS — CONFIDENTIAL</div>
+                  <div class="frow"><span class="k">Patient</span><span class="v">RIVERA, JORDAN</span></div>
+                  <div class="frow"><span class="k">DOB</span><span class="v">09/14/1996</span></div>
+                  <div class="frow"><span class="k">Auth #</span><span class="v">26120C50002</span></div>
+                  <div class="frow"><span class="k">Service</span><span class="v">Chest CT · 71250</span></div>
+                  <div class="frow"><span class="k">Provider</span><span class="v">Dr. Alex Reed</span></div>
+                  <div class="scan-beam anim" style="animation-name:sweep; animation-duration:2.6s; animation-delay:.7s; animation-iteration-count:2;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col" style="justify-content:center">
+              <div class="skillcard anim" style="animation-name:fadeUp; animation-delay:.45s">
+                <div class="fname"><span class="dot" style="background:#ff6058"></span><span class="dot" style="background:#ffbd2e"></span><span class="dot" style="background:#28c840"></span>&nbsp; Fax_Extract_Classify.md · v2.0</div>
+                <div class="line cmt"># Role</div>
+                <div class="line role">exhaustive extraction engine</div>
+                <div class="line role">+ healthcare intake classifier</div>
+                <div class="line rule">▸ Inspect <b>every page</b> in order</div>
+                <div class="line rule">▸ Capture every field, label & blank</div>
+                <div class="line rule">▸ Score <b>confidence</b> on every item</div>
+                <div class="line rule">▸ Classify by <b>signal combinations</b></div>
+                <div class="line rule">▸ Never drop a bundled type</div>
+              </div>
+              <div class="rulechips">
+                <div class="chip anim" style="animation-name:popIn; animation-delay:1.1s"><span class="cc"></span>Typed text</div>
+                <div class="chip anim" style="animation-name:popIn; animation-delay:1.25s"><span class="cc"></span>Handwriting</div>
+                <div class="chip anim" style="animation-name:popIn; animation-delay:1.4s"><span class="cc"></span>Logos & stamps</div>
+                <div class="chip anim" style="animation-name:popIn; animation-delay:1.55s"><span class="cc"></span>Blank fields</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 5 — EXTRACTION WITH CONFIDENCE -->
+      <section class="scene" data-scene="5">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.5</span><span class="tick"></span> Extract + score</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">Every field, captured with a confidence score</h2>
+        <div class="body">
+          <div class="split">
+            <div class="col" style="justify-content:center">
+              <div class="doc-frame">
+                <div class="fax anim" style="animation-name:popIn; animation-delay:.15s">
+                  <div class="fax-hdr"><div class="l">Riverbend Urgent Care</div><div class="r">Auth approval · pg 6</div></div>
+                  <div class="frow hl"><span class="k">Patient</span><span class="v">Jordan A Rivera</span></div>
+                  <div class="frow hl"><span class="k">DOB</span><span class="v">09/14/1996</span></div>
+                  <div class="frow hl"><span class="k">Member ID</span><span class="v">10562097900</span></div>
+                  <div class="frow hl"><span class="k">Auth #</span><span class="v">26120C50002</span></div>
+                  <div class="frow hl"><span class="k">Service</span><span class="v">Chest CT · 71250</span></div>
+                  <div class="frow hl"><span class="k">Provider</span><span class="v">Dr. Alex Reed</span></div>
+                  <div class="scan-beam anim" style="animation-name:sweep; animation-duration:3.4s; animation-delay:.3s;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col" style="min-height:0">
+              <div class="panel-hd anim" style="animation-name:fadeIn; animation-delay:.3s">
+                Structured extraction <span class="pill">JSON</span>
+              </div>
+              <div class="fieldlist">
+                <div class="field anim" style="animation-name:lift; animation-delay:.8s">
+                  <div class="fk">Patient name</div><div class="fv">Jordan Rivera</div>
+                  <div class="conf c-hi"><span class="cval">0.95</span><span class="bar"><i style="width:95%"></i></span></div>
+                </div>
+                <div class="field anim" style="animation-name:lift; animation-delay:1.05s">
+                  <div class="fk">Date of birth</div><div class="fv">09/14/1996</div>
+                  <div class="conf c-hi"><span class="cval">0.95</span><span class="bar"><i style="width:95%"></i></span></div>
+                </div>
+                <div class="field anim" style="animation-name:lift; animation-delay:1.3s">
+                  <div class="fk">Member ID</div><div class="fv">10562097900</div>
+                  <div class="conf c-mid"><span class="cval">0.88</span><span class="bar"><i style="width:88%"></i></span></div>
+                </div>
+                <div class="field anim" style="animation-name:lift; animation-delay:1.55s">
+                  <div class="fk">Authorization #</div><div class="fv">26120C50002</div>
+                  <div class="conf c-hi"><span class="cval">0.95</span><span class="bar"><i style="width:95%"></i></span></div>
+                </div>
+                <div class="field anim" style="animation-name:lift; animation-delay:1.8s">
+                  <div class="fk">Service requested</div><div class="fv">Chest CT · 71250</div>
+                  <div class="conf c-hi"><span class="cval">0.95</span><span class="bar"><i style="width:95%"></i></span></div>
+                </div>
+                <div class="field anim" style="animation-name:lift; animation-delay:2.05s">
+                  <div class="fk">Requesting provider</div><div class="fv">Dr. Alex Reed</div>
+                  <div class="conf c-mid"><span class="cval">0.90</span><span class="bar"><i style="width:90%"></i></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 6 — PAGE CLASSIFICATION -->
+      <section class="scene" data-scene="6">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.6</span><span class="tick"></span> Classify each page</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">Every page gets a type — by combinations of signals</h2>
+        <div class="body">
+          <div class="pagerow">
+            <div class="pthumb pt-medrec anim" style="animation-name:popIn; animation-delay:.35s"><div class="ttop"></div><div class="pg"><span class="pn">P1</span></div><div class="tag t-medrec"><div class="ttype">Medical Record</div><div class="tconf"><span class="tbar"><i style="width:90%"></i></span>0.90</div></div></div>
+            <div class="pthumb pt-medrec anim" style="animation-name:popIn; animation-delay:.5s"><div class="ttop"></div><div class="pg"><span class="pn">P2</span></div><div class="tag t-medrec"><div class="ttype">Medical Record</div><div class="tconf"><span class="tbar"><i style="width:80%"></i></span>0.80</div></div></div>
+            <div class="pthumb pt-cover anim" style="animation-name:popIn; animation-delay:.65s"><div class="ttop"></div><div class="pg"><span class="pn">P3</span></div><div class="tag t-cover"><div class="ttype">Fax Cover</div><div class="tconf"><span class="tbar"><i style="width:95%"></i></span>0.95</div></div></div>
+            <div class="pthumb pt-preauth anim" style="animation-name:popIn; animation-delay:.8s"><div class="ttop"></div><div class="pg"><span class="pn">P4</span></div><div class="tag t-preauth"><div class="ttype">Pre-Auth</div><div class="tconf"><span class="tbar"><i style="width:85%"></i></span>0.85</div></div></div>
+            <div class="pthumb pt-cover anim" style="animation-name:popIn; animation-delay:.95s"><div class="ttop"></div><div class="pg"><span class="pn">P5</span></div><div class="tag t-cover"><div class="ttype">Fax Cover</div><div class="tconf"><span class="tbar"><i style="width:80%"></i></span>0.80</div></div></div>
+            <div class="pthumb pt-preauth anim" style="animation-name:popIn; animation-delay:1.1s"><div class="ttop"></div><div class="pg"><span class="pn">P6</span></div><div class="tag t-preauth"><div class="ttype">Pre-Auth</div><div class="tconf"><span class="tbar"><i style="width:95%"></i></span>0.95</div></div></div>
+            <div class="pthumb pt-preauth anim" style="animation-name:popIn; animation-delay:1.25s"><div class="ttop"></div><div class="pg"><span class="pn">P7</span></div><div class="tag t-preauth"><div class="ttype">Pre-Auth</div><div class="tconf"><span class="tbar"><i style="width:85%"></i></span>0.85</div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 7 — COMPOSITE VERDICT -->
+      <section class="scene" data-scene="7">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.7</span><span class="tick"></span> The verdict</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">A composite bundle — nothing gets dropped</h2>
+        <div class="body">
+          <div class="verdict-wrap">
+            <div class="segments">
+              <div class="segment seg-preauth anim" style="animation-name:slideR; animation-delay:.35s">
+                <div class="sbar"></div>
+                <div class="sinfo"><div class="stype">Pre-Authorization <span style="font-size:10px;color:var(--blue);font-weight:700">· PRIMARY</span></div><div class="spages">Pages 4, 6, 7 · Chest CT approval</div></div>
+                <div class="becode">BE-003</div>
+              </div>
+              <div class="segment seg-medrec anim" style="animation-name:slideR; animation-delay:.55s">
+                <div class="sbar"></div>
+                <div class="sinfo"><div class="stype">Medical Record</div><div class="spages">Pages 1, 2 · patient records</div></div>
+                <div class="becode">BE-004</div>
+              </div>
+              <div class="segment seg-cover anim" style="animation-name:slideR; animation-delay:.75s">
+                <div class="sbar"></div>
+                <div class="sinfo"><div class="stype">Fax Cover / Admin</div><div class="spages">Pages 3, 5 · supporting</div></div>
+                <div class="becode">—</div>
+              </div>
+            </div>
+            <div class="verdict-card anim" style="animation-name:popIn; animation-delay:.6s">
+              <span class="flag">⚑ COMPOSITE_MULTI_TYPE</span>
+              <div>
+                <div class="vlabel">Transmission type</div>
+                <div class="vmain">Pre-Authorization</div>
+              </div>
+              <div class="vsub">Carrying an attached medical record and a cover sheet — each preserved as its own segment with a routing code.</div>
+              <div class="route">Routing → <b>Pre-Auth queue</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 8 — JSON OUTPUT -->
+      <section class="scene" data-scene="8">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 2.8</span><span class="tick"></span> The deliverable</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">One structured, decision-ready JSON</h2>
+        <div class="body">
+          <div class="json-wrap">
+            <div class="jsonbox anim" style="animation-name:fadeUp; animation-delay:.3s">
+<span class="jb">{</span>
+  <span class="jk">"normalized_entities"</span>: {
+    <span class="jk">"patient_name"</span>: <span class="js">"Jordan Rivera"</span>,
+    <span class="jk">"dob"</span>: <span class="js">"09/14/1996"</span>,
+    <span class="jk">"authorization_number"</span>: <span class="js">"26120C50002"</span>,
+    <span class="jk">"service_requested"</span>: <span class="js">"Chest CT"</span>
+  },
+  <span class="jk">"document_classification"</span>: {
+    <span class="jk">"transmission_type"</span>: <span class="js">"Pre-Authorization"</span>,
+    <span class="jk">"is_composite"</span>: <span class="jn">true</span>,
+    <span class="jk">"composite_types"</span>: [<span class="js">"Pre-Authorization"</span>,
+       <span class="js">"Medical Record"</span>, <span class="js">"Fax Cover"</span>],
+    <span class="jk">"be_codes"</span>: [<span class="js">"BE-003"</span>, <span class="js">"BE-004"</span>],
+    <span class="jk">"routing_recommendation"</span>: <span class="js">"Pre-Auth"</span>,
+    <span class="jk">"classification_confidence"</span>: <span class="jn">0.95</span>
+  },
+  <span class="jk">"document_metadata"</span>: { <span class="jk">"possible_phi"</span>: <span class="jn">true</span> }
+<span class="jb">}</span>
+            </div>
+            <div class="out-side">
+              <div class="out-metric anim" style="animation-name:popIn; animation-delay:.7s">
+                <div class="big">0.95</div>
+                <div class="lbl">Overall extraction confidence across 7 pages</div>
+              </div>
+              <div class="shield anim" style="animation-name:popIn; animation-delay:.9s">
+                <div class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+                <div class="st">PHI detected & flagged<span>Patient, DOB, Member ID, Auth #</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE RAW-1 — PIPELINE CHAIN -->
+      <section class="scene" data-scene="10">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Raw pipeline</span><span class="tick"></span> Under the hood</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">One file, two instruction passes</h2>
+        <div class="body">
+          <div class="rawchain">
+            <div class="rtrack"></div>
+            <div class="rpacket anim" style="animation-name:travel; animation-duration:7s; animation-delay:.4s;"></div>
+
+            <div class="rnode r-doc anim" style="animation-name:popIn; animation-delay:.3s">
+              <div class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h5"/></svg></div>
+              <h4>Referral fax</h4><p>7-page inbound PDF</p>
+              <span class="rtag">AKINS, S. · 7pg</span>
+            </div>
+            <div class="rarrow anim" style="animation-name:fadeIn; animation-delay:.6s">→</div>
+            <div class="rnode r-ext anim" style="animation-name:popIn; animation-delay:.75s">
+              <div class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h7"/><circle cx="4.5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+              <h4>Agent · Extract</h4><p>Read every field</p>
+              <span class="rtag">skill · Part 1</span>
+            </div>
+            <div class="rarrow anim" style="animation-name:fadeIn; animation-delay:1s">→</div>
+            <div class="rnode r-json anim" style="animation-name:popIn; animation-delay:1.15s">
+              <div class="ri">{ }</div>
+              <h4>JSON · fields</h4><p>All fields + confidence</p>
+              <span class="rtag">referral.json</span>
+            </div>
+            <div class="rarrow anim" style="animation-name:fadeIn; animation-delay:1.4s">→</div>
+            <div class="rnode r-cls anim" style="animation-name:popIn; animation-delay:1.55s">
+              <div class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l8-8h8v8l-8 8z"/><circle cx="15" cy="9" r="1.6" fill="currentColor" stroke="none"/></svg></div>
+              <h4>Agent · Classify</h4><p>Assign document types</p>
+              <span class="rtag">skill · Part 2</span>
+            </div>
+            <div class="rarrow anim" style="animation-name:fadeIn; animation-delay:1.8s">→</div>
+            <div class="rnode r-json2 anim" style="animation-name:popIn; animation-delay:1.95s">
+              <div class="ri">{ }</div>
+              <h4>JSON · expanded</h4><p>+ categories + confidence</p>
+              <span class="rtag">same file ✓</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE RAW-2 — EXTRACT BUILD -->
+      <section class="scene" data-scene="11">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Extract</span><span class="tick"></span> Pass 1 of 2</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">The file writes itself, field by field</h2>
+        <div class="body">
+          <div class="filewrap">
+            <div class="idefile anim" style="animation-name:fadeUp; animation-delay:.25s">
+              <div class="ide-bar">
+                <span class="dot3"><span style="background:#ff6058"></span><span style="background:#ffbd2e"></span><span style="background:#28c840"></span></span>
+                <span class="fn"><b>referral.json</b> — extraction</span>
+                <span class="status writing">writing…</span>
+              </div>
+              <div class="ide-body">
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:.5s"><span class="gut"> </span><span class="code"><span class="jb">{</span></span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:.75s"><span class="gut"> </span><span class="code">  <span class="jk">"patient_name"</span>: <span class="js">"Jordan Rivera"</span>,</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:.98s"><span class="gut"> </span><span class="code">  <span class="jk">"dob"</span>: <span class="js">"09/14/1996"</span>,</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:1.21s"><span class="gut"> </span><span class="code">  <span class="jk">"member_id"</span>: <span class="js">"10562097900"</span>,</span><span class="jconf jc-mid"><span class="cb"><i style="width:88%"></i></span>0.88</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:1.44s"><span class="gut"> </span><span class="code">  <span class="jk">"authorization_number"</span>: <span class="js">"26120C50002"</span>,</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:1.67s"><span class="gut"> </span><span class="code">  <span class="jk">"service_requested"</span>: <span class="js">"Chest CT"</span>,</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:1.9s"><span class="gut"> </span><span class="code">  <span class="jk">"service_code"</span>: <span class="js">"71250"</span>,</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:2.13s"><span class="gut"> </span><span class="code">  <span class="jk">"requesting_provider"</span>: <span class="js">"Dr. Alex Reed"</span>,</span><span class="jconf jc-mid"><span class="cb"><i style="width:90%"></i></span>0.90</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:2.36s"><span class="gut"> </span><span class="code">  <span class="jk">"servicing_provider"</span>: <span class="js">"Regional Health System"</span>,</span><span class="jconf jc-mid"><span class="cb"><i style="width:85%"></i></span>0.85</span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:2.59s"><span class="gut"> </span><span class="code">  <span class="jk">"possible_phi"</span>: <span class="jn">true</span></span></div>
+                <div class="jline anim" style="animation-name:fadeUp; animation-delay:2.82s"><span class="gut"> </span><span class="code"><span class="jb">}</span></span></div>
+              </div>
+            </div>
+            <div class="rail">
+              <div class="rcard anim" style="animation-name:popIn; animation-delay:1.6s">
+                <div class="rbig">42</div>
+                <div class="rlbl">fields captured across all 7 pages</div>
+              </div>
+              <div class="rcard anim" style="animation-name:popIn; animation-delay:1.9s">
+                <div class="rbig green">0.95</div>
+                <div class="rlbl">overall extraction confidence</div>
+              </div>
+              <div class="rnote anim" style="animation-name:fadeIn; animation-delay:2.3s">Every value is stamped with <b>its own confidence score</b> — so the team sees exactly what to trust and what to double-check.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE RAW-3 — CLASSIFY EXPAND -->
+      <section class="scene" data-scene="12">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Classify</span><span class="tick"></span> Pass 2 of 2</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">The same file, expanded in place</h2>
+        <div class="body">
+          <div class="filewrap">
+            <div class="idefile anim" style="animation-name:fadeUp; animation-delay:.25s">
+              <div class="ide-bar">
+                <span class="dot3"><span style="background:#ff6058"></span><span style="background:#ffbd2e"></span><span style="background:#28c840"></span></span>
+                <span class="fn"><b>referral.json</b> — + classification</span>
+                <span class="status expanding">expanding…</span>
+              </div>
+              <div class="ide-body">
+                <div class="jline anim" style="animation-name:fadeIn; animation-delay:.45s"><span class="gut"> </span><span class="code folded">  ▸ 42 extracted fields  (patient, auth, service … from pass 1)</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:.8s"><span class="gut">+</span><span class="code">  <span class="jk">"document_classification"</span>: <span class="jb">{</span></span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:1.0s"><span class="gut">+</span><span class="code">    <span class="jk">"transmission_type"</span>: <span class="js">"Pre-Authorization"</span>,</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:1.2s"><span class="gut">+</span><span class="code">    <span class="jk">"is_composite"</span>: <span class="jn">true</span>,</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:1.4s"><span class="gut">+</span><span class="code">    <span class="jk">"page_classifications"</span>: [</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:1.6s"><span class="gut">+</span><span class="code">      { <span class="jk">"page"</span>:1, <span class="jk">"type"</span>:<span class="js">"Medical Record"</span> },</span><span class="jconf jc-hi"><span class="cb"><i style="width:90%"></i></span>0.90</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:1.8s"><span class="gut">+</span><span class="code">      { <span class="jk">"page"</span>:3, <span class="jk">"type"</span>:<span class="js">"Fax Cover"</span> },</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:2.0s"><span class="gut">+</span><span class="code">      { <span class="jk">"page"</span>:6, <span class="jk">"type"</span>:<span class="js">"Pre-Authorization"</span> },</span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:2.2s"><span class="gut">+</span><span class="code">      <span class="jb">… (7 pages)</span></span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:2.4s"><span class="gut">+</span><span class="code">    ],</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:2.6s"><span class="gut">+</span><span class="code">    <span class="jk">"composite_types"</span>: [<span class="js">"Pre-Auth"</span>,<span class="js">"Med Record"</span>,<span class="js">"Fax Cover"</span>],</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:2.8s"><span class="gut">+</span><span class="code">    <span class="jk">"be_codes"</span>: [<span class="js">"BE-003"</span>,<span class="js">"BE-004"</span>],</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:3.0s"><span class="gut">+</span><span class="code">    <span class="jk">"routing_recommendation"</span>: <span class="js">"Pre-Auth"</span></span><span class="jconf jc-hi"><span class="cb"><i style="width:95%"></i></span>0.95</span></div>
+                <div class="jline anim" style="animation-name:slideR; animation-delay:3.2s"><span class="gut">+</span><span class="code">  <span class="jb">}</span></span></div>
+              </div>
+            </div>
+            <div class="rail">
+              <div class="rcard anim" style="animation-name:popIn; animation-delay:.9s">
+                <div class="diffrow"><span class="b1">fields only</span><span class="arw">→</span><span class="b2">fields + classification</span></div>
+                <div class="rlbl" style="margin-top:10px">One file — the classification is appended, not rewritten.</div>
+              </div>
+              <div class="rcard anim" style="animation-name:popIn; animation-delay:2.4s">
+                <div class="rbig green">0.95</div>
+                <div class="rlbl">classification confidence · per page &amp; per category</div>
+              </div>
+              <div class="rnote anim" style="animation-name:fadeIn; animation-delay:2.9s">The result carries <b>both the data and how to route it</b> — 7 page types, a composite verdict, and BE codes, all in the same JSON.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE INTERACT-1 — DECISION GATE -->
+      <section class="scene" data-scene="i1">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 3.1</span><span class="tick"></span> Phase 3 · Interact</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">Is there actionable data to act on?</h2>
+        <div class="body">
+          <div class="gatewrap">
+            <div class="checklist anim" style="animation-name:fadeUp; animation-delay:.3s">
+              <div class="ci anim" style="animation-name:slideR; animation-delay:.6s"><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span> Patient identity resolved <span class="cx">Name + DOB</span></div>
+              <div class="ci anim" style="animation-name:slideR; animation-delay:.85s"><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span> Actionable document type <span class="cx">Pre-Auth</span></div>
+              <div class="ci anim" style="animation-name:slideR; animation-delay:1.1s"><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span> Confidence above threshold <span class="cx">0.95 ≥ 0.80</span></div>
+              <div class="ci anim" style="animation-name:slideR; animation-delay:1.35s"><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span> PHI handling flagged <span class="cx">true</span></div>
+            </div>
+            <div class="branch">
+              <div class="gate anim" style="animation-name:popIn; animation-delay:.5s">
+                <div class="q">Data of importance present?</div>
+                <div class="sub">All checks must pass to proceed</div>
+              </div>
+              <div class="outcome yes anim" style="animation-name:slideR; animation-delay:1.6s">
+                <div class="oi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div>
+                <div><div class="ot">Yes → proceed to Epic</div><div class="os">Match the patient &amp; file the document</div></div>
+              </div>
+              <div class="outcome no anim" style="animation-name:slideR; animation-delay:1.8s">
+                <div class="oi">✕</div>
+                <div><div class="ot">No → route to Exceptions</div><div class="os">Human review · BE-002 / BE-005</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE INTERACT-2 — EPIC MATCH -->
+      <section class="scene" data-scene="i2">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 3.2</span><span class="tick"></span> Phase 3 · Interact</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">Match the patient in Epic</h2>
+        <div class="body">
+          <div class="epicwrap">
+            <div class="col">
+              <div class="appwin anim" style="animation-name:fadeUp; animation-delay:.25s">
+                <div class="titlebar">
+                  <span class="wdots"><span></span><span></span><span></span></span>
+                  <span class="wname"><b>Epic</b><span> — Patient Lookup</span></span>
+                  <span class="wbot"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="8" width="14" height="10" rx="2"/><rect x="11" y="3" width="2" height="4"/><circle cx="12" cy="3" r="1.6"/></svg> bot</span>
+                </div>
+                <div class="wbody">
+                  <div class="fromtag anim" style="animation-name:fadeIn; animation-delay:.5s">↳ identity from referral.json</div>
+                  <div class="form-line anim" style="animation-name:slideR; animation-delay:.7s"><div class="inp"><span class="lbl">Last, First</span><span class="val">Rivera, Jordan</span></div></div>
+                  <div class="form-line anim" style="animation-name:slideR; animation-delay:.9s"><div class="inp"><span class="lbl">Date of birth</span><span class="val">09/14/1996</span></div></div>
+                  <div class="form-line anim" style="animation-name:slideR; animation-delay:1.1s"><div class="inp"><span class="lbl">Sex</span><span class="val">F</span></div><div class="inp"><span class="lbl">Member ID</span><span class="val">10562097900</span></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="matchcol">
+              <div class="matched-chip anim" style="animation-name:fadeIn; animation-delay:1.5s"><span class="mc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span> 1 exact match on Name + DOB</div>
+              <div class="matchcard anim" style="animation-name:popIn; animation-delay:1.7s">
+                <div class="av">JR</div>
+                <div class="mi"><div class="mname">Jordan A Rivera</div><div class="mmeta">DOB 09/14/1996 · MRN •••••7900</div></div>
+                <div class="mok">Match ✓</div>
+              </div>
+              <div class="rnote anim" style="animation-name:fadeIn; animation-delay:2s">Auto-matched on the extracted identity — no manual patient search.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE INTERACT-3 — MEDIA MANAGER UPLOAD -->
+      <section class="scene" data-scene="i3">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Step 3.3</span><span class="tick"></span> Phase 3 · Interact</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">File it into the patient's Media Manager</h2>
+        <div class="body">
+          <div class="uploadwrap">
+            <div class="col">
+              <div class="appwin anim" style="animation-name:fadeUp; animation-delay:.25s">
+                <div class="titlebar">
+                  <span class="wdots"><span></span><span></span><span></span></span>
+                  <span class="wname"><b>Epic</b><span> — Media Manager · J. Rivera</span></span>
+                </div>
+                <div class="wbody">
+                  <div class="docchip anim" style="animation-name:popIn; animation-delay:.5s">
+                    <div class="dz">PDF<br>7p</div>
+                    <div>
+                      <div class="dn">Referral / Pre-Auth fax</div>
+                      <div class="ds">RIVERA_J_20260430.pdf</div>
+                      <div class="metatags">
+                        <span class="mtag anim" style="animation-name:popIn; animation-delay:.9s">Type <b>Pre-Authorization</b></span>
+                        <span class="mtag anim" style="animation-name:popIn; animation-delay:1.05s">Routing <b>Pre-Auth</b></span>
+                        <span class="mtag anim" style="animation-name:popIn; animation-delay:1.2s"><b>BE-003</b></span>
+                        <span class="mtag anim" style="animation-name:popIn; animation-delay:1.35s"><b>BE-004</b></span>
+                        <span class="mtag anim" style="animation-name:popIn; animation-delay:1.5s">04/30/2026</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="progwrap">
+              <div class="plabel anim" style="animation-name:fadeIn; animation-delay:1.7s">Filing to chart…</div>
+              <div class="progbar anim" style="animation-name:fadeIn; animation-delay:1.7s"><i class="anim" style="animation-name:fillbar; animation-duration:1.8s; animation-delay:1.8s"></i></div>
+              <div class="filed anim" style="animation-name:popIn; animation-delay:3.7s">
+                <div class="fk"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div>
+                <div class="ft">Filed to chart<span>On Jordan's record — tagged &amp; routed, ready to action</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCENE 9 — FINALE -->
+      <section class="scene" data-scene="9">
+        <span class="eyebrow anim" style="animation-name:fadeUp"><span class="step">Complete</span><span class="tick"></span> End to end</span>
+        <h2 class="anim" style="animation-name:fadeUp; animation-delay:.1s">From fax queue to patient chart — in one pass</h2>
+        <div class="body">
+          <div class="finale">
+            <div class="fin-pipe">
+              <div class="fin-st anim" style="animation-name:popIn; animation-delay:.3s">
+                <div class="fc" style="background:linear-gradient(160deg,#0a4a8f,#0061AF)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div>
+                <span class="done-badge">DONE</span>
+                <h4>Find</h4><p>Located in RightFax</p>
+              </div>
+              <div class="fin-arrow anim" style="animation-name:fadeIn; animation-delay:.55s">→</div>
+              <div class="fin-st anim" style="animation-name:popIn; animation-delay:.7s">
+                <div class="fc" style="background:linear-gradient(160deg,#0061AF,#2a86d6)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div>
+                <span class="done-badge">DONE</span>
+                <h4>Process</h4><p>Extracted &amp; classified</p>
+              </div>
+              <div class="fin-arrow anim" style="animation-name:fadeIn; animation-delay:.95s">→</div>
+              <div class="fin-st anim" style="animation-name:popIn; animation-delay:1.1s">
+                <div class="fc" style="background:linear-gradient(160deg,#0061AF,#00A0C6)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div>
+                <span class="done-badge">DONE</span>
+                <h4>Interact</h4><p>Matched &amp; filed in Epic</p>
+              </div>
+            </div>
+            <div class="fin-sum anim" style="animation-name:fadeUp; animation-delay:1.5s">
+              One 7-page fax — <b>found</b>, <b>read</b>, and <b>classified</b> with confidence, then <b>matched</b> to Jordan's chart and <b>filed</b> in Media Manager. No manual transcription, with a confidence score behind every step.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ================= CAPTION ================= -->
+  <div class="caption">
+    <div class="cap-step" id="capStep">00</div>
+    <div class="cap-text" id="capText"></div>
+  </div>
+
+  <!-- ================= CONTROLS ================= -->
+  <div class="controls">
+    <button class="btn" id="btnReplay" title="Restart (R)" aria-label="Restart">
+      <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 11-5 5H5a7 7 0 107-7z"/></svg>
+    </button>
+    <button class="btn" id="btnPrev" title="Previous (←)" aria-label="Previous scene">
+      <svg viewBox="0 0 24 24"><path d="M6 4h2v16H6zM20 4L9 12l11 8z"/></svg>
+    </button>
+    <button class="btn play" id="btnPlay" title="Play / Pause (Space)" aria-label="Play or pause">
+      <svg id="icoPlay" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+      <svg id="icoPause" viewBox="0 0 24 24" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    </button>
+    <button class="btn" id="btnNext" title="Next (→)" aria-label="Next scene">
+      <svg viewBox="0 0 24 24"><path d="M16 4h2v16h-2zM4 4l11 8L4 20z"/></svg>
+    </button>
+    <div class="timeline">
+      <div class="dots" id="dots"></div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+    </div>
+    <div class="clock" id="clock">0:00 / 0:00</div>
+  </div>
+
+  <div class="footnote">
+    <span><b>Referral Transcription</b> · end-to-end walkthrough · Example: Jordan Rivera — Chest CT prior-auth (7-page composite fax)</span>
+    <span>AI &amp; Automation — Reference Walkthrough</span>
+  </div>
+</div>
+
+<script>
+(function(){
+  // dropPulse keyframe (defined here to keep CSS block focused)
+  const style = document.createElement('style');
+  style.textContent = "@keyframes dropPulse{0%{top:0;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:100%;opacity:0}}";
+  document.head.appendChild(style);
+
+  const SCENES = [
+    { step:"OVER", dur:9,  cap:"This referral runs through three phases — <b>Find</b>, <b>Process</b>, <b>Interact</b>. We'll follow one fax through all three, from the RightFax queue to the patient's chart." },
+    { step:"1.1",  dur:9,  cap:"<b>Phase 1 — Find.</b> An unattended bot signs into <b>RightFax</b> and scans the inbound queue, locating the new 7-page fax from Riverbend Urgent Care." },
+    { step:"1.2",  dur:8.5,cap:"The bot retrieves the fax as a PDF and drops it into the monitored <b>Inbound Faxes</b> folder — the trigger that starts Phase 2." },
+    { step:"2.1",  dur:9.5,  cap:"A <b>7-page fax</b> arrives from Riverbend Urgent Care — patient records, a prior-auth approval, and a cover sheet, all bundled together and unread." },
+    { step:"2.2",  dur:9,    cap:"Desktop automation sweeps the <b>Inbound Faxes</b> folder, gathers every PDF, and builds a work list — no one opens files by hand." },
+    { step:"2.3",  dur:8.5,  cap:"A <b>Power Automate</b> flow fires the AI prompt against the fax, then stands ready to parse the structured result it returns." },
+    { step:"2.4",  dur:10,   cap:"An <b>agentic document-intelligence</b> model reads every page visually — guided by a custom skill that tells it exactly what to capture and how to classify it." },
+    { step:"2.5",  dur:11,   cap:"Every field — typed, handwritten, or blank — becomes structured data. Each value carries a <b>confidence score</b>, so the team knows what to trust and what to double-check." },
+    { step:"2.6",  dur:9.5,  cap:"The agent classifies <b>each page on its own</b> — by the combination of signals it sees, not a single keyword — the way an experienced scheduling clerk would." },
+    { step:"2.7",  dur:10,   cap:"The bundle is flagged <b>composite</b>. Every type is preserved with its routing code — the pre-auth, the records, and the cover each go where they belong. Nothing is silently dropped." },
+    { step:"2.8",  dur:10,   cap:"The result is <b>one structured JSON</b> — normalized patient and authorization data, a full classification, a 95% overall confidence, and an automatic PHI flag." },
+    { step:"PIPELINE", act:"raw", dur:9.5, cap:"Under the hood it's one clean chain: the fax runs through the agent's <b>Extract</b> instruction to become a JSON of every field, then the <b>same file</b> passes the <b>Classify</b> instruction and comes back expanded with document categories." },
+    { step:"EXTRACT",  act:"raw", dur:11,  cap:"Pass one — <b>Extract</b>. The agent writes each field into <b>referral.json</b>, one line at a time, and stamps every value with its own confidence score." },
+    { step:"CLASSIFY", act:"raw", dur:12,  cap:"Pass two — <b>Classify</b>. The <b>same file</b> is expanded in place: a classification block is appended — page types, the composite verdict, and routing codes — each category with its own confidence." },
+    { step:"3.1", dur:9.5, cap:"<b>Phase 3 — Interact.</b> A gate checks the extract: is the patient resolved, the type actionable, and confidence above threshold? All pass, so the workflow proceeds — otherwise it routes to a human exceptions queue." },
+    { step:"3.2", dur:9.5, cap:"Using the extracted identity, the automation searches <b>Epic</b> and matches Jordan's chart on name and date of birth — no manual patient lookup." },
+    { step:"3.3", dur:10,  cap:"The source fax is filed into the patient's <b>Media Manager</b>, tagged with its type and routing codes — now on the chart and ready to action." },
+    { step:"DONE", dur:11,  cap:"End to end: a fax in the RightFax queue becomes a classified, filed document on the patient's chart — with a confidence score behind every step." }
+  ];
+
+  const stage   = document.getElementById('stage');
+  const scenes  = Array.from(stage.querySelectorAll('.scene'));
+  const capStep = document.getElementById('capStep');
+  const capText = document.getElementById('capText');
+  const fill    = document.getElementById('fill');
+  const clock   = document.getElementById('clock');
+  const dotsWrap= document.getElementById('dots');
+  const btnPlay = document.getElementById('btnPlay');
+  const icoPlay = document.getElementById('icoPlay');
+  const icoPause= document.getElementById('icoPause');
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced) document.getElementById('player').classList.add('reduced');
+
+  const phasePills = Array.from(document.querySelectorAll('.phase'));
+  function phaseOf(step){
+    if(step[0]==='1') return 'find';
+    if(step[0]==='3') return 'interact';
+    if(step==='OVER' || step==='DONE') return 'all';
+    return 'process';
+  }
+
+  const total = SCENES.reduce((s,x)=>s+x.dur,0);
+  let idx = 0, playing = false, sceneStart = 0, raf = null, elapsedBefore = 0;
+
+  // build dots
+  const LBL = {OVER:'Overview', DONE:'End to end', PIPELINE:'Raw pipeline', EXTRACT:'Extract → JSON', CLASSIFY:'Classify → JSON',
+               '1.1':'Find · RightFax', '1.2':'Find · retrieve', '3.1':'Interact · gate', '3.2':'Interact · Epic', '3.3':'Interact · file'};
+  let prevPhase = null;
+  SCENES.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.className = 'dot'; b.setAttribute('aria-label','Go to scene '+(i+1));
+    const ph = phaseOf(s.step);
+    if(i>0 && ph !== prevPhase && ph !== 'all' && prevPhase !== 'all') b.classList.add('sep');
+    prevPhase = ph;
+    const tip = LBL[s.step] || ('Step '+s.step);
+    b.innerHTML = '<span class="d"></span><span class="tip">'+tip+'</span>';
+    b.addEventListener('click', ()=>{ go(i); });
+    dotsWrap.appendChild(b);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function fmt(t){ t=Math.max(0,Math.floor(t)); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+
+  function renderScene(){
+    scenes.forEach((sec,i)=>{
+      if(i===idx){
+        // force restart of child animations
+        sec.classList.remove('is-active');
+        void sec.offsetWidth;
+        sec.classList.add('is-active');
+      } else {
+        sec.classList.remove('is-active');
+      }
+    });
+    capStep.textContent = SCENES[idx].step;
+    capText.innerHTML = SCENES[idx].cap;
+    dots.forEach((d,i)=>{ d.classList.toggle('active', i===idx); d.classList.toggle('done', i<idx); });
+    const ph = phaseOf(SCENES[idx].step);
+    phasePills.forEach(p=> p.classList.toggle('active', ph==='all' || p.dataset.phase===ph));
+  }
+
+  function go(i){
+    idx = (i+SCENES.length) % SCENES.length;
+    elapsedBefore = SCENES.slice(0,idx).reduce((s,x)=>s+x.dur,0);
+    sceneStart = performance.now();
+    renderScene();
+    updateProgress(0);
+    if(playing) loop();
+  }
+
+  function updateProgress(sceneElapsed){
+    const done = elapsedBefore + Math.min(sceneElapsed, SCENES[idx].dur);
+    fill.style.width = (done/total*100)+'%';
+    clock.textContent = fmt(done)+' / '+fmt(total);
+  }
+
+  function loop(){
+    cancelAnimationFrame(raf);
+    const tick = ()=>{
+      const e = (performance.now()-sceneStart)/1000;
+      updateProgress(e);
+      if(e >= SCENES[idx].dur){
+        if(idx === SCENES.length-1){ pause(); go(idx); pause(); return; }
+        idx++; elapsedBefore += SCENES[idx-1].dur; sceneStart = performance.now();
+        renderScene();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play(){
+    if(idx===SCENES.length-1 && (performance.now()-sceneStart)/1000 >= SCENES[idx].dur){ go(0); }
+    playing = true; sceneStart = performance.now() - 0;
+    // resume from current visual position
+    const alreadyPct = (parseFloat(fill.style.width)||0)/100*total - elapsedBefore;
+    sceneStart = performance.now() - Math.max(0, alreadyPct)*1000;
+    icoPlay.style.display='none'; icoPause.style.display='block';
+    loop();
+  }
+  function pause(){
+    playing = false; cancelAnimationFrame(raf);
+    icoPlay.style.display='block'; icoPause.style.display='none';
+  }
+  function toggle(){ playing ? pause() : play(); }
+
+  btnPlay.addEventListener('click', toggle);
+  document.getElementById('btnNext').addEventListener('click', ()=>{ go(idx+1); });
+  document.getElementById('btnPrev').addEventListener('click', ()=>{ go(idx-1); });
+  document.getElementById('btnReplay').addEventListener('click', ()=>{ go(0); if(!playing) pause(); });
+
+  document.addEventListener('keydown', e=>{
+    if(e.code==='Space'){ e.preventDefault(); toggle(); }
+    else if(e.code==='ArrowRight'){ go(idx+1); }
+    else if(e.code==='ArrowLeft'){ go(idx-1); }
+    else if(e.key==='r'||e.key==='R'){ go(0); }
+  });
+
+  // init
+  renderScene();
+  updateProgress(0);
+  if(!reduced){ setTimeout(play, 500); }
+})();
+</script>
+</body>
+</html>
